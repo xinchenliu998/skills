@@ -1,0 +1,94 @@
+{
+  "skill_name": "xamlbehaviors-wpf-mvvm",
+  "evals": [
+    {
+      "id": 1,
+      "name": "event-to-command-basic",
+      "prompt": "我的 WPF 项目已经装了 Microsoft.Xaml.Behaviors.Wpf。现在有个按钮保存数据，写的是 code-behind 事件：\\nXAML：`<Button x:Name=\"SaveBtn\" Click=\"SaveBtn_Click\" Content=\"保存\"/>`\\ncode-behind：`private void SaveBtn_Click(object sender, RoutedEventArgs e) { ((MainViewModel)DataContext).Save(); }`\\n我想彻底不写事件，把它改成声明式的 MVVM 绑定，让 ViewModel 和 View 彼此无感。请给我：1) 改好的 XAML（用 Interaction.Triggers + EventTrigger + InvokeCommandAction 绑定到 ICommand），2) ViewModel 里对应命令的写法（用框架中立的 RelayCommand，不要用第三方 MVVM 库），3) 告诉我 code-behind 那个 SaveBtn_Click 方法可以删掉。",
+      "expected_output": "XAML 用 <i:Interaction.Triggers><i:EventTrigger EventName=\"Click\"><i:InvokeCommandAction Command=\"{Binding SaveCommand}\"/></i:EventTrigger></i:Interaction.Triggers> 替换 Click 事件；ViewModel 提供 public ICommand SaveCommand，用 RelayCommand 包一个 Save() 方法；明确说明 code-behind 的 SaveBtn_Click 可删除。View 无类型引用、VM 无 View 引用。",
+      "files": [],
+      "expectations": [
+        "XAML 用 Interaction.Triggers + EventTrigger EventName=\"Click\" 替代按钮的 Click 事件属性",
+        "触发器内用 InvokeCommandAction 绑定到 Command=\"{Binding SaveCommand}\"",
+        "按钮不再有 Click=\"...\" 事件处理器（仅 EventTrigger 的 EventName）",
+        "ViewModel 暴露 ICommand SaveCommand",
+        "ViewModel 用框架中立的 RelayCommand（无第三方 MVVM 库）",
+        "说明 code-behind 的 SaveBtn_Click 方法可删除",
+        "VM 未引入 RoutedEventArgs/sender/View 类型引用"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "command-parameter-marshaling",
+      "prompt": "我的 WPF 窗口有个搜索：一个 `TextBox x:Name=\"SearchBox\"` 和一个“搜索”按钮。点按钮要拿文本框里的关键词去搜索。我想用 XamlBehaviorsWpf 的 InvokeCommandAction，把关键词作为 CommandParameter 传给命令，别用事件、别把 TextBox 或事件参数 e 传进 ViewModel，保持 VM/V 无感。请给我：1) 可用的 XAML（Interaction.Triggers + EventTrigger + InvokeCommandAction + CommandParameter 绑定 SearchBox.Text），2) ViewModel 的带参数命令（框架中立的 RelayCommand<T>，无第三方库），3) 简单说明为什么传值而不是传控件/事件对象。",
+      "expected_output": "CommandParameter=\"{Binding Text, ElementName=SearchBox}\" 传的是 string 而非控件或 RoutedEventArgs；ViewModel 提供 RelayCommand<string> SearchCommand；解释传值保持 VM 无感。",
+      "files": [],
+      "expectations": [
+        "XAML 用 Interaction.Triggers + EventTrigger + InvokeCommandAction",
+        "CommandParameter 用 ElementName 绑定 SearchBox.Text，传的是 string 值",
+        "ViewModel 用带参数命令 RelayCommand<T>（或接收 string 的 ICommand）",
+        "未把 TextBox/RoutedEventArgs 传入 ViewModel",
+        "解释为何传值而非传控件/事件对象以保持 VM 解耦"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "datastate-behavior-empty-state",
+      "prompt": "我有一个 WPF 窗口，ViewModel 里有个集合属性 `Items`。当 `Items` 为空时界面要显示“暂无数据”的空状态，否则显示列表。我想用 XamlBehaviorsWpf 的 DataStateBehavior + VisualState，让 ViewModel 完全不知道界面状态，不写 code-behind 事件、也不要在 View 里用 if 判断。请给出：1) View 的 XAML——一个承载两个 VisualState（Empty/Normal）的元素挂上 Interaction.Behaviors 的 DataStateBehavior（Binding 绑定 Items 数量、Value=\"0\"、TrueState=\"Empty\"、FalseState=\"Normal\"），2) ViewModel 需要暴露什么（属性即可），3) 说明为何 ViewModel 无需知道状态存在。",
+      "expected_output": "XAML 用 <i:DataStateBehavior Binding=\"{Binding Items.Count}\" Value=\"0\" TrueState=\"Empty\" FalseState=\"Normal\"/> 挂在含 VisualStateGroup 的元素上；ViewModel 只暴露 Items 集合（实现 INotifyPropertyChanged 即可），状态名仅存于 View。",
+      "files": [],
+      "expectations": [
+        "XAML 在 Interaction.Behaviors 里用 DataStateBehavior",
+        "DataStateBehavior 绑定 Items 数量，Value=\"0\"，TrueState=\"Empty\"，FalseState=\"Normal\"",
+        "XAML 定义了含 Empty 和 Normal 状态的 VisualState",
+        "ViewModel 暴露 Items 集合属性",
+        "没有 code-behind 事件处理器或 View 侧 if/Visibility 代码切换状态",
+        "解释 ViewModel 无需知道界面状态存在"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "condition-behavior-nested",
+      "prompt": "我的 WPF 窗口里有一个“删除所选”按钮。需求：只有同时满足 ①列表里选中了某一项（SelectedItem != null）②且一个“确认删除”CheckBox 勾选了（IsConfirmed == true）两个条件时，点击才执行删除命令。我想用 XamlBehaviorsWpf 的 ConditionBehavior + ConditionalExpression（AndCondition 内嵌两个 ComparisonCondition）在 Click 触发器上做声明式拦截，不要在 ViewModel 里额外写 CanExecute 判断，也不要写 code-behind。请给出完整 XAML（把 ConditionBehavior 放在 EventTrigger 的 Interaction.Behaviors 里，AndCondition 包住两个 ComparisonCondition：一个用 ComparisonOperator 判断 SelectedItem!=null，一个判断 IsConfirmed==True），并用中文简要说明每个部件(Interaction.Behaviors/ConditionalExpression/AndCondition/ComparisonCondition/ComparisonOperator)的作用。框架中立。",
+      "expected_output": "EventTrigger 内嵌 Interaction.Behaviors -> ConditionBehavior -> ConditionalExpression 包裹 AndCondition，其内含两个 ComparisonCondition（一个 LeftOperand={Binding SelectedItem} RightOperand=null / ComparisonOperator=NotEqual；一个比较 IsConfirmed==True）。用 InvokeCommandAction 绑定 DeleteCommand 被条件拦截。",
+      "files": [],
+      "expectations": [
+        "XAML 用 EventTrigger + ConditionBehavior，且 ConditionBehavior 放在 Trigger 的 Interaction.Behaviors 里",
+        "用 ConditionalExpression 包裹条件",
+        "用 AndCondition 内嵌两个 ComparisonCondition",
+        "ComparisonCondition 使用 LeftOperand/RightOperand/ComparisonOperator 判断非空与布尔",
+        "有 InvokeCommandAction 绑定 DeleteCommand 被条件拦截",
+        "说明拦截在 View 层（不在 ViewModel 写 CanExecute 判断）"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "custom-behavior-t",
+      "prompt": "我想写一个自定义的 XamlBehaviors 行为：用户双击 ListBox 中某一项时，执行 ViewModel 指定的命令。请用 Microsoft.Xaml.Behaviors.Wpf 的 Behavior<T> 写一个 ItemDoubleClickBehavior：继承 Behavior<ListBox>，暴露一个可绑定的 Command（类型 ICommand，用 DependencyProperty.Register 注册），在 OnAttached 里用 AssociatedObject 订阅 MouseDoubleClick，在 OnDetaching 里退订（避免内存泄漏），触发时把 AssociatedObject.SelectedItem 作为参数传给命令。再给出在 XAML 里如何把它挂到 ListBox 的 Interaction.Behaviors 上，并用 {Binding} 绑定命令。中文，框架中立（不依赖第三方 MVVM 库）。",
+      "expected_output": "class ItemDoubleClickBehavior : Behavior<ListBox>，用 DependencyProperty.Register 注册 ICommand Command DP；OnAttached 订阅 AssociatedObject.MouseDoubleClick；OnDetaching 退订；触发时 Command?.Execute(AssociatedObject.SelectedItem)。XAML 用 i:Interaction.Behaviors + local:ItemDoubleClickBehavior Command=\"{Binding OpenItemCommand}\"。",
+      "files": [],
+      "expectations": [
+        "类继承 Behavior<ListBox>（泛型 Behavior<T>）",
+        "用 DependencyProperty.Register 暴露 ICommand 类型的 Command（可绑定）",
+        "OnAttached 里用 AssociatedObject 订阅 MouseDoubleClick",
+        "OnDetaching 里退订 MouseDoubleClick（防泄漏）",
+        "触发时把 AssociatedObject.SelectedItem 作为参数传给 Command",
+        "XAML 用 Interaction.Behaviors + 自定义行为类，并 {Binding} 绑定 Command"
+      ]
+    },
+    {
+      "id": 6,
+      "name": "keytrigger-shortcut",
+      "prompt": "我的 WPF 窗口有个“保存”按钮，我想给窗口加一个 Ctrl+S 快捷键也触发同样的保存命令。请用 XamlBehaviorsWpf 的 KeyTrigger（而不是 WPF 原生 InputBindings / code-behind KeyDown 事件）实现：在窗口的 Interaction.Triggers 里放一个 KeyTrigger，Key=\"S\"、Modifiers=\"Ctrl\"，触发 InvokeCommandAction 绑定到 ViewModel 的 SaveCommand。请给出完整 XAML（含 xmlns:i 命名空间与触发器的正确挂载位置），并用中文说明 KeyTrigger 属于触发器、与 InputBindings 的区别。框架中立。",
+      "expected_output": "Window 上放 i:Interaction.Triggers，内含 KeyTrigger Key=\"S\" Modifiers=\"Ctrl\"，包 InvokeCommandAction Command=\"{Binding SaveCommand}\"；说明 KeyTrigger 是 XamlBehaviors 触发器，与 InputBindings/KeyBinding 的区别。",
+      "files": [],
+      "expectations": [
+        "用 KeyTrigger（而非 InputBindings / code-behind KeyDown）",
+        "KeyTrigger 设置 Key=\"S\" 且 Modifiers 含 Ctrl",
+        "KeyTrigger 内用 InvokeCommandAction 绑定 SaveCommand",
+        "触发器挂在正确的元素（如 Window 的 Interaction.Triggers）上",
+        "说明 KeyTrigger 与 InputBindings 的区别"
+      ]
+    }
+  ]
+}
