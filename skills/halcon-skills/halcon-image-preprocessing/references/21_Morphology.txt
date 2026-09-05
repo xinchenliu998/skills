@@ -1,0 +1,3217 @@
+
+
+----- [page 2185] -----
+Chapter 21
+Morphology
+21.1
+Gray Values
+This chapter describes operators of gray value morphology.
+Concept of Gray Value Morphology
+Gray value morphology provides a set of operators that allow the non-linear manipulation of gray values in an
+image, depending on their pixel neighborhood. For instance, morphological gray value operators can be used
+to smooth or emphasize structural features in images. Unlike the binary operations in Morphology / Region,
+morphological gray value operators deal with input images that contain pixels with a range of more than one
+bit. Therefore gray value morphology can be seen as a generalization of region morphology. In the following
+paragraphs, we will take a closer look at the morphological gray value operators.
+Dilation and Erosion of a Grayscale Image
+To perform a dilation or erosion, each pixel of the image is assigned a gray value depending on its neighborhood.
+Area and shape of the neighborhood affecting each pixel are deﬁned by the chosen structuring element with the
+current pixel being the reference point. Implementing a dilation, every pixel of the input image is assigned the
+maximum gray value of its neighborhood, respectively the minimum gray value for an erosion. Accordingly,
+bright areas of the input image are enlarged by gray value dilation, whereas gray value erosion emphasizes dark
+areas.
+(1)
+(2)
+(3)
+(4)
+(1) Original gray value image, (2) structuring element with reference point in the origin, (3) result of eroding the
+input image, (4) result of dilating the input image.
+These operators can be used to dilate or erode an image:
+Morphological Operator
+Structuring Element
+gray_dilation
+gray_erosion
+arbitrary
+gray_dilation_rect
+gray_erosion_rect
+rectangular
+gray_dilation_shape
+gray_erosion_shape
+rhombus/rectangle/octagon
+2137
+
+
+----- [page 2186] -----
+2138
+CHAPTER 21 MORPHOLOGY
+Morphological grayscale operations are often part of the preprocessing of images before information can be ex-
+tracted properly. The following example displays a case where a gray value erosion is necessary to read 2D code
+symbols. In order to ﬁt a 2d code model used for decoding, the gaps between the code elements in the image need
+to be reduced by enlarging local minima in a square shape. Therefore a gray value erosion is performed, using an
+adequately sized rectangle as the structuring element. The rectangle size depends on the 2D code model created
+with create_data_code_2d_model, where the acceptable module gap size is determined.
+(1)
+(2)
+(3)
+(1) Image of coded object, (2) erosion with square structuring element, (3) applying 2D code model for decoding.
+These images are from the example program 2d_data_codes_minimize_module_gaps.hdev.
+Opening and Closing
+Gray value opening and gray value closing operators each are a combination of the operators explained above.
+Closing is a dilation followed by an erosion, while for an opening an erosion precedes a dilation operation. As
+seen in the example images, gray_closing reduces or even removes parts of the image that are darker than their
+neighborhood whereas gray_opening reduces lighter areas. Furthermore, using a suited structuring element
+you can preserve shapes while removing unwanted image artifacts.
+(1)
+(2)
+(3)
+(4)
+(1) Original gray value image, (2) structuring element with reference point in the origin, (3) result of closing the
+input image, (4) result of opening the input image.
+Further Operators
+To take a closer look at areas that are affected by gray value opening or closing, you can perform a gray_tophat
+or gray_bothat transformation. The resulting image displays the difference between the original image and
+the opening respectively closing of an image. You can also use these operators to detect structures that match the
+shape of the structuring element.
+The gray_range_rect operator gives you the opportunity to detect ﬁne structures on homogeneous surfaces
+by visualizing the extent of local variations in pixel values.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2187] -----
+21.1. GRAY VALUES
+2139
+(1)
+(2)
+(3)
+(1) Top hat, (2) bottom hat, (3) gray value range.
+By applying the gray_range_rect operator you can perform a mitigated form of a gray value opening or
+closing operation. You can control the transformation by adjusting the parameter ModePercent.
+(1)
+(2)
+(3)
+(4)
+(5)
+Dual rank operations: (1) ModePercent = 0 (equals opening), (2) ModePercent = 25, (3) ModePercent = 50
+(equals median), (4) ModePercent = 75, (5) ModePercent = 100 (equals closing).
+Glossary
+In the following list, the most important terms that are used in the context of Morphology are described.
+non-linear operator Operator which does not necessarily preserve structures of the input image
+structuring element Region which is used to scan the input image.
+dual_rank ( Image :
+ImageRank :
+MaskType,
+Radius,
+ModePercent,
+Margin :
+)
+Opening, Median and Closing with circle or rectangle mask.
+The operator dual_rank carries out a non-linear transformation of the gray values of all input images (Image).
+Circles or squares can be used as structuring elements. The operator dual_rank effects two consecutive calls of
+rank_image. At the ﬁrst call the range gray value is calculated with the indicated range (ModePercent).
+The result of this calculation is the input of a further call of rank_image, this time using the range value
+100−ModePercent.
+When ﬁltering different parameters for border treatment (Margin) can be chosen:
+gray value Pixels outside of the image border are assumed to be constant (with the indicated gray value).
+’continued’ Continuation of the gray values at the image border.
+’cyclic’ Cyclic continuation at the image borders.
+’mirrored’ Reﬂection of pixels at the image borders.
+HALCON 26.05.0.0
+
+
+----- [page 2188] -----
+2140
+CHAPTER 21 MORPHOLOGY
+A range ﬁltering is calculated according to the following scheme: The indicated mask is put over the image to be
+ﬁltered in such a way that the center of the mask touches all pixels once. For each of these pixels all neighboring
+pixels covered by the mask are sorted in an ascending sequence corresponding to their gray values. Each sorted
+sequence of gray values contains the same number of gray values like the mask has image points. The n-th highest
+element, (= ModePercent, rank values between 0...100 in percent) is selected and set as result gray value in the
+corresponding result image.
+If ModePercent is 0, then the operator equals to the gray value opening (gray_opening). If ModePercent
+is 50, the operator results in the median ﬁlter, which is applied twice (median_image). The ModePercent 100
+in dual_rank means that it calculates the gray value closing (gray_closing). Choosing parameter values
+inside this range results in a smooth transformation of these operators.
+For an explanation of the concept of smoothing ﬁlters see the introduction of chapter Filters / Smoothing.
+Attention
+Note that ﬁlter operators may return unexpected results if an image with a reduced domain is used as input. Please
+refer to the chapter Filters.
+Parameters
+▷Image (input_object) . . . . . . . . . . . . . . . (multichannel-)image(-array) ; object : byte / int2 / uint2 / int4 / real
+Image to be ﬁltered.
+▷ImageRank (output_object) . . . . . . . . . . multichannel-image(-array) ; object : byte / int2 / uint2 / int4 / real
+Filtered Image.
+▷MaskType (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .string ; string
+Shape of the mask.
+Default: ’circle’
+List of values: MaskType ∈{’circle’, ’square’}
+▷Radius (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer ; integer
+Radius of the ﬁlter mask.
+Default: 1
+Suggested values: Radius ∈{1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 15, 19, 25, 31, 39, 47, 59}
+Value range: 1 ≤Radius ≤101
+Minimum increment: 1
+Recommended increment: 2
+▷ModePercent (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer ; integer
+Filter Mode: 0 corresponds to a gray value opening , 50 corresponds to a median and 100 to a gray values
+closing.
+Default: 10
+Suggested values: ModePercent ∈{0, 2, 5, 10, 15, 20, 40, 50, 60, 80, 85, 90, 95, 98, 100}
+Value range: 0 ≤ModePercent ≤100
+Minimum increment: 1
+Recommended increment: 2
+▷Margin (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string / integer / real
+Border treatment.
+Default: ’mirrored’
+Suggested values: Margin ∈{’mirrored’, ’cyclic’, ’continued’, 0, 30, 60, 90, 120, 150, 180, 210, 240, 255}
+Example
+read_image(Image,'fabrik')
+dual_rank(Image,ImageOpening,'circle',10,10,'mirrored')
+dev_display(ImageOpening)
+Complexity
+For each pixel: O(
+√
+F ∗10) with F = area of the structuring element.
+Result
+If the parameter values are correct the operator dual_rank returns the value 2 (H_MSG_TRUE).
+The
+behavior
+in
+case
+of
+empty
+input
+(no
+input
+images
+available)
+is
+set
+via
+the
+operator
+set_system(’no_object_result’,<Result>). If necessary an exception is raised.
+Execution Information
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2189] -----
+21.1. GRAY VALUES
+2141
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Automatically parallelized on tuple level.
+• Automatically parallelized on channel level.
+• Automatically parallelized on domain level.
+Possible Predecessors
+read_image
+Possible Successors
+threshold, dyn_threshold, sub_image, regiongrowing
+Alternatives
+rank_image, gray_closing, gray_opening, median_image
+See also
+gen_circle, gen_rectangle1, gray_erosion_rect, gray_dilation_rect, sigma_image
+References
+W. Eckstein, O. Munkelt “Extracting Objects from Digital Terrain Model” Remote Sensing and Reconstruction for
+Threedimensional Objects and Scenes, SPIE Symposium on Optical Science, Engeneering, and Instrumentation,
+July 1995, San Diego
+Module
+Foundation
+gen_disc_se ( :
+SE : Type,
+Width,
+Height,
+Smax :
+)
+Generate ellipsoidal structuring elements for gray morphology.
+gen_disc_se generates an ellipsoidal structuring element (SE) for gray morphology of images. The parameter
+Type determines the image type. It must match the image type of the image to be processed in subsequent operator
+calls using this structuring element. The parameters Width and Height determine the length of the two major
+axes of the ellipse. The value of Smax determines the maximum gray value of the structuring element. For the
+generation of arbitrary structuring elements, see read_gray_se. The structuring element can be saved as image
+with the help of the operator write_image. However, take care to use an image format that supports alpha
+channels to save the shape of the structuring element such as ’tiff’, ’jp2’ or ’png’. These ﬁles can then be loaded
+again with the operator read_image.
+Parameters
+▷SE (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . image ; object : byte / uint2 / real
+Generated structuring element.
+▷Type (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+Pixel type.
+Default: ’byte’
+List of values: Type ∈{’byte’, ’uint2’, ’real’}
+▷Width (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .integer ; integer
+Width of the structuring element.
+Default: 5
+Suggested values: Width ∈{0, 1, 2, 3, 4, 5, 10, 15, 20}
+Value range: 0 ≤Width ≤511 (lin)
+Minimum increment: 1
+Recommended increment: 1
+▷Height (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer ; integer
+Height of the structuring element.
+Default: 5
+Suggested values: Height ∈{0, 1, 2, 3, 4, 5, 10, 15, 20}
+Value range: 0 ≤Height ≤511 (lin)
+Minimum increment: 1
+Recommended increment: 1
+HALCON 26.05.0.0
+
+
+----- [page 2190] -----
+2142
+CHAPTER 21 MORPHOLOGY
+▷Smax (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . number ; real / integer
+Maximum gray value of the structuring element.
+Default: 0
+Suggested values: Smax ∈{0, 1, 2, 5, 10, 20, 30, 40}
+Result
+gen_disc_se returns 2 (H_MSG_TRUE) if all parameters are correct. If necessary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Successors
+gray_erosion, gray_dilation, gray_opening, gray_closing, gray_tophat, gray_bothat,
+write_image
+Alternatives
+read_gray_se, read_image
+See also
+paint_region, paint_gray, crop_part
+Module
+Foundation
+gray_bothat ( Image,
+SE : ImageBotHat :
+:
+)
+Perform a gray value bottom hat transformation on an image.
+gray_bothat applies a gray value bottom hat transformation to the input image Image with the structuring
+element SE. The image type of the structuring element SE must match the image type of the input image Image.
+The gray value bottom hat transformation of an image i with a structuring element s is deﬁned as
+bothat(i, s) = (i • s) −i,
+i.e., the difference of the closing of the image with s and the image (see gray_closing). For the generation of
+structuring elements, see read_gray_se.
+The gray value erosion is particularly fast for ﬂat structuring elements, i.e. structuring elements with a constant
+gray level within their domain.
+Parameters
+▷Image (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . (multichannel-)image(-array) ; object : byte / uint2 / real
+Input image.
+▷SE (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . singlechannelimage ; object : byte / uint2 / real
+Structuring element.
+▷ImageBotHat (output_object) . . . . . . . . . . . . . . . . (multichannel-)image(-array) ; object : byte / uint2 / real
+Bottom hat image.
+Result
+gray_bothat returns 2 (H_MSG_TRUE) if the structuring element is not the empty region. Otherwise, an
+exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Automatically parallelized on tuple level.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2191] -----
+21.1. GRAY VALUES
+2143
+• Automatically parallelized on channel level.
+• Automatically parallelized on internal data level.
+Possible Predecessors
+read_gray_se, gen_disc_se, read_image
+Possible Successors
+threshold
+Alternatives
+gray_closing
+See also
+gray_tophat, top_hat, gray_erosion_rect, sub_image
+Module
+Foundation
+gray_closing ( Image,
+SE : ImageClosing :
+:
+)
+Perform a gray value closing on an image.
+gray_closing applies a gray value closing to the input image Image with the structuring element SE. The
+image type of the structuring element SE must match the image type of the input image Image. The gray value
+closing of an image i with a structuring element s is deﬁned as
+i • s = (i ⊕s) ⊖˘s ,
+i.e., a dilation of the image with s followed by an erosion with the transposed structuring element (see
+gray_dilation and gray_erosion). For the generation of structuring elements, see read_gray_se.
+The gray value closing is particularly fast for ﬂat structuring elements, i.e., structuring elements with a constant
+gray level within their domain.
+Parameters
+▷Image (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . (multichannel-)image(-array) ; object : byte / uint2 / real
+Input image.
+▷SE (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . singlechannelimage ; object : byte / uint2 / real
+Structuring element.
+▷ImageClosing (output_object) . . . . . . . . . . . . . . . (multichannel-)image(-array) ; object : byte / uint2 / real
+Gray-closed image.
+Result
+gray_closing returns 2 (H_MSG_TRUE) if the structuring element is not the empty region. Otherwise, an
+exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Automatically parallelized on tuple level.
+• Automatically parallelized on channel level.
+• Automatically parallelized on internal data level.
+Possible Predecessors
+read_gray_se, gen_disc_se, read_image
+Alternatives
+dual_rank, gray_closing_rect, gray_closing_shape
+See also
+closing, gray_dilation, gray_erosion
+Module
+Foundation
+HALCON 26.05.0.0
+
+
+----- [page 2192] -----
+2144
+CHAPTER 21 MORPHOLOGY
+gray_closing_rect ( Image :
+ImageClosing :
+MaskHeight,
+MaskWidth :
+)
+Perform a gray value closing with a rectangular mask.
+gray_closing_rect applies a gray value closing to the input image Image with a rectangular mask of
+size (MaskHeight, MaskWidth). The resulting image is returned in ImageClosing. If the parameters
+MaskHeight or MaskWidth are even, they are changed to the next larger odd value. At the border of the image
+the gray values are mirrored.
+The gray value closing of an image i with a rectangular structuring element s is deﬁned as
+i ◦s = (i ⊕s) ⊖s ,
+i.e., a dilation of the image with s followed by an erosion with s (see gray_dilation_rect and
+gray_erosion_rect).
+Attention
+Note that ﬁlter operators may return unexpected results if an image with a reduced domain is used as input. Please
+refer to the chapter Filters.
+Parameters
+▷Image (input_object) . . . . . . (multichannel-)image(-array) ; object : byte / direction / cyclic / uint2 / int2 /
+int4 / real
+Input image.
+▷ImageClosing (output_object) . . . . . . (multichannel-)image(-array) ; object : byte / direction / cyclic /
+uint2 / int2 / int4 / real
+Gray-closed image.
+▷MaskHeight (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . extent.y ; integer
+Height of the ﬁlter mask.
+Default: 11
+Suggested values: MaskHeight ∈{3, 5, 7, 9, 11, 13, 15}
+Value range: 3 ≤MaskHeight ≤511
+Minimum increment: 2
+Recommended increment: 2
+Restriction: odd(MaskHeight) && MaskHeight < height(Image) * 2
+▷MaskWidth (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . extent.x ; integer
+Width of the ﬁlter mask.
+Default: 11
+Suggested values: MaskWidth ∈{3, 5, 7, 9, 11, 13, 15}
+Value range: 3 ≤MaskWidth ≤511
+Minimum increment: 2
+Recommended increment: 2
+Restriction: odd(MaskWidth) && MaskWidth < width(Image) * 2
+Result
+gray_closing_rect returns 2 (H_MSG_TRUE) if all parameters are correct. If the input is empty the behavior
+can be set via set_system(’no_object_result’,<Result>). If necessary, an exception is raised.
+Execution Information
+• Supports OpenCL compute devices.
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Automatically parallelized on tuple level.
+• Automatically parallelized on channel level.
+• Automatically parallelized on domain level.
+Alternatives
+gray_closing, gray_closing_shape
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2193] -----
+21.1. GRAY VALUES
+2145
+See also
+closing_rectangle1, gray_dilation_rect, gray_erosion_rect
+Module
+Foundation
+gray_closing_shape ( Image :
+ImageClosing :
+MaskHeight,
+MaskWidth,
+MaskShape :
+)
+Perform a gray value closing with a selected mask.
+gray_closing_shape applies a gray value closing to the input image Image with the structuring element of
+shape MaskShape. The mask’s offset values are 0 and its horizontal and vertical size is deﬁned by MaskHeight
+and MaskWidth. The resulting image is returned in ImageClosing.
+If the parameters MaskHeight or MaskWidth are of the type integer and are even, they are changed to the next
+larger odd value. In contrast, if at least one of the two parameters is of the type ﬂoat, the input image Image is
+transformed with both the next larger and the next smaller odd mask size, and the output image ImageClosing
+is interpolated from the two intermediate images. Therefore, note that gray_closing_shape returns different
+results for mask sizes of, e.g., 4 and 4.0!
+In case of the values ’rhombus’ and ’octagon’ for the MaskShape control parameter, MaskHeight and
+MaskWidth must be equal. The parameter value ’octagon’ for MaskShape denotes an equilateral octagonal
+mask which is a suitable approximation for a circular structure. At the border of the image the gray values are
+mirrored.
+The gray value closing of an image i with a structuring element s is deﬁned as
+i • s = (i ⊕s) ⊖s ,
+i.e., a dilation of the image with s followed by an erosion with s (see gray_dilation_shape and
+gray_erosion_shape).
+Attention
+Note that gray_closing_shape requires considerably more time for mask sizes of type ﬂoat than for mask
+sizes of type integer. This is especially true for rectangular masks with different width and height!
+gray_closing_shape can be executed on OpenCL devices. In case of mask sizes of type ﬂoat the result can
+vary slightly from the CPU as the interpolation is calculated in single precision on the OpenCL device.
+Note that ﬁlter operators may return unexpected results if an image with a reduced domain is used as input. Please
+refer to the chapter Filters.
+Parameters
+▷Image (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .(multichannel-)image(-array) ; object : byte / uint2
+Image for which the minimum gray values are to be calculated.
+▷ImageClosing (output_object) . . . . . . . . . . . . . . . . . . . . (multichannel-)image(-array) ; object : byte / uint2
+Image containing the minimum gray values.
+▷MaskHeight (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .extent.y ; real / integer
+Height of the ﬁlter mask.
+Default: 11
+Suggested values: MaskHeight ∈{3, 5, 7, 9, 11, 13, 15}
+Value range: 1.0 ≤MaskHeight ≤511.0
+▷MaskWidth (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . extent.x ; real / integer
+Width of the ﬁlter mask.
+Default: 11
+Suggested values: MaskWidth ∈{3, 5, 7, 9, 11, 13, 15}
+Value range: 1.0 ≤MaskWidth ≤511.0
+▷MaskShape (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+Shape of the mask.
+Default: ’octagon’
+List of values: MaskShape ∈{’rectangle’, ’rhombus’, ’octagon’}
+HALCON 26.05.0.0
+
+
+----- [page 2194] -----
+2146
+CHAPTER 21 MORPHOLOGY
+Result
+gray_closing_shape returns 2 (H_MSG_TRUE) if all parameters are correct.
+Execution Information
+• Supports OpenCL compute devices.
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Automatically parallelized on tuple level.
+• Automatically parallelized on channel level.
+• Automatically parallelized on domain level.
+Alternatives
+gray_closing
+See also
+gray_dilation_shape, gray_erosion_shape, closing
+Module
+Foundation
+gray_dilation ( Image,
+SE : ImageDilation :
+:
+)
+Perform a gray value dilation on an image.
+gray_dilation applies a gray value dilation to the input image Image with the structuring element SE. The
+image type of the structuring element SE must match the image type of the input image Image. The gray value
+dilation of an image i with a structuring element s at the pixel position x is deﬁned as:
+(i ⊕s)(x) = max{f(x −z) + s(z)|z ∈S}
+Here, S is the domain of the structuring element s (see read_gray_se).
+The gray value dilation is particularly fast for ﬂat structuring elements, i.e., structuring elements with a constant
+gray level within their domain.
+Parameters
+▷Image (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . (multichannel-)image(-array) ; object : byte / uint2 / real
+Input image.
+▷SE (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . singlechannelimage ; object : byte / uint2 / real
+Structuring element.
+▷ImageDilation (output_object) . . . . . . . . . . . . . (multichannel-)image(-array) ; object : byte / uint2 / real
+Gray-dilated image.
+Result
+gray_dilation returns 2 (H_MSG_TRUE) if the structuring element is not the empty region. Otherwise, an
+exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Automatically parallelized on tuple level.
+• Automatically parallelized on channel level.
+• Automatically parallelized on internal data level.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2195] -----
+21.1. GRAY VALUES
+2147
+Possible Predecessors
+read_gray_se, gen_disc_se, read_image
+Possible Successors
+sub_image, gray_erosion
+Alternatives
+gray_dilation_rect, gray_dilation_shape
+See also
+gray_opening, gray_closing, dilation1, gray_skeleton
+Module
+Foundation
+gray_dilation_rect ( Image :
+ImageMax :
+MaskHeight,
+MaskWidth :
+)
+Determine the maximum gray value within a rectangle.
+gray_dilation_rect calculates the maximum gray value of the input image Image within a rectangular
+mask of size (MaskHeight, MaskWidth) for each image point. The resulting image is returned in ImageMax.
+If the parameters MaskHeight or MaskWidth are even, they are changed to the next larger odd value. At the
+border of the image the gray values are mirrored.
+Attention
+Note that ﬁlter operators may return unexpected results if an image with a reduced domain is used as input. Please
+refer to the chapter Filters.
+Parameters
+▷Image (input_object) . . . . . . (multichannel-)image(-array) ; object : byte / direction / cyclic / uint2 / int2 /
+int4 / real
+Image for which the maximum gray values are to be calculated.
+▷ImageMax (output_object) . . . . . . (multichannel-)image(-array) ; object : byte / direction / cyclic / uint2 /
+int2 / int4 / real
+Image containing the maximum gray values.
+▷MaskHeight (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . extent.y ; integer
+Height of the ﬁlter mask.
+Default: 11
+Suggested values: MaskHeight ∈{3, 5, 7, 9, 11, 13, 15}
+Value range: 3 ≤MaskHeight ≤511
+Minimum increment: 2
+Recommended increment: 2
+Restriction: odd(MaskHeight) && MaskHeight < height(Image) * 2
+▷MaskWidth (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . extent.x ; integer
+Width of the ﬁlter mask.
+Default: 11
+Suggested values: MaskWidth ∈{3, 5, 7, 9, 11, 13, 15}
+Value range: 3 ≤MaskWidth ≤511
+Minimum increment: 2
+Recommended increment: 2
+Restriction: odd(MaskWidth) && MaskWidth < width(Image) * 2
+Result
+gray_dilation_rect returns 2 (H_MSG_TRUE) if all parameters are correct. If the input is empty the behav-
+ior can be set via set_system(’no_object_result’,<Result>). If necessary, an exception is raised.
+Execution Information
+• Supports OpenCL compute devices.
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+HALCON 26.05.0.0
+
+
+----- [page 2196] -----
+2148
+CHAPTER 21 MORPHOLOGY
+• Automatically parallelized on tuple level.
+• Automatically parallelized on channel level.
+• Automatically parallelized on domain level.
+See also
+gray_skeleton
+Module
+Foundation
+gray_dilation_shape ( Image :
+ImageMax :
+MaskHeight,
+MaskWidth,
+MaskShape :
+)
+Determine the maximum gray value within a selected mask.
+gray_dilation_shape calculates the maximum gray value of the input image Image within a mask of shape
+MaskShape, vertical size MaskHeight and horizontal size MaskWidth for each image point. The resulting
+image is returned in ImageMax.
+If the parameters MaskHeight or MaskWidth are of the type integer and are even, they are changed to the next
+larger odd value. In contrast, if at least one of the two parameters is of the type ﬂoat, the input image Image is
+transformed with both the next larger and the next smaller odd mask size, and the output image ImageMax is
+interpolated from the two intermediate images. Therefore, note that gray_dilation_shape returns different
+results for mask sizes of, e.g., 4 and 4.0!
+In case of the values ’rhombus’ and ’octagon’ for the MaskShape control parameter, MaskHeight and
+MaskWidth must be equal. The parameter value ’octagon’ for MaskShape denotes an equilateral octagonal
+mask which is a suitable approximation for a circular structure. At the border of the image the gray values are
+mirrored.
+Attention
+Note that gray_dilation_shape requires considerably more time for mask sizes of type ﬂoat than for mask
+sizes of type integer. This is especially true for rectangular masks with different width and height!
+gray_dilation_shape can be executed on OpenCL devices. In case of mask sizes of type ﬂoat the result can
+vary slightly from the CPU as the interpolation is calculated in single precision on the OpenCL device.
+Note that ﬁlter operators may return unexpected results if an image with a reduced domain is used as input. Please
+refer to the chapter Filters.
+Parameters
+▷Image (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .(multichannel-)image(-array) ; object : byte / uint2
+Image for which the maximum gray values are to be calculated.
+▷ImageMax (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . (multichannel-)image(-array) ; object : byte / uint2
+Image containing the maximum gray values.
+▷MaskHeight (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .extent.y ; real / integer
+Height of the ﬁlter mask.
+Default: 11
+Suggested values: MaskHeight ∈{3, 5, 7, 9, 11, 13, 15}
+Value range: 1.0 ≤MaskHeight
+▷MaskWidth (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . extent.x ; real / integer
+Width of the ﬁlter mask.
+Default: 11
+Suggested values: MaskWidth ∈{3, 5, 7, 9, 11, 13, 15}
+Value range: 1.0 ≤MaskWidth
+▷MaskShape (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+Shape of the mask.
+Default: ’octagon’
+List of values: MaskShape ∈{’rectangle’, ’rhombus’, ’octagon’}
+Result
+gray_dilation_shape returns 2 (H_MSG_TRUE) if all parameters are correct.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2197] -----
+21.1. GRAY VALUES
+2149
+Execution Information
+• Supports OpenCL compute devices.
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Automatically parallelized on tuple level.
+• Automatically parallelized on channel level.
+• Automatically parallelized on domain level.
+Alternatives
+gray_dilation, gray_dilation_rect
+See also
+gray_opening_shape, gray_closing_shape, gray_skeleton
+Module
+Foundation
+gray_erosion ( Image,
+SE : ImageErosion :
+:
+)
+Perform a gray value erosion on an image.
+gray_erosion applies a gray value erosion to the input image Image with the structuring element SE. The
+image type of the structuring element SE must match the image type of the input image Image. The gray value
+erosion of an image i with a structuring element s at the pixel position x is deﬁned as:
+(i ⊖s)(x) = min{f(x + z) −s(z)|z ∈S}
+Here, S is the domain of the structuring element s (see read_gray_se).
+The gray value erosion is particularly fast for ﬂat structuring elements, i.e., structuring elements with a constant
+gray level within their domain.
+Parameters
+▷Image (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . (multichannel-)image(-array) ; object : byte / uint2 / real
+Input image.
+▷SE (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . singlechannelimage ; object : byte / uint2 / real
+Structuring element.
+▷ImageErosion (output_object) . . . . . . . . . . . . . . . (multichannel-)image(-array) ; object : byte / uint2 / real
+Gray-eroded image.
+Result
+gray_erosion returns 2 (H_MSG_TRUE) if the structuring element is not the empty region. Otherwise, an
+exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Automatically parallelized on tuple level.
+• Automatically parallelized on channel level.
+• Automatically parallelized on internal data level.
+Possible Predecessors
+read_gray_se, gen_disc_se, read_image
+Possible Successors
+gray_dilation, sub_image
+HALCON 26.05.0.0
+
+
+----- [page 2198] -----
+2150
+CHAPTER 21 MORPHOLOGY
+Alternatives
+gray_erosion_rect, gray_erosion_shape
+See also
+gray_opening, gray_closing, erosion1, gray_skeleton
+Module
+Foundation
+gray_erosion_rect ( Image :
+ImageMin :
+MaskHeight,
+MaskWidth :
+)
+Determine the minimum gray value within a rectangle.
+gray_erosion_rect calculates the minimum gray value of the input image Image within a rectangular mask
+of size (MaskHeight, MaskWidth) for each image point. The resulting image is returned in ImageMin. If the
+parameters MaskHeight or MaskWidth are even, they are changed to the next larger odd value. At the border
+of the image the gray values are mirrored.
+Attention
+Note that ﬁlter operators may return unexpected results if an image with a reduced domain is used as input. Please
+refer to the chapter Filters.
+Parameters
+▷Image (input_object) . . . . . . (multichannel-)image(-array) ; object : byte / direction / cyclic / uint2 / int2 /
+int4 / real
+Image for which the minimum gray values are to be calculated.
+▷ImageMin (output_object) . . . . . . (multichannel-)image(-array) ; object : byte / direction / cyclic / uint2 /
+int2 / int4 / real
+Image containing the minimum gray values.
+▷MaskHeight (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . extent.y ; integer
+Height of the ﬁlter mask.
+Default: 11
+Suggested values: MaskHeight ∈{3, 5, 7, 9, 11, 13, 15}
+Value range: 3 ≤MaskHeight ≤511 (lin)
+Minimum increment: 2
+Recommended increment: 2
+Restriction: odd(MaskHeight) && MaskHeight < height(Image) * 2
+▷MaskWidth (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . extent.x ; integer
+Width of the ﬁlter mask.
+Default: 11
+Suggested values: MaskWidth ∈{3, 5, 7, 9, 11, 13, 15}
+Value range: 3 ≤MaskWidth ≤511 (lin)
+Minimum increment: 2
+Recommended increment: 2
+Restriction: odd(MaskWidth) && MaskWidth < width(Image) * 2
+Result
+gray_erosion_rect returns 2 (H_MSG_TRUE) if all parameters are correct. If the input is empty the behavior
+can be set via set_system(’no_object_result’,<Result>). If necessary, an exception is raised.
+Execution Information
+• Supports OpenCL compute devices.
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Automatically parallelized on tuple level.
+• Automatically parallelized on channel level.
+• Automatically parallelized on domain level.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2199] -----
+21.1. GRAY VALUES
+2151
+See also
+gray_dilation_rect
+Module
+Foundation
+gray_erosion_shape ( Image :
+ImageMin :
+MaskHeight,
+MaskWidth,
+MaskShape :
+)
+Determine the minimum gray value within a selected mask.
+gray_erosion_shape calculates the minimum gray value of the input image Image within a mask of shape
+MaskShape, vertical size MaskHeight and horizontal size MaskWidth for each image point. The resulting
+image is returned in ImageMin.
+If the parameters MaskHeight or MaskWidth are of the type integer and are even, they are changed to the next
+larger odd value. In contrast, if at least one of the two parameters is of the type ﬂoat, the input image Image is
+transformed with both the next larger and the next smaller odd mask size, and the output image ImageMin is
+interpolated from the two intermediate images. Therefore, note that gray_erosion_shape returns different
+results for mask sizes of, e.g., 4 and 4.0!
+In case of the values ’rhombus’ and ’octagon’ for the MaskShape control parameter, MaskHeight and
+MaskWidth must be equal. The parameter value ’octagon’ for MaskShape denotes an equilateral octagonal
+mask which is a suitable approximation for a circular structure. At the border of the image the gray values are
+mirrored.
+Attention
+Note that gray_erosion_shape requires considerably more time for mask sizes of type ﬂoat than for mask
+sizes of type integer. This is especially true for rectangular masks with different width and height!
+gray_erosion_shape can be executed on OpenCL devices. In case of mask sizes of type ﬂoat the result can
+vary slightly from the CPU as the interpolation is calculated in single precision on the OpenCL device.
+Note that ﬁlter operators may return unexpected results if an image with a reduced domain is used as input. Please
+refer to the chapter Filters.
+Parameters
+▷Image (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .(multichannel-)image(-array) ; object : byte / uint2
+Image for which the minimum gray values are to be calculated.
+▷ImageMin (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . (multichannel-)image(-array) ; object : byte / uint2
+Image containing the minimum gray values.
+▷MaskHeight (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .extent.y ; real / integer
+Height of the ﬁlter mask.
+Default: 11
+Suggested values: MaskHeight ∈{3, 5, 7, 9, 11, 13, 15}
+Value range: 1.0 ≤MaskHeight
+▷MaskWidth (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . extent.x ; real / integer
+Width of the ﬁlter mask.
+Default: 11
+Suggested values: MaskWidth ∈{3, 5, 7, 9, 11, 13, 15}
+Value range: 1.0 ≤MaskWidth
+▷MaskShape (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+Shape of the mask.
+Default: ’octagon’
+List of values: MaskShape ∈{’rectangle’, ’rhombus’, ’octagon’}
+Result
+gray_erosion_shape returns 2 (H_MSG_TRUE) if all parameters are correct.
+Execution Information
+• Supports OpenCL compute devices.
+HALCON 26.05.0.0
+
+
+----- [page 2200] -----
+2152
+CHAPTER 21 MORPHOLOGY
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Automatically parallelized on tuple level.
+• Automatically parallelized on channel level.
+• Automatically parallelized on domain level.
+Alternatives
+gray_erosion, gray_erosion_rect
+See also
+gray_opening_shape, gray_closing_shape, gray_skeleton
+Module
+Foundation
+gray_opening ( Image,
+SE : ImageOpening :
+:
+)
+Perform a gray value opening on an image.
+gray_opening applies a gray value opening to the input image Image with the structuring element SE. The
+image type of the structuring element SE must match the image type of the input image Image. The gray value
+opening of an image i with a structuring element s is deﬁned as
+i ◦s = (i ⊖s) ⊕˘s ,
+i.e., an erosion of the image with s followed by a dilation with the transposed structuring element (see
+gray_erosion and gray_dilation). For the generation of structuring elements, see read_gray_se.
+The gray value opening is particularly fast for ﬂat structuring elements, i.e., structuring elements with a constant
+gray level within their domain.
+Parameters
+▷Image (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . (multichannel-)image(-array) ; object : byte / uint2 / real
+Input image.
+▷SE (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . singlechannelimage ; object : byte / uint2 / real
+Structuring element.
+▷ImageOpening (output_object) . . . . . . . . . . . . . . . (multichannel-)image(-array) ; object : byte / uint2 / real
+Gray-opened image.
+Result
+gray_opening returns 2 (H_MSG_TRUE) if the structuring element is not the empty region. Otherwise, an
+exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Automatically parallelized on tuple level.
+• Automatically parallelized on channel level.
+• Automatically parallelized on internal data level.
+Possible Predecessors
+read_gray_se, gen_disc_se, read_image
+Alternatives
+dual_rank, gray_opening_rect, gray_opening_shape
+See also
+opening, gray_dilation, gray_erosion
+Module
+Foundation
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2201] -----
+21.1. GRAY VALUES
+2153
+gray_opening_rect ( Image :
+ImageOpening :
+MaskHeight,
+MaskWidth :
+)
+Perform a gray value opening with a rectangular mask.
+gray_opening_rect applies a gray value opening to the input image Image with a rectangular mask of
+size (MaskHeight, MaskWidth). The resulting image is returned in ImageOpening. If the parameters
+MaskHeight or MaskWidth are even, they are changed to the next larger odd value. At the border of the image
+the gray values are mirrored.
+The gray value opening of an image i with a rectangular structuring element s is deﬁned as
+i ◦s = (i ⊖s) ⊕s ,
+i.e., an erosion of the image with s followed by a dilation with s (see gray_erosion_rect and
+gray_dilation_rect).
+Attention
+Note that ﬁlter operators may return unexpected results if an image with a reduced domain is used as input. Please
+refer to the chapter Filters.
+Parameters
+▷Image (input_object) . . . . . . (multichannel-)image(-array) ; object : byte / direction / cyclic / uint2 / int2 /
+int4 / real
+Input image.
+▷ImageOpening (output_object) . . . . . . (multichannel-)image(-array) ; object : byte / direction / cyclic /
+uint2 / int2 / int4 / real
+Gray-opened image.
+▷MaskHeight (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . extent.y ; integer
+Height of the ﬁlter mask.
+Default: 11
+Suggested values: MaskHeight ∈{3, 5, 7, 9, 11, 13, 15}
+Value range: 3 ≤MaskHeight ≤511
+Minimum increment: 2
+Recommended increment: 2
+Restriction: odd(MaskHeight) && MaskHeight < height(Image) * 2
+▷MaskWidth (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . extent.x ; integer
+Width of the ﬁlter mask.
+Default: 11
+Suggested values: MaskWidth ∈{3, 5, 7, 9, 11, 13, 15}
+Value range: 3 ≤MaskWidth ≤511
+Minimum increment: 2
+Recommended increment: 2
+Restriction: odd(MaskWidth) && MaskWidth < width(Image) * 2
+Result
+gray_opening_rect returns 2 (H_MSG_TRUE) if all parameters are correct. If the input is empty the behavior
+can be set via set_system(’no_object_result’,<Result>). If necessary, an exception is raised.
+Execution Information
+• Supports OpenCL compute devices.
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Automatically parallelized on tuple level.
+• Automatically parallelized on channel level.
+• Automatically parallelized on domain level.
+Alternatives
+gray_opening, gray_opening_shape
+HALCON 26.05.0.0
+
+
+----- [page 2202] -----
+2154
+CHAPTER 21 MORPHOLOGY
+See also
+opening_rectangle1, gray_dilation_rect, gray_erosion_rect
+Module
+Foundation
+gray_opening_shape ( Image :
+ImageOpening :
+MaskHeight,
+MaskWidth,
+MaskShape :
+)
+Perform a gray value opening with a selected mask.
+gray_opening_shape applies a gray value opening to the input image Image with the structuring element of
+shape MaskShape. The mask’s offset values are 0 and its horizontal and vertical size is deﬁned by MaskHeight
+and MaskWidth. The resulting image is returned in ImageOpening.
+If the parameters MaskHeight or MaskWidth are of the type integer and are even, they are changed to the next
+larger odd value. In contrast, if at least one of the two parameters is of the type ﬂoat, the input image Image is
+transformed with both the next larger and the next smaller odd mask size, and the output image ImageOpening
+is interpolated from the two intermediate images. Therefore, note that gray_opening_shape returns different
+results for mask sizes of, e.g., 4 and 4.0!
+In case of the values ’rhombus’ and ’octagon’ for the MaskShape control parameter, MaskHeight and
+MaskWidth must be equal. The parameter value ’octagon’ for MaskShape denotes an equilateral octagonal
+mask which is a suitable approximation for a circular structure. At the border of the image the gray values are
+mirrored.
+The gray value opening of an image i with a structuring element s is deﬁned as
+i ◦s = (i ⊖s) ⊕s ,
+i.e., an erosion of the image with s followed by a dilation with s (see gray_erosion_shape and
+gray_dilation_shape).
+Attention
+Note that gray_opening_shape requires considerably more time for mask sizes of type ﬂoat than for mask
+sizes of type integer. This is especially true for rectangular masks with different width and height!
+gray_opening_shape can be executed on OpenCL devices. In case of mask sizes of type ﬂoat the result can
+vary slightly from the CPU as the interpolation is calculated in single precision on the OpenCL device.
+Note that ﬁlter operators may return unexpected results if an image with a reduced domain is used as input. Please
+refer to the chapter Filters.
+Parameters
+▷Image (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .(multichannel-)image(-array) ; object : byte / uint2
+Image for which the minimum gray values are to be calculated.
+▷ImageOpening (output_object) . . . . . . . . . . . . . . . . . . . . (multichannel-)image(-array) ; object : byte / uint2
+Image containing the minimum gray values.
+▷MaskHeight (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .extent.y ; real / integer
+Height of the ﬁlter mask.
+Default: 11
+Suggested values: MaskHeight ∈{3, 5, 7, 9, 11, 13, 15}
+Value range: 1.0 ≤MaskHeight ≤511.0
+▷MaskWidth (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . extent.x ; real / integer
+Width of the ﬁlter mask.
+Default: 11
+Suggested values: MaskWidth ∈{3, 5, 7, 9, 11, 13, 15}
+Value range: 1.0 ≤MaskWidth ≤511.0
+▷MaskShape (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+Shape of the mask.
+Default: ’octagon’
+List of values: MaskShape ∈{’rectangle’, ’rhombus’, ’octagon’}
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2203] -----
+21.1. GRAY VALUES
+2155
+Result
+gray_opening_shape returns 2 (H_MSG_TRUE) if all parameters are correct.
+Execution Information
+• Supports OpenCL compute devices.
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Automatically parallelized on tuple level.
+• Automatically parallelized on channel level.
+• Automatically parallelized on domain level.
+Alternatives
+gray_opening
+See also
+gray_dilation_shape, gray_erosion_shape, opening
+Module
+Foundation
+gray_range_rect ( Image :
+ImageResult :
+MaskHeight,
+MaskWidth :
+)
+Determine the gray value range within a rectangle.
+gray_range_rect calculates the gray value range, i.e., the difference (max −min) of the maximum and
+minimum gray values, of the input image Image within a rectangular mask of size (MaskHeight, MaskWidth)
+for each image point. The resulting image is returned in ImageResult. If the parameters MaskHeight or
+MaskWidth are even, they are changed to the next smaller odd value. At the border of the image the gray values
+are mirrored.
+Attention
+Note that ﬁlter operators may return unexpected results if an image with a reduced domain is used as input. Please
+refer to the chapter Filters.
+Parameters
+▷Image (input_object) . . . . . . . .(multichannel-)image(-array) ; object : byte / cyclic / uint2 / int2 / int4 / real
+Image for which the gray value range is to be calculated.
+▷ImageResult (output_object) . . . . . . (multichannel-)image(-array) ; object : byte / cyclic / uint2 / int2 /
+int4 / real
+Image containing the gray value range.
+▷MaskHeight (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . extent.y ; integer
+Height of the ﬁlter mask.
+Default: 11
+Suggested values: MaskHeight ∈{3, 5, 7, 9, 11, 13, 15}
+Value range: 3 ≤MaskHeight ≤511 (lin)
+Minimum increment: 2
+Recommended increment: 2
+Restriction: odd(MaskHeight) && MaskHeight < height(Image) * 2
+▷MaskWidth (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . extent.x ; integer
+Width of the ﬁlter mask.
+Default: 11
+Suggested values: MaskWidth ∈{3, 5, 7, 9, 11, 13, 15}
+Value range: 3 ≤MaskWidth ≤511 (lin)
+Minimum increment: 2
+Recommended increment: 2
+Restriction: odd(MaskWidth) && MaskWidth < width(Image) * 2
+HALCON 26.05.0.0
+
+
+----- [page 2204] -----
+2156
+CHAPTER 21 MORPHOLOGY
+Result
+gray_range_rect returns 2 (H_MSG_TRUE) if all parameters are correct. If the input is empty the behavior
+can be set via set_system(’no_object_result’,<Result>). If necessary, an exception is raised.
+Execution Information
+• Supports OpenCL compute devices.
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Automatically parallelized on tuple level.
+• Automatically parallelized on channel level.
+• Automatically parallelized on domain level.
+Alternatives
+gray_dilation_rect, gray_erosion_rect, sub_image
+Module
+Foundation
+gray_tophat ( Image,
+SE : ImageTopHat :
+:
+)
+Perform a gray value top hat transformation on an image.
+gray_tophat applies a gray value top hat transformation to the input image Image with the structuring element
+SE. The image type of the structuring element SE must match the image type of the input image Image. The gray
+value top hat transformation of an image i with a structuring element s is deﬁned as
+tophat(i, s) = i −(i ◦s),
+i.e., the difference of the image and its opening with s (see gray_opening). For the generation of structuring
+elements, see read_gray_se.
+The top hat transformation is particularly fast for ﬂat structuring elements, i.e. structuring elements with a constant
+gray level within their domain.
+Parameters
+▷Image (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . (multichannel-)image(-array) ; object : byte / uint2 / real
+Input image.
+▷SE (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . singlechannelimage ; object : byte / uint2 / real
+Structuring element.
+▷ImageTopHat (output_object) . . . . . . . . . . . . . . . . (multichannel-)image(-array) ; object : byte / uint2 / real
+Top hat image.
+Result
+gray_tophat returns 2 (H_MSG_TRUE) if the structuring element is not the empty region. Otherwise, an
+exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Automatically parallelized on tuple level.
+• Automatically parallelized on channel level.
+• Automatically parallelized on internal data level.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2205] -----
+21.1. GRAY VALUES
+2157
+Possible Predecessors
+read_gray_se, gen_disc_se, read_image
+Possible Successors
+threshold
+Alternatives
+gray_opening
+See also
+gray_bothat, top_hat, gray_erosion_rect, sub_image
+Module
+Foundation
+read_gray_se ( :
+SE : FileName :
+)
+Load a structuring element for gray morphology.
+read_gray_se loads a structuring element for gray morphology from a ﬁle. The ﬁle names of these struc-
+turing elements must end in ’.gse’ (for gray-scale structuring element). This sufﬁx is automatically appended by
+read_gray_se to the passed ﬁle name, and thus must not be passed. The structuring element’s data must be
+contained in the ﬁle in the following format: The ﬁrst line speciﬁes the data type of the structuring element as
+byte, uint2 or real (without enclosing quotes). It must match the image type of the image to be processed
+in subsequent operator calls using this structuring element. The following two numbers in the ﬁle determine the
+width and height of the structuring element and determine a rectangle enclosing the structuring element. Both
+values must be greater than 0. Then the number of chords of the region to be deﬁned follows. Then the chords
+themselves follow: Each chord is deﬁned by the row of the chord (L), the column begin (CB) and the column end
+(CE), separated by a space between them. Then values follow that are regarded as the corresponding values for
+gray morphology (their number depends on the deﬁned width and height of the structuring element). Values that
+will not be part of the region of the structuring element (because no chord is deﬁned for this points) must not be
+omitted. Nevertheless they will be ignored in the resulting structuring element. Structuring elements are stored
+internally as images with the data type speciﬁed above. Normal images can also be used as structuring elements,
+where the region of the image deﬁnes the shape of the structuring element. However, take care not to use too large
+images, since the runtime is proportional to the area of the image multiplied by the area of the structuring element.
+Flat structuring elements (i.e. elements with constant gray values) will be executed particularly fast though. The
+origin of the structuring element lies at half of the deﬁned width and height. For even dimensions the origin will
+be rounded towards the upper left corner. The structuring element can be saved as image with the help of the op-
+erator write_image. However, take care to use an image format that supports alpha channels to save the shape
+of the structuring element such as ’tiff’, ’jp2’ or ’png’. These ﬁles can then be loaded again with the operator
+read_image.
+Parameters
+▷SE (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . image ; object : byte / uint2 / real
+Generated structuring element.
+▷FileName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .ﬁlename.read ; string
+Name of the ﬁle containing the structuring element.
+File extension: .gse
+Example
+* Load a byte structuring element of width 3 and height 3 that
+* consists of 3 chords at lines 0 (from x=1 to x=1), 1 (from x=0
+* to x=2) and 2 (from x=1 to x=1). The (used) grayvalues are
+* 0, 0, 1, 0, 0 .
+* contents of file 'isod4.gse':
+* byte
+*
+3 3
+*
+* 3
+* 0 1 1
+HALCON 26.05.0.0
+
+
+----- [page 2206] -----
+2158
+CHAPTER 21 MORPHOLOGY
+* 1 0 2
+* 2 1 1
+*
+*
+-1
+0 -1
+*
+0
+1
+0
+*
+-1
+0 -1
+read_gray_se (SE, environment('HALCONROOT')+'/filter/isod4')
+Result
+read_gray_se returns 2 (H_MSG_TRUE) if all parameters are correct. Otherwise, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Successors
+gray_erosion, gray_dilation, gray_opening, gray_closing, gray_tophat, gray_bothat,
+write_image
+Alternatives
+gen_disc_se, read_image, change_domain
+See also
+paint_region, paint_gray, crop_part
+Module
+Foundation
+21.2
+Region
+This chapter describes operators of region morphology.
+Concept of Region Morphology
+Region morphology provides a set of morphological operators that allow to modify or describe the shape of a
+region. The morphological operators can be used, for example, to connect or disconnect adjacent regions or to
+smooth the boundary of a region. In the following, we will take a closer look at the morphological operators.
+Dilation and Erosion
+To dilate or erode an input region, a structuring element is applied to the input region. This structuring element is
+scanned over the image line-by-line. During dilation the reference point of the structuring element is added to the
+resulting region whenever the structuring element and the input region have at least one pixel in common. This
+results in an enlarged region, as shown in the image below. Erosion reduces the area of the input region because
+the reference point is only added to the resulting region if the structuring element lies completely within the input
+region. As a result, erosion can alternatively be used to ﬁnd objects.
+(1)
+(2)
+(3)
+(4)
+(1) Image with input region, (2) structuring element with reference point in the origin, (3) result of dilating the input
+region, (4) result of eroding the input region.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2207] -----
+21.2. REGION
+2159
+These operators can be used to dilate or erode a region:
+Morphological Operators
+Structuring Element
+Reference Point
+dilation1
+erosion1
+arbitrary
+origin
+minkowski_add1
+minkowski_sub1
+arbitrary, transposed
+origin
+dilation2
+erosion2
+arbitrary
+arbitrary
+minkowski_add2
+minkowski_sub2
+arbitrary, transposed
+arbitrary
+dilation_circle
+erosion_circle
+circular
+origin
+dilation_rectangle1
+erosion_rectangle1
+rectangular
+origin
+Note that Minkowski addition and dilation are identical if the structuring element is symmetric. The same applies
+to Minkowski subtraction and erosion. Erosion can be used to separate objects that are attached to each other. In
+the following, the steps that are required to separate objects are described brieﬂy.
+First, the objects of the image must be segmented, for example by using the operator threshold. Next, the
+operator connection is used to get multiple regions instead of a single region. As you can see in the image (3)
+below, the result of the connection is unsatisfactory because several objects are merged.
+(1)
+(2)
+(3)
+(1) Image with globular objects, (2) segmented regions, (3) connected components.
+This problem can be solved using erosion. As mentioned above, erosion reduces the area of the input region. Thus,
+if erosion is applied prior to the operator connection, the regions are separated as desired. Lastly, dilation is
+applied on the separated regions to approximately get the original shape back.
+(1)
+(2)
+(3)
+(1) Segmented regions after erosion, (2) connected components, (3) connected components after dilation.
+Opening and Closing
+Both operations generate the resulting region by combining dilation and erosion operations. Opening is an erosion
+followed by a dilation. It is useful to eliminate small unwanted structures. Closing is the opposite of opening, i.e.,
+a dilation followed by an erosion. The closing operator is able to close small gaps, as shown below.
+HALCON 26.05.0.0
+
+
+----- [page 2208] -----
+2160
+CHAPTER 21 MORPHOLOGY
+(1)
+(2)
+(3)
+(4)
+(1) Image with input region, (2) structuring element with reference point, (3) result of applying an opening to the
+input region, (4) result of applying a closing.
+These operators can be used to open or close a region:
+Morphological Operators
+Structuring Element
+Reference Point
+opening
+closing
+arbitrary
+origin
+opening_circle
+closing_circle
+circular
+origin
+opening_rectangle1
+closing_rectangle1
+rectangular
+origin
+Further Operators
+In addition to the operators mentioned above, you can use top_hat to get the difference between the input region
+and the result of the opening, or bottom_hat to get the difference between the result of the closing and the input
+region. Furthermore, you can calculate the boundary of a region with the operator boundary.
+(1)
+(2)
+(3)
+(1) Top hat, (2) bottom hat, (3) boundary.
+The operator hit_or_miss can be used to ﬁnd objects, taking the foreground and the background of the image
+into account. To remove unwanted branches from a skeleton, pruning is a suitable operator.
+Glossary
+In the following list, the most important terms that are used in the context of Morphology are described.
+input region Region which is modiﬁed by morphological operators.
+structuring element Region which is used to scan the input region.
+bottom_hat ( Region,
+StructElement :
+RegionBottomHat :
+:
+)
+Compute the bottom hat of regions.
+bottom_hat computes the closing of Region with StructElement. The difference between the result
+of the closing and the original region is called the bottom hat. In contrast to closing, which merges regions
+under certain circumstances, bottom_hat computes the regions generated by such a merge.
+The position of StructElement is meaningless, since a closing operation is invariant with respect to the choice
+of the reference point.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2209] -----
+21.2. REGION
+2161
+Structuring
+elements
+(StructElement)
+can
+be
+generated
+with
+operators
+such
+as
+gen_circle,
+gen_rectangle1,
+gen_rectangle2,
+gen_ellipse,
+draw_region,
+gen_region_polygon,
+gen_region_points, etc.
+Parameters
+▷Region (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Regions to be processed.
+▷StructElement (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region ; object
+Structuring element (position independent).
+▷RegionBottomHat (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Result of the bottom hat operator.
+Example
+read_image (Image, 'brake_disk/brake_disk_bike_01')
+threshold (Image, Regions, 128, 255)
+gen_circle (Circle, 40, 40, 20)
+bottom_hat (Regions, Circle, RegionBottomHat)
+Result
+bottom_hat returns 2 (H_MSG_TRUE) if all parameters are correct. The behavior in case of empty or no input
+region can be set via:
+• no region: set_system(’no_object_result’,<RegionResult>)
+• empty region: set_system(’empty_region_result’,<RegionResult>)
+Otherwise, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Automatically parallelized on tuple level.
+Possible Predecessors
+threshold, regiongrowing, connection, union1, watersheds, class_ndim_norm,
+gen_circle, gen_ellipse, gen_rectangle1, gen_rectangle2, draw_region,
+gen_region_points, gen_region_polygon_filled
+Possible Successors
+reduce_domain, select_shape, area_center, connection
+Alternatives
+closing, difference
+See also
+top_hat, gray_bothat, opening
+Module
+Foundation
+boundary ( Region :
+RegionBorder :
+BoundaryType :
+)
+Reduce a region to its boundary.
+boundary computes the boundary of each input region in Region and returns them in RegionBorder. The
+parameter BoundaryType determines the type of boundary computation.
+The contour computation is done using morphological operations. The resulting output regions consist only of
+the minimal border of the input regions. Their positions depend on the value of BoundaryType, accepting the
+following values:
+HALCON 26.05.0.0
+
+
+----- [page 2210] -----
+2162
+CHAPTER 21 MORPHOLOGY
+• ’inner’: The contour lies within the original region.
+• ’inner_ﬁlled’: The contour lies within the original region, holes in the interior of the input region are sup-
+pressed. Due to algorithm optimization this contours may slightly differ from corresponding ones obtained
+with ’inner’.
+• ’outer’: The contour is one pixel outside of the original region.
+Parameters
+▷Region (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Regions for which the boundary is to be computed.
+▷RegionBorder (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Resulting boundaries.
+▷BoundaryType (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+Boundary type.
+Default: ’inner’
+List of values: BoundaryType ∈{’inner’, ’outer’, ’inner_ﬁlled’}
+Example
+#include "HalconCpp.h"
+using namespace Halcon;
+main()
+{
+HWindow
+w;
+HRegion
+circ1 = HRegion::GenCircle (20, 10, 10.5);
+circ1.Display (w);
+w.Click ();
+HRegion marg1 = circ1.Boundary ("inner");
+w.SetColor ("red");
+marg1.Display (w);
+w.Click ();
+return(0);
+}
+Complexity
+Let A be the area of the input region. Then the runtime complexity for one region is
+O(3
+√
+A) .
+Result
+boundary returns 2 (H_MSG_TRUE) if all parameters are correct. The behavior in case of empty or no input
+region can be set via:
+• no region: set_system(’no_object_result’,<RegionResult>)
+• empty region: set_system(’empty_region_result’,<RegionResult>)
+Otherwise, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Automatically parallelized on tuple level.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2211] -----
+21.2. REGION
+2163
+Possible Predecessors
+threshold, regiongrowing, connection, union1, watersheds, class_ndim_norm
+Possible Successors
+reduce_domain, select_shape, area_center, connection
+Alternatives
+dilation_circle, erosion_circle, difference
+See also
+fill_up
+Module
+Foundation
+closing ( Region,
+StructElement :
+RegionClosing :
+:
+)
+Close a region.
+A closing operation is deﬁned as a dilation followed by a Minkowski subtraction. By applying closing
+to a region, larger structures remain mostly intact, while small gaps between adjacent regions and holes smaller
+than StructElement are closed, and the regions’ boundaries are smoothed. All closing variants share the
+property that separate regions are not merged, but remain separate objects. The position of StructElement is
+meaningless, since a closing operation is invariant with respect to the choice of the reference point.
+Structuring
+elements
+(StructElement)
+can
+be
+generated
+with
+operators
+such
+as
+gen_circle,
+gen_rectangle1,
+gen_rectangle2,
+gen_ellipse,
+draw_region,
+gen_region_polygon,
+gen_region_points, etc.
+Attention
+closing is applied to each input region separately. If gaps between different regions are to be closed, union1
+or union2 has to be called ﬁrst.
+Parameters
+▷Region (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Regions to be closed.
+▷StructElement (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region ; object
+Structuring element (position-invariant).
+▷RegionClosing (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Closed regions.
+Example
+#include "HIOStream.h"
+#if !defined(USE_IOSTREAM_H)
+using namespace std;
+#endif
+#include "HalconCpp.h"
+main()
+{
+cout << "Reproduction of 'closing ()' using " << endl;
+cout << "'dilation()' and 'minkowski_sub1()'" << endl;
+HByteImage img("monkey");
+HWindow
+w;
+HRegion
+circ = HRegion::GenCircle (10, 10, 1.5);
+HRegionArray regs = (img >= 128).Connection();
+HRegionArray dilreg = regs.Dilation1 (circ, 1);
+HRegionArray minsub = dilreg.MinkowskiSub1 (circ, 1);
+HALCON 26.05.0.0
+
+
+----- [page 2212] -----
+2164
+CHAPTER 21 MORPHOLOGY
+img.Display (w);
+w.Click ();
+w.SetColor ("red");
+regs.Display (w);
+w.Click ();
+w.SetColor ("green"); dilreg.Display (w);
+w.Click ();
+w.SetColor ("blue");
+minsub.Display (w);
+w.Click ();
+return(0);
+}
+Complexity
+Let F1 be the area of the input region, and F2 be the area of the structuring element. Then the runtime complexity
+for one region is:
+O(2 ·
+√
+F1 ·
+√
+F2) .
+Result
+closing returns 2 (H_MSG_TRUE) if all parameters are correct. The behavior in case of empty or no input
+region can be set via:
+• no region: set_system(’no_object_result’,<RegionResult>)
+• empty region: set_system(’empty_region_result’,<RegionResult>)
+Otherwise, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Automatically parallelized on tuple level.
+Possible Predecessors
+threshold, regiongrowing, connection, union1, watersheds, class_ndim_norm,
+gen_circle, gen_ellipse, gen_rectangle1, gen_rectangle2, draw_region,
+gen_region_points, gen_region_polygon_filled
+Possible Successors
+reduce_domain, select_shape, area_center, connection
+Alternatives
+closing_circle
+See also
+dilation1, erosion1, opening, minkowski_sub1
+Module
+Foundation
+closing_circle ( Region :
+RegionClosing :
+Radius :
+)
+Close a region with a circular structuring element.
+closing_circle behaves analogously to closing, i.e., the regions’ boundaries are smoothed and holes
+within a region which are smaller than the circular structuring element of radius Radius are closed.
+The
+closing_circle operation is deﬁned as a dilation followed by a Minkowski subtraction, both with the same
+circular structuring element.
+Attention
+closing_circle is applied to each input region separately. If gaps between different regions are to be closed,
+union1 or union2 has to be called ﬁrst.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2213] -----
+21.2. REGION
+2165
+Parameters
+▷Region (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Regions to be closed.
+▷RegionClosing (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Closed regions.
+▷Radius (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . real ; real / integer
+Radius of the circular structuring element.
+Default: 3.5
+Suggested values: Radius ∈{1.5, 2.5, 3.5, 4.5, 5.5, 7.5, 9.5, 12.5, 15.5, 19.5, 25.5, 33.5, 45.5, 60.5, 110.5}
+Value range: 0.5 ≤Radius ≤511.5 (lin)
+Minimum increment: 1.0
+Recommended increment: 1.0
+Example
+my_closing_circle(Hobject In, double Radius, Hobject *Out)
+{
+Hobject
+tmp, StructElement;
+gen_circle(StructElement,100.0,100.0,Radius);
+dilation1(In,StructElement,&tmp,1);
+minkowski_sub1(tmp,StructElement,Out,1);
+}
+Complexity
+Let F1 be the area of the input region. Then the runtime complexity for one region is:
+O(4 ·
+√
+F1 · Radius) .
+Result
+closing_circle returns 2 (H_MSG_TRUE) if all parameters are correct. The behavior in case of empty or no
+input region can be set via:
+• no region: set_system(’no_object_result’,<RegionResult>)
+• empty region: set_system(’empty_region_result’,<RegionResult>)
+Otherwise, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Automatically parallelized on tuple level.
+Possible Predecessors
+threshold, regiongrowing, connection, union1, watersheds, class_ndim_norm
+Possible Successors
+reduce_domain, select_shape, area_center, connection
+Alternatives
+rank_region, fill_up, closing
+See also
+dilation1, minkowski_sub1, erosion1, opening
+Module
+Foundation
+HALCON 26.05.0.0
+
+
+----- [page 2214] -----
+2166
+CHAPTER 21 MORPHOLOGY
+closing_rectangle1 ( Region :
+RegionClosing :
+Width,
+Height :
+)
+Close a region with a rectangular structuring element.
+closing_rectangle1 behaves as closing with a rectangular structuring element on the input region
+Region. The size of the rectangular structuring element is determined by the parameters Width and Height.
+As is the case for all closing variants, regions’ boundaries are smoothed and holes within a region which are
+smaller than the rectangular structuring element are closed.
+Similar to erosion_rectangle1 and dilation_rectangle1 closing_rectangle1 is a very fast
+operation.
+Attention
+closing_rectangle1 is applied to each input region separately. If gaps between different regions are to be
+closed, union1 or union2 has to be called ﬁrst.
+Parameters
+▷Region (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Regions to be closed.
+▷RegionClosing (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Closed regions.
+▷Width (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .extent.x ; integer
+Width of the structuring rectangle.
+Default: 10
+Suggested values: Width ∈{1, 2, 3, 4, 5, 7, 9, 12, 15, 19, 25, 33, 45, 60, 110, 150, 200}
+Value range: 1 ≤Width ≤511 (lin)
+Minimum increment: 1
+Recommended increment: 1
+▷Height (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . extent.y ; integer
+Height of the structuring rectangle.
+Default: 10
+Suggested values: Height ∈{1, 2, 3, 4, 5, 7, 9, 12, 15, 19, 25, 33, 45, 60, 110, 150, 200}
+Value range: 1 ≤Height ≤511 (lin)
+Minimum increment: 1
+Recommended increment: 1
+Complexity
+Let F1 be the area of an input region and H be the height of the rectangle. Then the runtime complexity for one
+region is:
+O(2 ·
+√
+F1 · log_2(H)) .
+Result
+closing_rectangle1 returns 2 (H_MSG_TRUE) if all parameters are correct. The behavior in case of empty
+or no input region can be set via:
+• no region: set_system(’no_object_result’,<RegionResult>)
+• empty region: set_system(’empty_region_result’,<RegionResult>)
+Otherwise, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Automatically parallelized on tuple level.
+Possible Predecessors
+threshold, regiongrowing, connection, union1, watersheds, class_ndim_norm
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2215] -----
+21.2. REGION
+2167
+Possible Successors
+reduce_domain, select_shape, area_center, connection
+Alternatives
+closing
+See also
+dilation_rectangle1, erosion_rectangle1, opening_rectangle1, gen_rectangle1
+Module
+Foundation
+dilation1 ( Region,
+StructElement :
+RegionDilation :
+Iterations :
+)
+Dilate a region.
+dilation1 dilates the input regions with a structuring element. By applying dilation1 to a region, its
+boundary gets smoothed. In the process, the area of the region is enlarged. Furthermore, disconnected regions
+may be merged. Such regions, however, remain logically distinct region. The dilation is a set-theoretic region
+operation. It uses the union operation.
+Let M (StructElement) and R (Region) be two regions, where M is the structuring element and R is the
+region to be processed. Furthermore, let m be a point in M. Then the displacement vector⃗vm = (dx, dy) is
+deﬁned as the difference of the center of gravity of M and the vector⃗m. Let t⃗vm(R) denote the translation of a
+region R by a vector⃗v. Then
+dilation1(R, M) :=
+[
+m∈M
+t−⃗vm(R)
+For each point m in M a translation of the region R is performed. The union of all these translations is the dilation
+of R with M. dilation1 is similar to the operator minkowski_add1, the difference is that in dilation1
+the structuring element is mirrored at the origin. The position of StructElement is meaningless, since the
+displacement vectors are determined with respect to the center of gravity of M.
+The parameter Iterations determines the number of iterations which are to be performed with the structuring
+element. The result of iteration n −1 is used as input for iteration n. From the above deﬁnition it follows that an
+empty region is generated in case of an empty structuring element.
+Structuring
+elements
+(StructElement)
+can
+be
+generated
+with
+operators
+such
+as
+gen_circle,
+gen_rectangle1,
+gen_rectangle2,
+gen_ellipse,
+draw_region,
+gen_region_polygon,
+gen_region_points, etc.
+Attention
+A dilation always results in enlarged regions. Closely spaced regions which may touch or overlap as a result of
+the dilation are still treated as two separate regions. If the desired behavior is to merge them into one region, the
+operator union1 has to be called ﬁrst.
+Parameters
+▷Region (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Regions to be dilated.
+▷StructElement (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region ; object
+Structuring element.
+▷RegionDilation (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Dilated regions.
+▷Iterations (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer ; integer
+Number of iterations.
+Default: 1
+Suggested values: Iterations ∈{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 17, 20, 30, 40, 50}
+Value range: 1 ≤Iterations (lin)
+Minimum increment: 1
+Recommended increment: 1
+HALCON 26.05.0.0
+
+
+----- [page 2216] -----
+2168
+CHAPTER 21 MORPHOLOGY
+Complexity
+Let F1 be the area of the input region, and F2 be the area of the structuring element. Then the runtime complexity
+for one region is:
+O(
+√
+F1 ·
+√
+F2 · Iterations) .
+Result
+dilation1 returns 2 (H_MSG_TRUE) if all parameters are correct. The behavior in case of empty or no input
+region can be set via:
+• no region: set_system(’no_object_result’,<RegionResult>)
+• empty region: set_system(’empty_region_result’,<RegionResult>)
+Otherwise, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Automatically parallelized on tuple level.
+Possible Predecessors
+threshold, regiongrowing, connection, union1, watersheds, class_ndim_norm,
+gen_circle, gen_ellipse, gen_rectangle1, gen_rectangle2, draw_region,
+gen_region_points, gen_region_polygon_filled
+Possible Successors
+reduce_domain, add_channels, select_shape, area_center, connection
+Alternatives
+minkowski_add1, minkowski_add2, dilation2
+See also
+erosion1, erosion2, opening, closing
+Module
+Foundation
+dilation2 ( Region,
+StructElement :
+RegionDilation :
+Row,
+Column,
+Iterations :
+)
+Dilate a region (using a reference point).
+dilation2 dilates the input regions with a structuring element (StructElement) having the reference point
+(Row,Column). dilation2 has a similar effect as dilation1, the difference is that the reference point of the
+structuring element can be chosen arbitrarily. The parameter Iterations determines the number of iterations
+which are to be performed with the structuring element. The result of iteration n −1 is used as input for iteration
+n.
+An empty region is generated in case of an empty structuring element.
+Structuring
+elements
+(StructElement)
+can
+be
+generated
+with
+operators
+such
+as
+gen_circle,
+gen_rectangle1,
+gen_rectangle2,
+gen_ellipse,
+draw_region,
+gen_region_polygon,
+gen_region_points, etc.
+Attention
+A dilation always results in enlarged regions. Closely spaced regions which may touch or overlap as a result of
+the dilation are still treated as two separate regions. If the desired behavior is to merge them into one region, the
+operator union1 has to be called ﬁrst.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2217] -----
+21.2. REGION
+2169
+Parameters
+▷Region (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Regions to be dilated.
+▷StructElement (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region ; object
+Structuring element.
+▷RegionDilation (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Dilated regions.
+▷Row (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . point.y ; integer
+Row coordinate of the reference point.
+Default: 0
+▷Column (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . point.x ; integer
+Column coordinate of the reference point.
+Default: 0
+▷Iterations (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer ; integer
+Number of iterations.
+Default: 1
+Suggested values: Iterations ∈{1, 2, 3, 4, 5, 7, 11, 17, 25, 32, 64, 128}
+Value range: 1 ≤Iterations (lin)
+Minimum increment: 1
+Recommended increment: 1
+Complexity
+Let F1 be the area of the input region, and F2 be the area of the structuring element. Then the runtime complexity
+for one region is:
+O(
+√
+F1 ·
+√
+F2 · Iterations) .
+Result
+dilation2 returns 2 (H_MSG_TRUE) if all parameters are correct. The behavior in case of empty or no input
+region can be set via:
+• no region: set_system(’no_object_result’,<RegionResult>)
+• empty region: set_system(’empty_region_result’,<RegionResult>)
+Otherwise, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Automatically parallelized on tuple level.
+Possible Predecessors
+threshold, regiongrowing, connection, union1, watersheds, class_ndim_norm,
+gen_circle, gen_ellipse, gen_rectangle1, gen_rectangle2, draw_region,
+gen_region_points, gen_region_polygon_filled
+Possible Successors
+reduce_domain, add_channels, select_shape, area_center, connection
+Alternatives
+minkowski_add1, minkowski_add2, dilation1
+See also
+erosion1, erosion2, opening, closing
+Module
+Foundation
+HALCON 26.05.0.0
+
+
+----- [page 2218] -----
+2170
+CHAPTER 21 MORPHOLOGY
+dilation_circle ( Region :
+RegionDilation :
+Radius :
+)
+Dilate a region with a circular structuring element.
+dilation_circle applies a Minkowski addition with a circular structuring element to the input regions
+Region. Because the circular mask is symmetrical, this is identical to a dilation. The size of the circle used
+as structuring element is determined by Radius.
+The operator results in enlarged regions, smoothed region boundaries, and the holes smaller than the circular mask
+in the interior of the region are closed. It is useful to select only values like 3.5, 5.5, etc. for Radius in order
+to avoid a translation of a region, because integer radii result in the circle having a non-integer center of gravity
+which is rounded to the next integer.
+Attention
+dilation_circle is applied to each input region separately. If gaps between different regions are to be closed,
+union1 or union2 has to be called ﬁrst.
+Parameters
+▷Region (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Regions to be dilated.
+▷RegionDilation (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Dilated regions.
+▷Radius (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . real ; real / integer
+Radius of the circular structuring element.
+Default: 3.5
+Suggested values: Radius ∈{1.5, 2.5, 3.5, 4.5, 5.5, 7.5, 9.5, 12.5, 15.5, 19.5, 25.5, 33.5, 45.5, 60.5, 110.5}
+Value range: 0.5 ≤Radius ≤511.5 (lin)
+Minimum increment: 1.0
+Recommended increment: 1.0
+Example
+#include "HIOStream.h"
+#if !defined(USE_IOSTREAM_H)
+using namespace std;
+#endif
+#include "HalconCpp.h"
+main()
+{
+cout << "Reproduction of 'dilation_circle ()'" << endl;
+cout << "First = original image " << endl;
+cout << "Blue
+= after dilation " << endl;
+cout << "Red
+= before dilation " << endl;
+HByteImage img("monkey");
+HWindow
+w;
+HRegion
+circ
+= HRegion::GenCircle (10, 10, 1.5);
+HRegionArray regs
+= (img >= 128).Connection();
+HRegionArray minadd = regs.MinkowskiAdd1 (circ, 1);
+img.Display (w);
+w.Click ();
+w.SetColor ("blue");
+minadd.Display (w);
+w.Click ();
+w.SetColor ("red");
+regs.Display (w);
+w.Click ();
+return(0);
+}
+Complexity
+Let F1 be the area of an input region. Then the runtime complexity for one region is:
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2219] -----
+21.2. REGION
+2171
+O(2 · Radius ·
+√
+F1) .
+Result
+dilation_circle returns 2 (H_MSG_TRUE) if all parameters are correct. The behavior in case of empty or
+no input region can be set via:
+• no region: set_system(’no_object_result’,<RegionResult>)
+• empty region: set_system(’empty_region_result’,<RegionResult>)
+Otherwise, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Automatically parallelized on tuple level.
+Possible Predecessors
+threshold, regiongrowing, connection, union1, watersheds, class_ndim_norm
+Possible Successors
+reduce_domain, select_shape, area_center, connection
+Alternatives
+minkowski_add1, minkowski_add2, expand_region, dilation1, dilation2,
+dilation_rectangle1
+See also
+gen_circle, erosion_circle, closing_circle, opening_circle
+Module
+Foundation
+dilation_rectangle1 ( Region :
+RegionDilation :
+Width,
+Height :
+)
+Dilate a region with a rectangular structuring element.
+dilation_rectangle1 applies a dilation with a rectangular structuring element to the input regions Region.
+The size of the structuring rectangle is Width × Height. The operator results in enlarged regions, and the holes
+smaller than the rectangular mask in the interior of the regions are closed.
+dilation_rectangle1 is a very fast operation because the height of the rectangle enters only logarithmically
+into the runtime complexity, while the width does not enter at all. This leads to excellent runtime efﬁciency, even
+in the case of very large rectangles (edge length > 100).
+Attention
+dilation_rectangle1 is applied to each input region separately. If gaps between different regions are to be
+closed, union1 or union2 has to be called ﬁrst.
+To enlarge a region by the same amount in all directions, Width and Height must be odd. If this is not the case,
+the region is dilated by a larger amount at the right or at the bottom, respectively, than at the left or at the top.
+Parameters
+▷Region (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Regions to be dilated.
+▷RegionDilation (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Dilated regions.
+HALCON 26.05.0.0
+
+
+----- [page 2220] -----
+2172
+CHAPTER 21 MORPHOLOGY
+▷Width (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .extent.x ; integer
+Width of the structuring rectangle.
+Default: 11
+Suggested values: Width ∈{1, 2, 3, 4, 5, 11, 15, 21, 31, 51, 71, 101, 151, 201}
+Value range: 1 ≤Width ≤511 (lin)
+Minimum increment: 1
+Recommended increment: 10
+▷Height (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . extent.y ; integer
+Height of the structuring rectangle.
+Default: 11
+Suggested values: Height ∈{1, 2, 3, 4, 5, 11, 15, 21, 31, 51, 71, 101, 151, 201}
+Value range: 1 ≤Height ≤511 (lin)
+Minimum increment: 1
+Recommended increment: 10
+Example
+#include "HIOStream.h"
+#if !defined(USE_IOSTREAM_H)
+using namespace std;
+#endif
+#include "HalconCpp.h"
+main()
+{
+cout << "Reproduction of 'dilation_rectangle ()'" << endl;
+cout << "First = original image " << endl;
+cout << "Blue
+= after dilation " << endl;
+cout << "Red
+= after segmentation " << endl;
+HByteImage img("monkey");
+HWindow
+w;
+HRegionArray regs
+= (img >= 220).Connection();
+HRegionArray dilreg = regs.DilationRectangle1 (2, 4);
+img.Display (w);
+w.Click ();
+w.SetColor ("blue");
+dilreg.Display (w);
+w.Click ();
+w.SetColor ("red");
+regs.Display (w);
+w.Click ();
+return(0);
+}
+Complexity
+Let F1 be the area of an input region and H be the height of the rectangle. Then the runtime complexity for one
+region is:
+O(
+√
+F1 · ld(H)) .
+Result
+dilation_rectangle1 returns 2 (H_MSG_TRUE) if all parameters are correct. The behavior in case of empty
+or no input region can be set via:
+• no region: set_system(’no_object_result’,<RegionResult>)
+• empty region: set_system(’empty_region_result’,<RegionResult>)
+Otherwise, an exception is raised.
+Execution Information
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2221] -----
+21.2. REGION
+2173
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Automatically parallelized on tuple level.
+Possible Predecessors
+threshold, regiongrowing, connection, union1, watersheds, class_ndim_norm
+Possible Successors
+reduce_domain, select_shape, area_center, connection
+Alternatives
+minkowski_add1, minkowski_add2, expand_region, dilation1, dilation2,
+dilation_circle
+See also
+gen_rectangle1, gen_region_polygon_filled
+Module
+Foundation
+erosion1 ( Region,
+StructElement :
+RegionErosion :
+Iterations :
+)
+Erode a region.
+erosion1 erodes the input regions with a structuring element. By applying erosion1 to a region, its boundary
+gets smoothed. In the process, the area of the region is reduced. Furthermore, connected regions may be split.
+Such regions, however, remain logically one region. The erosion is a set-theoretic region operation. It uses the
+intersection operation.
+Let M (StructElement) and R (Region) be two regions, where M is the structuring element and R is the
+region to be processed. Furthermore, let m be a point in M. Then the displacement vector⃗vm = (dx, dy) is
+deﬁned as the difference of the center of gravity of M and the vector⃗m. Let t⃗vm(R) denote the translation of a
+region R by a vector⃗v. Then
+erosion1(R, M) :=
+\
+m∈M
+t−⃗vm(R).
+For each point m in M a translation of the region R is performed. The intersection of all these translations is
+the erosion of R with M. erosion1 is similar to the operator minkowski_sub1, the difference is that in
+erosion1 the structuring element is mirrored at the origin. The position of StructElement is meaningless,
+since the displacement vectors are determined with respect to the center of gravity of M.
+The parameter Iterations determines the number of iterations which are to be performed with the structuring
+element. The result of iteration n −1 is used as input for iteration n. From the above deﬁnition it follows that the
+maximum region is generated in case of an empty structuring element.
+Structuring
+elements
+(StructElement)
+can
+be
+generated
+with
+operators
+such
+as
+gen_circle,
+gen_rectangle1,
+gen_rectangle2,
+gen_ellipse,
+draw_region,
+gen_region_polygon,
+gen_region_points, etc.
+Parameters
+▷Region (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Regions to be eroded.
+▷StructElement (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region ; object
+Structuring element.
+▷RegionErosion (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Eroded regions.
+▷Iterations (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer ; integer
+Number of iterations.
+Default: 1
+Suggested values: Iterations ∈{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 17, 20, 30, 40, 50}
+Value range: 1 ≤Iterations (lin)
+Minimum increment: 1
+Recommended increment: 1
+HALCON 26.05.0.0
+
+
+----- [page 2222] -----
+2174
+CHAPTER 21 MORPHOLOGY
+Complexity
+Let F1 be the area of the input region, and F2 be the area of the structuring element. Then the runtime complexity
+for one region is:
+O(
+√
+F1 ·
+√
+F2 · Iterations) .
+Result
+erosion1 returns 2 (H_MSG_TRUE) if all parameters are correct. The behavior in case of empty or no input
+region can be set via:
+• no region: set_system(’no_object_result’,<RegionResult>)
+• empty region: set_system(’empty_region_result’,<RegionResult>)
+Otherwise, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Automatically parallelized on tuple level.
+Possible Predecessors
+threshold, regiongrowing, watersheds, class_ndim_norm, gen_circle, gen_ellipse,
+gen_rectangle1, gen_rectangle2, draw_region, gen_region_points,
+gen_region_polygon_filled
+Possible Successors
+connection, reduce_domain, select_shape, area_center
+Alternatives
+minkowski_sub1, minkowski_sub2, erosion2
+See also
+transpose_region
+Module
+Foundation
+erosion2 ( Region,
+StructElement :
+RegionErosion :
+Row,
+Column,
+Iterations :
+)
+Erode a region (using a reference point).
+erosion2 erodes the input regions with a structuring element (StructElement) having the reference point
+(Row,Column). erosion2 has a similar effect as erosion1, the difference is that the reference point of the
+structuring element can be chosen arbitrarily. The parameter Iterations determines the number of iterations
+which are to be performed with the structuring element. The result of iteration n −1 is used as input for iteration
+n.
+A maximum region is generated in case of an empty structuring element.
+Structuring
+elements
+(StructElement)
+can
+be
+generated
+with
+operators
+such
+as
+gen_circle,
+gen_rectangle1,
+gen_rectangle2,
+gen_ellipse,
+draw_region,
+gen_region_polygon,
+gen_region_points, etc.
+Parameters
+▷Region (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Regions to be eroded.
+▷StructElement (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region ; object
+Structuring element.
+▷RegionErosion (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Eroded regions.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2223] -----
+21.2. REGION
+2175
+▷Row (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . point.y ; integer
+Row coordinate of the reference point.
+Default: 0
+Value range: 0 ≤Row ≤511 (lin)
+Minimum increment: 1
+Recommended increment: 1
+▷Column (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . point.x ; integer
+Column coordinate of the reference point.
+Default: 0
+Value range: 0 ≤Column ≤511 (lin)
+Minimum increment: 1
+Recommended increment: 1
+▷Iterations (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer ; integer
+Number of iterations.
+Default: 1
+Suggested values: Iterations ∈{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 17, 20, 30, 40, 50}
+Value range: 1 ≤Iterations (lin)
+Minimum increment: 1
+Recommended increment: 1
+Complexity
+Let F1 be the area of the input region, and F2 be the area of the structuring element. Then the runtime complexity
+for one region is:
+O(
+√
+F1 ·
+√
+F2 · Iterations) .
+Result
+erosion2 returns 2 (H_MSG_TRUE) if all parameters are correct. The behavior in case of empty or no input
+region can be set via:
+• no region: set_system(’no_object_result’,<RegionResult>)
+• empty region: set_system(’empty_region_result’,<RegionResult>)
+Otherwise, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Automatically parallelized on tuple level.
+Possible Predecessors
+threshold, regiongrowing, watersheds, class_ndim_norm, gen_circle, gen_ellipse,
+gen_rectangle1, gen_rectangle2, draw_region, gen_region_points,
+gen_region_polygon_filled
+Possible Successors
+reduce_domain, select_shape, area_center, connection
+Alternatives
+minkowski_sub2, minkowski_sub1, erosion1
+See also
+transpose_region, gen_circle, gen_rectangle2, gen_region_polygon
+Module
+Foundation
+erosion_circle ( Region :
+RegionErosion :
+Radius :
+)
+Erode a region with a circular structuring element.
+HALCON 26.05.0.0
+
+
+----- [page 2224] -----
+2176
+CHAPTER 21 MORPHOLOGY
+erosion_circle applies a Minkowski subtraction with a circular structuring element to the input regions
+Region. Because the circular mask is symmetrical, this is identical to an erosion. The size of the circle used as
+structuring element is determined by Radius.
+The operator results in reduced regions, smoothed region boundaries, and the regions smaller than the circular
+mask are eliminated. It is useful to select only values like 3.5, 5.5, etc. for Radius in order to avoid a translation
+of a region, because integer radii result in a circle having a non-integer center of gravity which is rounded to the
+next integer.
+Parameters
+▷Region (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Regions to be eroded.
+▷RegionErosion (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Eroded regions.
+▷Radius (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . real ; real / integer
+Radius of the circular structuring element.
+Default: 3.5
+Suggested values: Radius ∈{1.5, 2.5, 3.5, 4.5, 5.5, 7.5, 9.5, 12.5, 15.5, 19.5, 25.5, 33.5, 45.5, 60.5, 110.5}
+Value range: 0.5 ≤Radius ≤511.5 (lin)
+Minimum increment: 1.0
+Recommended increment: 1.0
+Example
+#include "HIOStream.h"
+#if !defined(USE_IOSTREAM_H)
+using namespace std;
+#endif
+#include "HalconCpp.h"
+main()
+{
+cout << "Simulation of 'erosion_circle ()'" << endl;
+cout << "First = original image " << endl;
+cout << "Red
+= after segmentation " << endl;
+cout << "Blue
+= after erosion " << endl;
+HByteImage img("monkey");
+HWindow
+w;
+HRegion
+circ
+= HRegion::GenCircle (10, 10, 1.5);
+HRegionArray regs
+= (img >= 128).Connection();
+HRegionArray minsub = regs.MinkowskiSub1 (circ, 1);
+img.Display (w);
+w.Click ();
+w.SetColor ("red");
+regs.Display (w);
+w.Click ();
+w.SetColor ("blue");
+minsub.Display (w);
+w.Click ();
+return(0);
+}
+Complexity
+Let F1 be the area of an input region. Then the runtime complexity for one region is:
+O(2 · Radius ·
+√
+F1) .
+Result
+erosion_circle returns 2 (H_MSG_TRUE) if all parameters are correct. The behavior in case of empty or no
+input region can be set via:
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2225] -----
+21.2. REGION
+2177
+• no region: set_system(’no_object_result’,<RegionResult>)
+• empty region: set_system(’empty_region_result’,<RegionResult>)
+Otherwise, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Automatically parallelized on tuple level.
+Possible Predecessors
+threshold, regiongrowing, watersheds, class_ndim_norm
+Possible Successors
+connection, reduce_domain, select_shape, area_center
+Alternatives
+minkowski_sub1
+See also
+gen_circle, dilation_circle, closing_circle, opening_circle
+Module
+Foundation
+erosion_rectangle1 ( Region :
+RegionErosion :
+Width,
+Height :
+)
+Erode a region with a rectangular structuring element.
+erosion_rectangle1 applies an erosion with a rectangular structuring element to the input regions Region.
+The size of the structuring rectangle is Width × Height. The operator results in reduced regions, and the areas
+smaller than the rectangular mask are eliminated.
+erosion_rectangle1 is a very fast operation because the height of the rectangle enters only logarithmically
+into the runtime complexity, while the width does not enter at all. This leads to excellent runtime efﬁciency, even
+in the case of very large rectangles (edge length > 100).
+Regions containing small connecting strips between large areas are separated only seemingly. They remain logi-
+cally one region.
+Attention
+To reduce a region by the same amount in all directions, Width and Height must be odd. If this is not the case,
+the region is eroded by a smaller amount at the right or at the bottom, respectively, than at the left or at the top.
+Parameters
+▷Region (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Regions to be eroded.
+▷RegionErosion (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Eroded regions.
+▷Width (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .extent.x ; integer
+Width of the structuring rectangle.
+Default: 11
+Suggested values: Width ∈{1, 2, 3, 4, 5, 11, 15, 21, 31, 51, 71, 101, 151, 201}
+Value range: 1 ≤Width ≤511 (lin)
+Minimum increment: 1
+Recommended increment: 1
+▷Height (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . extent.y ; integer
+Height of the structuring rectangle.
+Default: 11
+Suggested values: Height ∈{1, 2, 3, 4, 5, 11, 15, 21, 31, 51, 71, 101, 151, 201}
+Value range: 1 ≤Height ≤511 (lin)
+Minimum increment: 1
+Recommended increment: 1
+HALCON 26.05.0.0
+
+
+----- [page 2226] -----
+2178
+CHAPTER 21 MORPHOLOGY
+Complexity
+Let F1 be the area of an input region and H be the height of the rectangle. Then the runtime complexity for one
+region is:
+O(
+√
+F1 · ld(H)) .
+Result
+erosion_rectangle1 returns 2 (H_MSG_TRUE) if all parameters are correct. The behavior in case of empty
+or no input region can be set via:
+• no region: set_system(’no_object_result’,<RegionResult>)
+• empty region: set_system(’empty_region_result’,<RegionResult>)
+Otherwise, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Automatically parallelized on tuple level.
+Possible Predecessors
+threshold, regiongrowing, watersheds, class_ndim_norm
+Possible Successors
+reduce_domain, select_shape, area_center, connection
+Alternatives
+erosion1, minkowski_sub1
+See also
+gen_rectangle1
+Module
+Foundation
+hit_or_miss ( Region,
+StructElement1,
+StructElement2 :
+RegionHitMiss :
+Row,
+Column :
+)
+Hit-or-miss operation for regions.
+hit_or_miss performs the hit-or-miss-transformation.
+First, an erosion with the structuring element
+StructElement1 is done on the input region Region.
+Then an erosion with the structuring element
+StructElement2 is performed on the complement of the input region. The intersection of the two resulting
+regions is the result RegionHitMiss of hit_or_miss.
+The hit-or-miss-transformation selects precisely the points for which the conditions given by the structuring ele-
+ments StructElement1 and StructElement2 are fulﬁlled. StructElement1 determines the condition
+for the foreground pixels, while StructElement2 determines the condition for the background pixels. In order
+to obtain sensible results, StructElement1 and StructElement2 must ﬁt like key and lock. In any case,
+StructElement1 and StructElement2 must be disjunct. Row and Column determine the reference point
+of the structuring elements.
+Structuring elements (StructElement1, StructElement2) can be generated by calling operators like
+gen_region_points, etc.
+Parameters
+▷Region (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Regions to be processed.
+▷StructElement1 (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region ; object
+Erosion mask for the input regions.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2227] -----
+21.2. REGION
+2179
+▷StructElement2 (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region ; object
+Erosion mask for the complements of the input regions.
+▷RegionHitMiss (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Result of the hit-or-miss operation.
+▷Row (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . point.y ; integer
+Row coordinate of the reference point.
+Default: 16
+Suggested values: Row ∈{0, 16, 32, 128, 256}
+Value range: 0 ≤Row ≤511 (lin)
+Minimum increment: 1
+Recommended increment: 1
+▷Column (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . point.x ; integer
+Column coordinate of the reference point.
+Default: 16
+Suggested values: Column ∈{0, 16, 32, 128, 256}
+Value range: 0 ≤Column ≤511 (lin)
+Minimum increment: 1
+Recommended increment: 1
+Complexity
+Let F be the area of an input region, F1 the area of the structuring element 1, and F2 the area of the structuring
+element 2. Then the runtime complexity for one object is:
+O
+√
+F ·
+√
+F1 +
+√
+F2
+
+.
+Result
+hit_or_miss returns 2 (H_MSG_TRUE) if all parameters are correct. The behavior in case of empty or no input
+region can be set via:
+• no region: set_system(’no_object_result’,<RegionResult>)
+• empty region: set_system(’empty_region_result’,<RegionResult>)
+Otherwise, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Automatically parallelized on tuple level.
+Possible Predecessors
+threshold, regiongrowing, connection, union1, watersheds, class_ndim_norm
+Possible Successors
+difference, reduce_domain, select_shape, area_center, connection
+Alternatives
+erosion2, dilation2
+See also
+gen_region_points, gen_region_polygon_filled
+Module
+Foundation
+minkowski_add1 ( Region,
+StructElement :
+RegionMinkAdd :
+Iterations :
+)
+Perform a Minkowski addition on a region.
+HALCON 26.05.0.0
+
+
+----- [page 2228] -----
+2180
+CHAPTER 21 MORPHOLOGY
+minkowski_add1 dilates the input regions with a structuring element. By applying minkowski_add1 to a
+region, its boundary gets smoothed. In the process, the area of the region is enlarged. Furthermore, disconnected
+regions may be merged. Such regions, however, remain logically distinct region. The Minkowski addition is a
+set-theoretic region operation. It is based on translations and union operations.
+Let M (StructElement) and R (Region) be two regions, where M is the structuring element and R is the
+region to be processed. Furthermore, let m be a point in M. Then the displacement vector⃗vm = (dx, dy) is
+deﬁned as the difference of the center of gravity of M and the vector⃗m. Let t⃗vm(R) denote the translation of a
+region R by a vector⃗v. Then
+minkowski_add1(R, M) :=
+[
+m∈M
+t⃗vm(R)
+For each point m in M a translation of the region R is performed. The union of all these translations is the
+Minkowski addition of R with M. minkowski_add1 is similar to the operator dilation1, the difference
+is that in dilation1 the structuring element is mirrored at the origin. The position of StructElement is
+meaningless, since the displacement vectors are determined with respect to the center of gravity of M.
+The parameter Iterations determines the number of iterations which are to be performed with the structuring
+element. The result of iteration n −1 is used as input for iteration n. From the above deﬁnition it follows that an
+empty region is generated in case of an empty structuring element.
+Structuring
+elements
+(StructElement)
+can
+be
+generated
+with
+operators
+such
+as
+gen_circle,
+gen_rectangle1,
+gen_rectangle2,
+gen_ellipse,
+draw_region,
+gen_region_polygon,
+gen_region_points, etc.
+Attention
+A Minkowski addition always results in enlarged regions. Closely spaced regions which may touch or overlap as
+a result of the dilation are still treated as two separate regions. If the desired behavior is to merge them into one
+region, the operator union1 has to be called ﬁrst.
+Parameters
+▷Region (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Regions to be dilated.
+▷StructElement (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region ; object
+Structuring element.
+▷RegionMinkAdd (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Dilated regions.
+▷Iterations (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer ; integer
+Number of iterations.
+Default: 1
+Suggested values: Iterations ∈{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 17, 20, 30, 40, 50}
+Value range: 1 ≤Iterations (lin)
+Minimum increment: 1
+Recommended increment: 1
+Complexity
+Let F1 be the area of the input region, and F2 be the area of the structuring element. Then the runtime complexity
+for one region is:
+O(
+√
+F1 ·
+√
+F2 · Iterations) .
+Result
+minkowski_add1 returns 2 (H_MSG_TRUE) if all parameters are correct. The behavior in case of empty or no
+input region can be set via:
+• no region: set_system(’no_object_result’,<RegionResult>)
+• empty region: set_system(’empty_region_result’,<RegionResult>)
+Otherwise, an exception is raised.
+Execution Information
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2229] -----
+21.2. REGION
+2181
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Automatically parallelized on tuple level.
+Possible Predecessors
+threshold, regiongrowing, connection, union1, watersheds, class_ndim_norm,
+gen_circle, gen_ellipse, gen_rectangle1, gen_rectangle2, draw_region,
+gen_region_points, gen_region_polygon_filled
+Possible Successors
+reduce_domain, select_shape, area_center, connection
+Alternatives
+minkowski_add2, dilation1
+See also
+transpose_region, minkowski_sub1
+Module
+Foundation
+minkowski_add2 ( Region,
+StructElement :
+RegionMinkAdd :
+Row,
+Column,
+Iterations :
+)
+Dilate a region (using a reference point).
+minkowski_add2 computes the Minkowski addition of the input regions with a structuring element
+(StructElement) having the reference point (Row,Column). minkowski_add2 has a similar effect as
+minkowski_add1, the difference is that the reference point of the structuring element can be chosen arbitrarily.
+The parameter Iterations determines the number of iterations which are to be performed with the structuring
+element. The result of iteration n −1 is used as input for iteration n.
+An empty region is generated in case of an empty structuring element.
+Structuring
+elements
+(StructElement)
+can
+be
+generated
+with
+operators
+such
+as
+gen_circle,
+gen_rectangle1,
+gen_rectangle2,
+gen_ellipse,
+draw_region,
+gen_region_polygon,
+gen_region_points, etc.
+Attention
+A Minkowski addition always results in enlarged regions. Closely spaced regions which may touch or overlap as
+a result of the dilation are still treated as two separate regions. If the desired behavior is to merge them into one
+region, the operator union1 has to be called ﬁrst.
+Parameters
+▷Region (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Regions to be dilated.
+▷StructElement (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region ; object
+Structuring element.
+▷RegionMinkAdd (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Dilated regions.
+▷Row (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . point.y ; integer
+Row coordinate of the reference point.
+Value range: 1 ≤Row ≤511 (lin)
+Minimum increment: 1
+Recommended increment: 1
+▷Column (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . point.x ; integer
+Column coordinate of the reference point.
+Value range: 1 ≤Column ≤511 (lin)
+Minimum increment: 1
+Recommended increment: 1
+HALCON 26.05.0.0
+
+
+----- [page 2230] -----
+2182
+CHAPTER 21 MORPHOLOGY
+▷Iterations (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer ; integer
+Number of iterations.
+Default: 1
+Suggested values: Iterations ∈{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 17, 20, 30, 40, 50}
+Value range: 1 ≤Iterations (lin)
+Minimum increment: 1
+Recommended increment: 1
+Complexity
+Let F1 be the area of the input region, and F2 be the area of the structuring element. Then the runtime complexity
+for one region is:
+O(
+√
+F1 ·
+√
+F2 · Iterations) .
+Result
+minkowski_add2 returns 2 (H_MSG_TRUE) if all parameters are correct. The behavior in case of empty or no
+input region can be set via:
+• no region: set_system(’no_object_result’,<RegionResult>)
+• empty region: set_system(’empty_region_result’,<RegionResult>)
+Otherwise, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Automatically parallelized on tuple level.
+Possible Predecessors
+threshold, regiongrowing, connection, union1, watersheds, class_ndim_norm,
+gen_circle, gen_ellipse, gen_rectangle1, gen_rectangle2, draw_region,
+gen_region_points, gen_region_polygon_filled
+Possible Successors
+reduce_domain, select_shape, area_center, connection
+Alternatives
+minkowski_add1, dilation1
+See also
+transpose_region
+Module
+Foundation
+minkowski_sub1 ( Region,
+StructElement :
+RegionMinkSub :
+Iterations :
+)
+Erode a region.
+minkowski_sub1 computes the Minkowski subtraction of the input regions with a structuring element. By
+applying minkowski_sub1 to a region, its boundary gets smoothed. In the process, the area of the region is
+reduced. Furthermore, connected regions may be split. Such regions, however, remain logically one region. The
+Minkowski subtraction is a set-theoretic region operation. It uses the intersection operation.
+Let M (StructElement) and R (Region) be two regions, where M is the structuring element and R is the
+region to be processed. Furthermore, let m be a point in M. Then the displacement vector⃗vm = (dx, dy) is
+deﬁned as the difference of the center of gravity of M and the vector⃗m. Let t⃗vm(R) denote the translation of a
+region R by a vector⃗v. Then
+minkowski_sub1(R, M) :=
+\
+m∈M
+t⃗vm(R)
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2231] -----
+21.2. REGION
+2183
+For each point m in M a translation of the region R is performed. The intersection of all these translations is the
+Minkowski subtraction of R with M. minkowski_sub1 is similar to the operator erosion1, the difference
+is that in erosion1 the structuring element is mirrored at the origin. The position of StructElement is
+meaningless, since the displacement vectors are determined with respect to the center of gravity of M.
+The parameter Iterations determines the number of iterations which are to be performed with the structuring
+element. The result of iteration n −1 is used as input for iteration n. From the above deﬁnition it follows that the
+maximum region is generated in case of an empty structuring element.
+Structuring
+elements
+(StructElement)
+can
+be
+generated
+with
+operators
+such
+as
+gen_circle,
+gen_rectangle1,
+gen_rectangle2,
+gen_ellipse,
+draw_region,
+gen_region_polygon,
+gen_region_points, etc.
+Parameters
+▷Region (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Regions to be eroded.
+▷StructElement (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region ; object
+Structuring element.
+▷RegionMinkSub (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Eroded regions.
+▷Iterations (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer ; integer
+Number of iterations.
+Default: 1
+Suggested values: Iterations ∈{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 17, 20, 30, 40, 50}
+Value range: 1 ≤Iterations (lin)
+Minimum increment: 1
+Recommended increment: 1
+Complexity
+Let F1 be the area of the input region, and F2 be the area of the structuring element. Then the runtime complexity
+for one region is:
+O(
+√
+F1 ·
+√
+F2 · Iterations) .
+Result
+minkowski_sub1 returns 2 (H_MSG_TRUE) if all parameters are correct. The behavior in case of empty or no
+input region can be set via:
+• no region: set_system(’no_object_result’,<RegionResult>)
+• empty region: set_system(’empty_region_result’,<RegionResult>)
+Otherwise, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Automatically parallelized on tuple level.
+Possible Predecessors
+threshold, regiongrowing, connection, union1, watersheds, class_ndim_norm,
+gen_circle, gen_ellipse, gen_rectangle1, gen_rectangle2, draw_region,
+gen_region_points, gen_region_polygon_filled
+Possible Successors
+reduce_domain, select_shape, area_center, connection
+Alternatives
+minkowski_sub2, erosion1
+See also
+transpose_region
+Module
+Foundation
+HALCON 26.05.0.0
+
+
+----- [page 2232] -----
+2184
+CHAPTER 21 MORPHOLOGY
+minkowski_sub2 ( Region,
+StructElement :
+RegionMinkSub :
+Row,
+Column,
+Iterations :
+)
+Erode a region (using a reference point).
+minkowski_sub2 computes the Minkowski subtraction of the input regions with a structuring element
+(StructElement) having the reference point (Row,Column). minkowski_sub2 has a similar effect as
+minkowski_sub1, the difference is that the reference point of the structuring element can be chosen arbitrarily.
+The parameter Iterations determines the number of iterations which are to be performed with the structuring
+element. The result of iteration n −1 is used as input for iteration n.
+A maximum region is generated in case of an empty structuring element.
+Structuring
+elements
+(StructElement)
+can
+be
+generated
+with
+operators
+such
+as
+gen_circle,
+gen_rectangle1,
+gen_rectangle2,
+gen_ellipse,
+draw_region,
+gen_region_polygon,
+gen_region_points, etc.
+Parameters
+▷Region (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Regions to be eroded.
+▷StructElement (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region ; object
+Structuring element.
+▷RegionMinkSub (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Eroded regions.
+▷Row (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . point.y ; integer
+Row coordinate of the reference point.
+Default: 0
+Suggested values: Row ∈{0, 10, 16, 32, 64, 100, 128}
+Value range: 0 ≤Row ≤511 (lin)
+Minimum increment: 1
+Recommended increment: 1
+▷Column (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . point.x ; integer
+Column coordinate of the reference point.
+Default: 0
+Suggested values: Column ∈{0, 10, 16, 32, 64, 100, 128}
+Value range: 0 ≤Column ≤511 (lin)
+Minimum increment: 1
+Recommended increment: 1
+▷Iterations (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer ; integer
+Number of iterations.
+Default: 1
+Suggested values: Iterations ∈{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 17, 20, 30, 40, 50}
+Value range: 1 ≤Iterations (lin)
+Minimum increment: 1
+Recommended increment: 1
+Complexity
+Let F1 be the area of the input region, and F2 be the area of the structuring element. Then the runtime complexity
+for one region is:
+O(
+√
+F1 ·
+√
+F2 · Iterations) .
+Result
+minkowski_sub2 returns 2 (H_MSG_TRUE) if all parameters are correct. The behavior in case of empty or no
+input region can be set via:
+• no region: set_system(’no_object_result’,<RegionResult>)
+• empty region: set_system(’empty_region_result’,<RegionResult>)
+Otherwise, an exception is raised.
+Execution Information
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2233] -----
+21.2. REGION
+2185
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Automatically parallelized on tuple level.
+Possible Predecessors
+threshold, regiongrowing, watersheds, class_ndim_norm, gen_circle, gen_ellipse,
+gen_rectangle1, gen_rectangle2, draw_region, gen_region_points,
+gen_region_polygon_filled
+Possible Successors
+reduce_domain, select_shape, area_center, connection
+Alternatives
+minkowski_sub1, erosion1, erosion2
+See also
+gen_circle, gen_rectangle2, gen_region_polygon
+Module
+Foundation
+opening ( Region,
+StructElement :
+RegionOpening :
+:
+)
+Open a region.
+An opening operation is deﬁned as an erosion followed by a Minkowski addition. By applying opening to a
+region, larger structures remain mostly intact, while small structures like lines or points are eliminated. In contrast,
+a closing operation results in small gaps being retained or ﬁlled up (see closing).
+opening serves to eliminate small regions (smaller than StructElement) and to smooth the boundaries of a
+region. The position of StructElement is meaningless, since an opening operation is invariant with respect to
+the choice of the reference point.
+Structuring
+elements
+(StructElement)
+can
+be
+generated
+with
+operators
+such
+as
+gen_circle,
+gen_rectangle1,
+gen_rectangle2,
+gen_ellipse,
+draw_region,
+gen_region_polygon,
+gen_region_points, etc.
+Parameters
+▷Region (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Regions to be opened.
+▷StructElement (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region ; object
+Structuring element (position-invariant).
+▷RegionOpening (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Opened regions.
+Example
+* Large regions in an aerial picture (beech trees or meadows):
+read_image(Image,'forest_road')
+threshold(Image,Light,160,255)
+gen_circle(StructElement,100,100,10)
+* selecting the large regions
+opening(Light,StructElement,Large)
+* Selecting of edges with certain orientation:
+read_image(Image,'fabrik')
+sobel_amp(Image,Sobel,'sum_abs',3)
+threshold(Sobel,Edges,10,255)
+gen_rectangle2(StructElement,100,100,3.07819,20,1)
+opening(Edges,StructElement,Direction)
+Complexity
+Let F1 be the area of the input region, and F2 be the area of the structuring element. Then the runtime complexity
+for one region is:
+HALCON 26.05.0.0
+
+
+----- [page 2234] -----
+2186
+CHAPTER 21 MORPHOLOGY
+O(2 ·
+√
+F1 ·
+√
+F2) .
+Result
+opening returns 2 (H_MSG_TRUE) if all parameters are correct. The behavior in case of empty or no input
+region can be set via:
+• no region: set_system(’no_object_result’,<RegionResult>)
+• empty region: set_system(’empty_region_result’,<RegionResult>)
+Otherwise, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Automatically parallelized on tuple level.
+Possible Predecessors
+threshold, regiongrowing, connection, union1, watersheds, class_ndim_norm,
+gen_circle, gen_ellipse, gen_rectangle1, gen_rectangle2, draw_region,
+gen_region_points, gen_region_polygon_filled
+Possible Successors
+reduce_domain, select_shape, area_center, connection
+Alternatives
+minkowski_add1, erosion1, opening_circle
+See also
+gen_circle, gen_rectangle2, gen_region_polygon
+Module
+Foundation
+opening_circle ( Region :
+RegionOpening :
+Radius :
+)
+Open a region with a circular structuring element.
+opening_circle is deﬁned as an erosion followed by a Minkowski addition with a circular structuring element
+(see example). opening serves to eliminate small regions (smaller than the circular structuring element) and to
+smooth the boundaries of a region.
+Parameters
+▷Region (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Regions to be opened.
+▷RegionOpening (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Opened regions.
+▷Radius (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . real ; real / integer
+Radius of the circular structuring element.
+Default: 3.5
+Suggested values: Radius ∈{1.5, 2.5, 3.5, 4.5, 5.5, 7.5, 9.5, 12.5, 15.5, 19.5, 25.5, 33.5, 45.5, 60.5, 110.5}
+Value range: 0.5 ≤Radius ≤511.5 (lin)
+Minimum increment: 1.0
+Recommended increment: 1.0
+Example
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2235] -----
+21.2. REGION
+2187
+* Large regions in an aerial picture (beech trees or meadows):
+read_image (Image, 'forest_road')
+threshold (Image, Region, 120, 255)
+* Close the small gaps.
+closing_circle (Region, RegionClosing, 3.5)
+* Select the large regions.
+opening_circle (RegionClosing, RegionOpening, 19.5)
+Complexity
+Let F1 be the area of the input region. Then the runtime complexity for one region is:
+O(4 ·
+√
+F1 · Radius) .
+Result
+opening_circle returns 2 (H_MSG_TRUE) if all parameters are correct. The behavior in case of empty or no
+input region can be set via:
+• no region: set_system(’no_object_result’,<RegionResult>)
+• empty region: set_system(’empty_region_result’,<RegionResult>)
+Otherwise, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Automatically parallelized on tuple level.
+Possible Predecessors
+threshold, regiongrowing, connection, union1, watersheds, class_ndim_norm
+Possible Successors
+reduce_domain, select_shape, area_center, connection
+Alternatives
+opening, dilation1, minkowski_add1, gen_circle
+See also
+transpose_region
+Module
+Foundation
+opening_rectangle1 ( Region :
+RegionOpening :
+Width,
+Height :
+)
+Open a region with a rectangular structuring element.
+opening_rectangle1 behaves as opening with a rectangular structuring element on the input region
+Region. The size of the rectangular structuring element is determined by the parameters Width and Height.
+As is the case for all opening variants, larger structures are preserved, while small regions like lines or points
+are eliminated.
+Similar to erosion_rectangle1 and dilation_rectangle1 opening_rectangle1 is a very fast
+operation.
+HALCON 26.05.0.0
+
+
+----- [page 2236] -----
+2188
+CHAPTER 21 MORPHOLOGY
+Parameters
+▷Region (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Regions to be opened.
+▷RegionOpening (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Opened regions.
+▷Width (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .extent.x ; integer
+Width of the structuring rectangle.
+Default: 10
+Suggested values: Width ∈{1, 2, 3, 4, 5, 7, 9, 12, 15, 19, 25, 33, 45, 60, 110, 150, 200}
+Value range: 1 ≤Width ≤511 (lin)
+Minimum increment: 1
+Recommended increment: 1
+▷Height (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . extent.y ; integer
+Height of the structuring rectangle.
+Default: 10
+Suggested values: Height ∈{1, 2, 3, 4, 5, 7, 9, 12, 15, 19, 25, 33, 45, 60, 110, 150, 200}
+Value range: 1 ≤Height ≤511 (lin)
+Minimum increment: 1
+Recommended increment: 1
+Complexity
+Let F1 be the area of an input region and H be the height of the rectangle. Then the runtime complexity for one
+region is:
+O(2 ·
+√
+F1 · ld(H)) .
+Result
+opening_rectangle1 returns 2 (H_MSG_TRUE) if all parameters are correct. The behavior in case of empty
+or no input region can be set via:
+• no region: set_system(’no_object_result’,<RegionResult>)
+• empty region: set_system(’empty_region_result’,<RegionResult>)
+Otherwise, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Automatically parallelized on tuple level.
+Possible Predecessors
+threshold, regiongrowing, watersheds, class_ndim_norm
+Possible Successors
+reduce_domain, select_shape, area_center, connection
+Alternatives
+opening, gen_rectangle1, dilation_rectangle1, erosion_rectangle1
+Module
+Foundation
+pruning ( Region :
+RegionPrune :
+Length :
+)
+Prune the branches of a region.
+pruning removes branches from a skeleton (Region) having a length less than Length. All other branches
+are preserved.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2237] -----
+21.2. REGION
+2189
+Parameters
+▷Region (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Regions to be processed.
+▷RegionPrune (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Result of the pruning operation.
+▷Length (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer ; integer
+Length of the branches to be removed.
+Default: 2
+Suggested values: Length ∈{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 17, 20, 30, 40, 50}
+Value range: 1 ≤Length ≤511 (lin)
+Minimum increment: 1
+Recommended increment: 1
+Complexity
+Let F be the area of the input region. Then the runtime complexity for one region is
+O(Length · 3 ·
+√
+F) .
+Result
+pruning returns 2 (H_MSG_TRUE) if all parameters are correct. The behavior in case of empty or no input
+region can be set via:
+• no region: set_system(’no_object_result’,<RegionResult>)
+• empty region: set_system(’empty_region_result’,<RegionResult>)
+Otherwise, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Automatically parallelized on tuple level.
+Possible Predecessors
+skeleton
+Possible Successors
+reduce_domain, select_shape, area_center, connection
+See also
+junctions_skeleton
+Module
+Foundation
+top_hat ( Region,
+StructElement :
+RegionTopHat :
+:
+)
+Compute the top hat of regions.
+top_hat computes the opening of Region with StructElement. The difference between the original
+region and the result of the opening is called the top hat. In contrast to opening, which splits regions under
+certain circumstances, top_hat computes the regions removed by such a splitting.
+The position of StructElement is meaningless, since an opening operation is invariant with respect to the
+choice of the reference point.
+Structuring
+elements
+(StructElement)
+can
+be
+generated
+with
+operators
+such
+as
+gen_circle,
+gen_rectangle1,
+gen_rectangle2,
+gen_ellipse,
+draw_region,
+gen_region_polygon,
+gen_region_points, etc.
+HALCON 26.05.0.0
+
+
+----- [page 2238] -----
+2190
+CHAPTER 21 MORPHOLOGY
+Parameters
+▷Region (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Regions to be processed.
+▷StructElement (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region ; object
+Structuring element (position independent).
+▷RegionTopHat (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Result of the top hat operator.
+Result
+top_hat returns 2 (H_MSG_TRUE) if all parameters are correct. The behavior in case of empty or no input
+region can be set via:
+• no region: set_system(’no_object_result’,<RegionResult>)
+• empty region: set_system(’empty_region_result’,<RegionResult>)
+Otherwise, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Automatically parallelized on tuple level.
+Possible Predecessors
+threshold, regiongrowing, connection, union1, watersheds, class_ndim_norm,
+gen_circle, gen_ellipse, gen_rectangle1, gen_rectangle2, draw_region,
+gen_region_points, gen_region_polygon_filled
+Possible Successors
+reduce_domain, select_shape, area_center, connection
+Alternatives
+opening, difference
+See also
+bottom_hat, gray_tophat, opening
+Module
+Foundation
+HALCON/HDevelop Reference Manual, 2026-5-12

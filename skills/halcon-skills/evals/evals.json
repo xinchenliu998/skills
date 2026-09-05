@@ -1,0 +1,144 @@
+{
+  "skill_name": "halcon-skills",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "Write a complete, runnable HDevelop (.hdev) script that performs shape-based matching to find an IC on a PCB and reports each match's Row, Column, Angle and Score. The template is created from a saved image 'ic_template.png' with a rectangular ROI around the IC; the product polarity may flip between bright-on-dark and dark-on-bright. Save the trained model to 'ic_model.shm' so it can be reused. Prioritize robustness over speed, and explain your operator and parameter choices briefly.",
+      "expected_output": "An HDevelop script using read_image, gen_rectangle1, reduce_domain, create_shape_model (or the generic create_generic_shape_model/train/find), find_shape_model, with Metric set to tolerate polarity flip (ignore_global_polarity or ignore_local_polarity), reasonable MinScore ~0.5-0.8, Greediness, SubPixel least_squares, plus write_shape_model/read_shape_model reuse. Correct signatures and parameter ranges.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "a0",
+          "assertion": "Uses read_image + gen_rectangle1 + reduce_domain for template ROI",
+          "how": "grep the .hdev"
+        },
+        {
+          "id": "a1",
+          "assertion": "Creates a shape model (create_shape_model or create_generic_shape_model+train_generic_shape_model)",
+          "how": "grep"
+        },
+        {
+          "id": "a2",
+          "assertion": "Searches with find_shape_model / find_generic_shape_model and outputs Row,Column,Angle,Score",
+          "how": "grep"
+        },
+        {
+          "id": "a3",
+          "assertion": "Tolerates polarity flip: contains ignore_global_polarity or ignore_local_polarity or ignore_color_polarity",
+          "how": "grep Metric"
+        },
+        {
+          "id": "a4",
+          "assertion": "Reuses the model: uses write_shape_model or read_shape_model",
+          "how": "grep"
+        },
+        {
+          "id": "a5",
+          "assertion": "Uses a pixel-accurate SubPixel (least_squares or interpolation)",
+          "how": "grep"
+        },
+        {
+          "id": "a6",
+          "assertion": "MinScore set in a sane 0.4-0.9 range",
+          "how": "grep / parse"
+        },
+        {
+          "id": "a7",
+          "assertion": "No stop() in the script (headless-safe)",
+          "how": "grep"
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "prompt": "Write a complete, runnable HDevelop (.hdev) script that measures the diameter of three circles with a 2D metrology model. The camera is already calibrated; CamParam is available in a variable. Each circle's approximate center and radius are known. For each circle, apply the metrology model to the image and print the measured diameter in millimeters (use the calibrated world-plane mapping). Include robust error handling and specify the key parameters (measure_length, measure_sigma, measure_threshold, measure_select).",
+      "expected_output": "An HDevelop script using create_metrology_model, add_metrology_object_circle_measure (3 circles), apply_metrology_model, get_metrology_object_result('result_type','all_param') to get Center/Radius, then image_points_to_world_plane or similar to convert to mm and compute diameter. Correct parameter defaults (measure_sigma ~1.0, measure_threshold ~30, measure_select 'all'). Headless-safe.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "b0",
+          "assertion": "Uses create_metrology_model",
+          "how": "grep"
+        },
+        {
+          "id": "b1",
+          "assertion": "Adds circles with add_metrology_object_circle_measure (3 circles)",
+          "how": "grep"
+        },
+        {
+          "id": "b2",
+          "assertion": "Applies with apply_metrology_model",
+          "how": "grep"
+        },
+        {
+          "id": "b3",
+          "assertion": "Reads results with get_metrology_object_result",
+          "how": "grep"
+        },
+        {
+          "id": "b4",
+          "assertion": "Converts to world/mm (image_points_to_world_plane or change_radial_distortion or world-plane map)",
+          "how": "grep"
+        },
+        {
+          "id": "b5",
+          "assertion": "Sets metrology params measure_sigma(~1.0), measure_threshold(~30), measure_select('all'), measure_length via set_metrology_object_param",
+          "how": "grep"
+        },
+        {
+          "id": "b6",
+          "assertion": "Computes diameter = 2*radius and prints it",
+          "how": "grep"
+        },
+        {
+          "id": "b7",
+          "assertion": "No stop() (headless-safe)",
+          "how": "grep"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Write a complete, runnable HDevelop (.hdev) script that reads a Bayer RAW uint2 image, demosaics it to color, limits processing to a circular ROI at the image center, converts to single-channel grayscale, and computes the mean and standard deviation of gray values inside that ROI. Print the results. Prefer high-quality interpolation and explain your choice.",
+      "expected_output": "An HDevelop script using read_image, cfa_to_rgb (or gen the Bayer type) with 'hamilton' as high-quality interpolation, convert_image_type to byte if needed, gen_circle ROI, reduce_domain, rgb1_to_gray, and intensity(Image, Region -> Mean, Deviation) or min_max_gray. Correct operator order and parameter choice (hamilton preferred over bilinear).",
+      "files": [],
+      "assertions": [
+        {
+          "id": "c0",
+          "assertion": "Uses read_image",
+          "how": "grep"
+        },
+        {
+          "id": "c1",
+          "assertion": "Demosaics with cfa_to_rgb using high-quality 'hamilton' interpolation",
+          "how": "grep"
+        },
+        {
+          "id": "c2",
+          "assertion": "Uses convert_image_type (uint2->byte) for display/type",
+          "how": "grep"
+        },
+        {
+          "id": "c3",
+          "assertion": "Creates circular ROI with gen_circle and reduces with reduce_domain",
+          "how": "grep"
+        },
+        {
+          "id": "c4",
+          "assertion": "Converts to grayscale with rgb1_to_gray",
+          "how": "grep"
+        },
+        {
+          "id": "c5",
+          "assertion": "Computes Mean+Deviation with intensity(Image,Region->Mean,Deviation) or min_max_gray",
+          "how": "grep"
+        },
+        {
+          "id": "c6",
+          "assertion": "No stop() (headless-safe)",
+          "how": "grep"
+        }
+      ]
+    }
+  ]
+}

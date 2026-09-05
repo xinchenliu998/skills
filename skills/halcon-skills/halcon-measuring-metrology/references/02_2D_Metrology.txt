@@ -1,0 +1,2849 @@
+
+
+----- [page 79] -----
+Chapter 2
+2D Metrology
+This chapter contains operators for 2D metrology.
+Concept of 2D Metrology
+With 2D metrology, you can measure the dimensions of objects that can be represented by speciﬁc geometric
+primitives. The geometric shapes that can be measured comprise circles, ellipses, rectangles, and lines. You need
+approximate values for the positions, orientations, and dimensions of the objects to measure. Then, the real edge
+positions of the objects in the image are located near the boundaries of the approximate objects. With these edge
+positions, the parameters of the geometric shapes are optimized to better ﬁt to the image data and are returned as
+measurement result.
+The approximate values for the shape parameters of an object as well as some parameters that control the mea-
+surement are stored in a data structure that is called metrology object. The edges of the object in the image are
+located within so-called measure regions. These are rectangular regions that are arranged perpendicular to the
+boundaries of the metrology objects. Parameters that adjust the dimension and distribution of the measure regions
+are speciﬁed together with the approximate shape parameters for each metrology object. When the measurement
+is applied, the edge positions inside all measure regions are determined and ﬁtted to geometric shapes using a
+RANSAC algorithm. All metrology objects, all further information that is necessary for the measurement, and the
+measurement results are stored in a data structure that is called metrology model.
+(1)
+(2)
+The geometric shapes in (1) are measured using 2D Metrology (2): A metrology model with 4 metrology objects
+(blue contours) is created. Using the edge positions (cyan crosses) located within the measure regions (gray
+rectangles) for each metrology object, the geometric shapes (green contours) are ﬁtted and their parameters can
+be queried. As shown for the circles, more than one instance per object can be found. This image is from the
+example program apply_metrology_model.hdev.
+31
+
+
+----- [page 80] -----
+32
+CHAPTER 2 2D METROLOGY
+In the following, the steps that are required to use 2D metrology are described brieﬂy.
+Create the metrology model and specify the image size: First, a metrology model must be created using
+• create_metrology_model.
+The metrology model is used as a container for one or more metrology objects. For an efﬁcient measurement,
+after creating the metrology model, the image size of the image in which the measurements will be performed
+should be speciﬁed using
+• set_metrology_model_image_size.
+Provide approximate values: Then, metrology objects are added to the metrology model. Each metrology object
+consists of the approximate shape parameters for the corresponding object in the image and of the parameters
+that control the measurement. The parameters that control the measurement comprise, e.g., parameters that
+specify the dimension and distribution of the measure regions. Furthermore, several generic parameters can
+be adjusted for each metrology object. The metrology objects are speciﬁed with
+• add_metrology_object_circle_measure for circles,
+• add_metrology_object_ellipse_measure for ellipses,
+• add_metrology_object_rectangle2_measure for rectangles, and
+• add_metrology_object_line_measure for lines.
+• add_metrology_object_generic allows to create metrology objects of different shapes (e.g.,
+ellipse, circle, etc.) using one operator.
+To visually inspect the deﬁned metrology objects, you can access their XLD contours with the operator
+get_metrology_object_model_contour. To visually inspect the created measure regions, you
+can access their XLD contours with the operator get_metrology_object_measures.
+Modify the model parameters: If a camera calibration has been performed, the camera parameters and the pose
+of the measurement plane can be set with
+• set_metrology_model_param.
+Then, the result of the measurements returned by get_metrology_object_result will be in world
+coordinates. The reference coordinate system in which the metrology objects are deﬁned can also be changed
+with set_metrology_model_param.
+Modify object parameters: Many parameters can be set when adding the metrology objects to the metrology
+model. Some of them can also be modiﬁed afterwards using the operator
+• set_metrology_object_param.
+Align the metrology model: To translate and rotate the metrology model before the next measurement is per-
+formed, you can use the operator
+• align_metrology_model.
+An alignment is temporary and is replaced by the next alignment. The metrology model itself is not changed.
+Note that typically the alignment parameters are obtained using shape-based matching.
+Apply the measurement: The actual measurement in the image is performed with
+• apply_metrology_model.
+The operator locates the edges within the measure regions and ﬁts the speciﬁed geometric shape to the edge
+positions using a RANSAC algorithm. The edges are located internally using the operator measure_pos
+or fuzzy_measure_pos (see also chapter 1D Measuring). The latter uses fuzzy methods and is used only
+if at least one fuzzy function was set via set_metrology_object_fuzzy_param before applying the
+measurement. If more than one instance of the returned object shape is needed (compare image above),
+the generic parameter ’num_instances’ must be set to the number of instances that should be returned.
+The parameter can be set when adding the individual metrology objects or afterwards with the operator
+set_metrology_object_param.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 81] -----
+33
+Access the results: After the measurement, the results can be accessed. The parameters of the adapted geometric
+shapes of the objects are queried with the operator
+• get_metrology_object_result.
+Querying only the edges used for the returned result and their amplitudes is also done using
+get_metrology_object_result.
+The row and column coordinates of all located edges can be accessed with
+• get_metrology_object_measures.
+To visualize the adapted geometric shapes, you can access their XLD contours with
+• get_metrology_object_result_contour.
+Further operators
+In
+addition
+to
+the
+operators
+mentioned
+above,
+you
+can
+copy
+the
+metrology
+handle
+with
+copy_metrology_model, write the metrology model to ﬁle with write_metrology_model, read
+a model from ﬁle again using read_metrology_model, and serialize or deserialize a metrology model using
+serialize_metrology_model or deserialize_metrology_model.
+Furthermore, you can query various information from the metrology model. For example, you can query the indices
+of the metrology objects with get_metrology_object_indices, query parameters that are valid for the
+entire metrology model with get_metrology_model_param, query a fuzzy parameter of a metrology model
+with get_metrology_object_fuzzy_param, query the number of instances of the metrology objects of a
+metrology model with get_metrology_object_num_instances, and query the current conﬁguration of
+the metrology model with get_metrology_object_param.
+Additionally, you can reset all parameters of a metrology model using reset_metrology_object_param
+or
+reset
+only
+all
+fuzzy
+parameters
+and
+fuzzy
+functions
+of
+a
+metrology
+model
+using
+reset_metrology_object_fuzzy_param.
+Glossary
+In the following, the most important terms that are used in the context of 2D Metrology are described.
+metrology model Data structure that contains all metrology objects, all information needed for the measurement,
+and the measurement results.
+metrology object Data structure for the object to be measured with 2D metrology. The metrology object is repre-
+sented by a speciﬁc geometric shape for which the shape parameters are approximately known. Additionally,
+it contains parameters that control the measurement, e.g., parameters that specify the dimension and distri-
+bution of the measure regions.
+measure regions Rectangular regions that are arranged perpendicular to the boundaries of the approximate ob-
+jects. Within these regions the edges that are used to get the exact shape parameters of the metrology objects
+are extracted.
+returned instance of a metrology object For each metrology object, different instances of the object can be re-
+turned by the measurement, e.g., if parallel structures of the same shape exist near to the boundaries of the
+approximated geometric shape (see image above). The sequence of the returned instances is arbitrary, i.e., it
+is no measure for the quality of the ﬁtting.
+Further Information
+See also the “Solution Guide on 2D Measuring” for further details about 2D metrology.
+add_metrology_object_circle_measure ( :
+:
+MetrologyHandle,
+Row,
+Column,
+Radius,
+MeasureLength1,
+MeasureLength2,
+MeasureSigma,
+MeasureThreshold,
+GenParamName,
+GenParamValue :
+Index )
+Add a circle or a circular arc to a metrology model.
+HALCON 26.05.0.0
+
+
+----- [page 82] -----
+34
+CHAPTER 2 2D METROLOGY
+add_metrology_object_circle_measure adds a metrology object of type circle or circular arc to
+a metrology model and prepares the rectangular measure regions.
+The handle of the model is passed in
+MetrologyHandle.
+For an explanation of the concept of 2D metrology see the introduction of chapter 2D Metrology.
+The geometric shape of the metrology object of type circle is speciﬁed by its center (Row, Column) and Radius.
+The rectangular measure regions lie perpendicular to the boundary of the circle. The half edge lengths of the
+measure regions are set in MeasureLength1 and MeasureLength2. The centers of the measure regions lie
+on the boundary of the circle. The parameter MeasureSigma speciﬁes the standard deviation that is used by
+operator apply_metrology_model to smooth the gray values of the image. Salient edges can be selected
+with the parameter MeasureThreshold, which constitutes a threshold on the amplitude, i.e., the absolute value
+of the ﬁrst derivative of the edge. The operator add_metrology_object_circle_measure returns the
+index of the added metrology object in parameter Index.
+Furthermore, you can adjust some generic parameters with GenParamName and GenParamValue. The fol-
+lowing values for GenParamName and GenParamValue are available:
+’start_phi’: The parameter speciﬁes the angle at the start point of a circular arc. To create a closed circle the value
+of the parameter ’start_phi’ is set to 0 and the value of the parameter ’end_phi’ is set to 2π (with positive
+point order). The input value is mapped automatically to the interval [0, 2π].
+Suggested values: 0.0, 0.78, 6.28318
+Default: 0.0
+’end_phi’: The parameter speciﬁes the angle at the end point of a circular arc. To create a closed circle the value
+of the parameter ’start_phi’ is set to 0 and the value of the parameter ’end_phi’ is set to 2π (with positive
+point order). The input value is mapped internally automatically to the interval [0, 2π].
+Suggested values: 0.0, 0.78, 6.28318
+Default: 6.28318
+’point_order’: The parameter speciﬁes the direction of the circular arc. For the value ’positive’, the circular arc
+is deﬁned between ’start_phi’ and ’end_phi’ in mathematically positive direction (counterclockwise). For
+the value ’negative’, the circular arc is deﬁned between ’start_phi’ and ’end_phi’ in mathematically negative
+direction (clockwise).
+List of values: ’positive’, ’negative’
+Default: ’positive’
+Additionally all generic parameters, that are available for the operator set_metrology_object_param can
+be set. But note that for a lot of applications the default values are sufﬁcient and no adjustment is necessary.
+Parameters
+▷MetrologyHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . metrology_model ; handle
+Handle of the metrology model.
+▷Row (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . circle.center.y(-array) ; real / integer
+Row coordinate (or Y) of the center of the circle or circular arc.
+▷Column (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .circle.center.x(-array) ; real / integer
+Column (or X) coordinate of the center of the circle or circular arc.
+▷Radius (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . circle.radius(-array) ; real / integer
+Radius of the circle or circular arc.
+▷MeasureLength1 (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .number ; real / integer
+Half length of the measure regions perpendicular to the boundary.
+Default: 20.0
+Suggested values: MeasureLength1 ∈{10.0, 20.0, 30.0}
+Value range: 1.0 ≤MeasureLength1
+Minimum increment: 1.0
+Recommended increment: 10.0
+Restriction: MeasureLength1 < Radius
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 83] -----
+35
+▷MeasureLength2 (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .number ; real / integer
+Half length of the measure regions tangential to the boundary.
+Default: 5.0
+Suggested values: MeasureLength2 ∈{3.0, 5.0, 10.0}
+Value range: 1.0 ≤MeasureLength2
+Minimum increment: 1.0
+Recommended increment: 10.0
+▷MeasureSigma (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . number ; real / integer
+Sigma of the Gaussian function for the smoothing.
+Default: 1.0
+Suggested values: MeasureSigma ∈{0.4, 0.6, 0.8, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 7.0, 10.0}
+Value range: 0.4 ≤MeasureSigma ≤100.0
+Minimum increment: 0.01
+Recommended increment: 0.1
+▷MeasureThreshold (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . number ; real / integer
+Minimum edge amplitude.
+Default: 30.0
+Suggested values: MeasureThreshold ∈{5.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 90.0, 110.0}
+Value range: 1 ≤MeasureThreshold ≤255 (lin)
+Minimum increment: 0.5
+Recommended increment: 2
+▷GenParamName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . attribute.name-array ; string
+Names of the generic parameters.
+Default: []
+List of values: GenParamName ∈{’distance_threshold’, ’end_phi’, ’instances_outside_measure_regions’,
+’max_num_iterations’, ’measure_distance’, ’measure_interpolation’, ’measure_select’, ’measure_transition’,
+’min_score’, ’num_instances’, ’num_measures’, ’point_order’, ’rand_seed’, ’start_phi’}
+▷GenParamValue (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . .attribute.value-array ; real / integer / string
+Values of the generic parameters.
+Default: []
+Suggested values: GenParamValue ∈{1, 2, 3, 4, 5, 10, 20, ’all’, ’true’, ’false’, ’ﬁrst’, ’last’, ’positive’,
+’negative’, ’uniform’, ’nearest_neighbor’, ’bilinear’, ’bicubic’}
+▷Index (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .integer ; integer
+Index of the created metrology object.
+Example
+read_image (Image, 'rings_and_nuts')
+create_metrology_model (MetrologyHandle)
+get_image_size (Image, Width, Height)
+set_metrology_model_image_size (MetrologyHandle, Width, Height)
+add_metrology_object_circle_measure (MetrologyHandle, 120, 130, 35, 10, 2, \
+1, 30, ['measure_distance'], [40], Index)
+apply_metrology_model (Image, MetrologyHandle)
+get_metrology_object_result (MetrologyHandle, Index, 'all', 'result_type', \
+'all_param', Circle)
+get_metrology_object_result_contour (Contour, MetrologyHandle, Index, \
+'all', 1.5)
+Result
+If the parameters are valid, the operator add_metrology_object_circle_measure returns the value 2
+(H_MSG_TRUE). If necessary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+HALCON 26.05.0.0
+
+
+----- [page 84] -----
+36
+CHAPTER 2 2D METROLOGY
+This operator modiﬁes the state of the following input parameter:
+• MetrologyHandle
+During execution of this operator, access to the value of this parameter must be synchronized if it is used across
+multiple threads.
+Possible Predecessors
+set_metrology_model_image_size
+Possible Successors
+align_metrology_model, apply_metrology_model
+Alternatives
+add_metrology_object_generic
+See also
+get_metrology_object_model_contour, set_metrology_model_param,
+add_metrology_object_ellipse_measure, add_metrology_object_line_measure,
+add_metrology_object_rectangle2_measure
+Module
+2D Metrology
+add_metrology_object_ellipse_measure ( :
+:
+MetrologyHandle,
+Row,
+Column,
+Phi,
+Radius1,
+Radius2,
+MeasureLength1,
+MeasureLength2,
+MeasureSigma,
+MeasureThreshold,
+GenParamName,
+GenParamValue :
+Index )
+Add an ellipse or an elliptic arc to a metrology model.
+add_metrology_object_ellipse_measure adds a metrology object of type ellipse or elliptic arc to
+a metrology model and prepares the rectangular measure regions.
+The handle of the model is passed in
+MetrologyHandle.
+For an explanation of the concept of 2D metrology see the introduction of chapter 2D Metrology.
+The geometric shape of the metrology object of type ellipse is speciﬁed by its center (Row, Column), the orien-
+tation of the main axis Phi, the length of the larger half axis Radius1, and the length of the smaller half axis
+Radius2. The input value for Phi is mapped automatically to the interval ] −π, π]. The rectangular measure
+regions lie perpendicular to the boundary of the ellipse. The half edge lengths of the measure regions perpen-
+dicular and tangential to the boundary of the ellipse are set in MeasureLength1 and MeasureLength2.
+The centers of the measure regions lie on the boundary of the geometric shape. The parameter MeasureSigma
+speciﬁes the standard deviation that is used by the operator apply_metrology_model to smooth the gray
+values of the image.
+Salient edges can be selected with the parameter MeasureThreshold, which con-
+stitutes a threshold on the amplitude, i.e., the absolute value of the ﬁrst derivative of the edge. The operator
+add_metrology_object_ellipse_measure returns the index of the added metrology object in the pa-
+rameter Index.
+Furthermore, you can adjust some generic parameters within GenParamName and GenParamValue. The
+following values for GenParamName and GenParamValue are available:
+’start_phi’: The parameter speciﬁes the angle at the start point of an elliptic arc. The angle at the start point is
+measured relative to the positive main axis speciﬁed with Phi and corresponds to the smallest surrounding
+circle of the ellipse. The actual start point of the ellipse is the intersection of the ellipse with the orthogonal
+projection of the corresponding circle point onto the main axis. The angle refers to the coordinate system of
+the ellipse, i.e., it is speciﬁed relative to the main axis and in a mathematical positive direction. Thus, the two
+main poles correspond to the angles 0 and π, the two minor poles to the angle π/2 and 3π/2. To create a
+closed ellipse the value of the parameter ’start_phi’ is set to 0 and the value of the parameter ’end_phi’ is set
+to 2π (with positive point order). The input value is mapped internally automatically to the interval [0, 2π].
+Suggested values: 0.0, 0.78, 6.28318
+Default: 0.0
+’end_phi’: The parameter speciﬁes the angle at the end point of an elliptic arc. The angle at the end point are
+measured relative to the positive main axis speciﬁed with Phi and corresponds to the smallest surrounding
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 85] -----
+37
+circle of the ellipse. The actual end point of the ellipse is the intersection of the ellipse with the orthogonal
+projection of the corresponding circle point onto the main axis. The angle refers to the coordinate system of
+the ellipse, i.e., it is speciﬁed relative to the main axis and in a mathematical positive direction. Thus, the two
+main poles correspond to the angles 0 and π, the two minor poles to the angle π/2 and 3π/2. To create a
+closed ellipse the value of the parameter ’start_phi’ is set to 0 and the value of the parameter ’end_phi’ is set
+to 2π (with positive point order). The input value is mapped automatically to the interval [0, 2π].
+Suggested values: 0.0, 0.78, 6.28318
+Default: 6.28318
+’point_order’: The parameter speciﬁes the direction of the elliptic arc. For the value ’positive’, the elliptic arc
+is deﬁned between ’start_phi’ and ’end_phi’ in mathematically positive direction (counterclockwise). For
+the value ’negative’, the elliptic arc is deﬁned between ’start_phi’ and ’end_phi’ in mathematically negative
+direction (clockwise).
+List of values: ’positive’, ’negative’
+Default: ’positive’
+Additionally, all generic parameters that are available for the operator set_metrology_object_param can
+be set. But note that for a lot of applications the default values are sufﬁcient and no adjustment is necessary.
+Parameters
+▷MetrologyHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . metrology_model ; handle
+Handle of the metrology model.
+▷Row (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ellipse.center.y(-array) ; real / integer
+Row (or Y) coordinate of the center of the ellipse.
+▷Column (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ellipse.center.x(-array) ; real / integer
+Column (or X) coordinate of the center of the ellipse.
+▷Phi (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .ellipse.angle.rad(-array) ; real / integer
+Orientation of the main axis [rad].
+▷Radius1 (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ellipse.radius1(-array) ; real / integer
+Length of the larger half axis.
+▷Radius2 (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ellipse.radius2(-array) ; real / integer
+Length of the smaller half axis.
+▷MeasureLength1 (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .number ; real / integer
+Half length of the measure regions perpendicular to the boundary.
+Default: 20.0
+Suggested values: MeasureLength1 ∈{10.0, 20.0, 30.0}
+Value range: 1.0 ≤MeasureLength1
+Minimum increment: 1.0
+Recommended increment: 10.0
+Restriction: MeasureLength1 < Radius1 && MeasureLength1 < Radius2
+▷MeasureLength2 (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .number ; real / integer
+Half length of the measure regions tangential to the boundary.
+Default: 5.0
+Suggested values: MeasureLength2 ∈{3.0, 5.0, 10.0}
+Value range: 1.0 ≤MeasureLength2
+Minimum increment: 1.0
+Recommended increment: 10.0
+▷MeasureSigma (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . number ; real / integer
+Sigma of the Gaussian function for the smoothing.
+Default: 1.0
+Suggested values: MeasureSigma ∈{0.4, 0.6, 0.8, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 7.0, 10.0}
+Value range: 0.4 ≤MeasureSigma ≤100.0
+Minimum increment: 0.01
+Recommended increment: 0.1
+HALCON 26.05.0.0
+
+
+----- [page 86] -----
+38
+CHAPTER 2 2D METROLOGY
+▷MeasureThreshold (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . number ; real / integer
+Minimum edge amplitude.
+Default: 30.0
+Suggested values: MeasureThreshold ∈{5.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 90.0, 110.0}
+Value range: 1 ≤MeasureThreshold ≤255 (lin)
+Minimum increment: 0.5
+Recommended increment: 2
+▷GenParamName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . attribute.name-array ; string
+Names of the generic parameters.
+Default: []
+List of values: GenParamName ∈{’distance_threshold’, ’end_phi’, ’instances_outside_measure_regions’,
+’max_num_iterations’, ’measure_distance’, ’measure_interpolation’, ’measure_select’, ’measure_transition’,
+’min_score’, ’num_instances’, ’num_measures’, ’point_order’, ’rand_seed’, ’start_phi’}
+▷GenParamValue (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . .attribute.value-array ; real / integer / string
+Values of the generic parameters.
+Default: []
+Suggested values: GenParamValue ∈{1, 2, 3, 4, 5, 10, 20, ’all’, ’true’, ’false’, ’ﬁrst’, ’last’, ’positive’,
+’negative’, ’uniform’, ’nearest_neighbor’, ’bilinear’, ’bicubic’}
+▷Index (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .integer ; integer
+Index of the created metrology object.
+Result
+If the parameters are valid, the operator add_metrology_object_ellipse_measure returns the value 2
+(H_MSG_TRUE). If necessary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+This operator modiﬁes the state of the following input parameter:
+• MetrologyHandle
+During execution of this operator, access to the value of this parameter must be synchronized if it is used across
+multiple threads.
+Possible Predecessors
+set_metrology_model_image_size
+Possible Successors
+align_metrology_model, apply_metrology_model
+Alternatives
+add_metrology_object_generic
+See also
+get_metrology_object_model_contour, set_metrology_model_param,
+add_metrology_object_circle_measure, add_metrology_object_line_measure,
+add_metrology_object_rectangle2_measure
+Module
+2D Metrology
+add_metrology_object_generic ( :
+:
+MetrologyHandle,
+Shape,
+ShapeParam,
+MeasureLength1,
+MeasureLength2,
+MeasureSigma,
+MeasureThreshold,
+GenParamName,
+GenParamValue :
+Index )
+Add a metrology object to a metrology model.
+add_metrology_object_generic adds a metrology object of type Shape to a metrology model and pre-
+pares the rectangular measure regions.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 87] -----
+39
+For an explanation of the concept of 2D metrology see the introduction of chapter 2D Metrology.
+The handle of the model is passed in MetrologyHandle.
+Shape
+speciﬁes
+which
+type
+of
+object
+is
+added
+to
+the
+metrology
+model.
+The
+operator
+add_metrology_object_generic returns the index of the added metrology object in the parame-
+ter Index.
+Note that add_metrology_object_generic provides the functionality of the operators
+add_metrology_object_circle_measure,
+add_metrology_object_ellipse_measure,
+add_metrology_object_rectangle2_measure and add_metrology_object_line_measure
+in one operator.
+Possible shapes
+Depending on the object speciﬁed in Shape the following values are expected:
+’circle’: The geometric shape of the metrology object of type circle is speciﬁed by its center (Row, Column) and
+radius.
+ShapeParam=[Row, Column, Radius]
+’rectangle2’: The geometric shape of the metrology object of type rectangle is speciﬁed by its center (Row, Col-
+umn), the orientation of the main axis Phi, and the half edge lengths Length1 and Length2. The input value
+for Phi is mapped automatically to the interval ] −π, π].
+ShapeParam=[Row, Column, Phi, Length1, Length2]
+’ellipse’: The geometric shape of the metrology object of type ellipse is speciﬁed by its center (Row, Column),
+the orientation of the main axis Phi, the length of the larger half axis Radius1, and the length of the smaller
+half axis Radius2. The input value for Phi is mapped automatically to the interval ] −π, π].
+ShapeParam=[Row, Column, Phi, Radius1, Radius2]
+’line’: The geometric shape of the metrology object of type line is described by the coordinates of its start point
+(RowBegin, ColumnBegin) and the coordinates of its end point (RowEnd, ColumnEnd).
+ShapeParam=[RowBegin, ColumnBegin, RowEnd, ColumnEnd]
+Deﬁnition of measure regions
+add_metrology_object_generic also prepares the rectangular measure regions. The rectangular measure
+regions lie perpendicular to the boundary of the object. The half edge lengths of the measure regions perpendicular
+and tangential to the boundary of the object are set in MeasureLength1 and MeasureLength2. The centers
+of the measure regions lie on the boundary of the object. The parameter MeasureSigma speciﬁes a standard
+deviation that is used by the operator apply_metrology_model to smooth the gray values of the image.
+Salient edges can be selected with the parameter MeasureThreshold, which constitutes a threshold on the
+amplitude, i.e., the absolute value of the ﬁrst derivative of the edge.
+Generic parameters
+Generic parameters and their values can be speciﬁed using GenParamName and GenParamValue.
+All
+generic parameters that are available in the operator set_metrology_object_param can also be set in
+add_metrology_object_generic. But note that for a lot of applications the default values are sufﬁcient
+and no adjustment is necessary. Furthermore, the following values for GenParamName and GenParamValue
+are available only for Shape = ’circle’ and ’ellipse’:
+’start_phi’: The parameter speciﬁes the angle at the start point of a circular or elliptic arc. For an ellipse, the angle
+at the start point is measured relative to the positive main axis and corresponds to the smallest surrounding
+circle of the ellipse. The actual start point of the ellipse is the intersection of the ellipse with the orthogonal
+projection of the corresponding circle point onto the main axis. To create a closed circle or ellipse the value
+of the parameter ’start_phi’ is set to 0 and the value of the parameter ’end_phi’ is set to 2π (with positive
+point order). The input value is mapped automatically to the interval [0, 2π].
+Suggested values: 0.0, 0.78, 6.28318
+Default: 0.0
+’end_phi’: The parameter speciﬁes the angle at the end point of a circular or elliptic arc. For an ellipse, the angle
+at the end point is measured relative to the positive main axis and corresponds to the smallest surrounding
+circle of the ellipse. The actual end point of the ellipse is the intersection of the ellipse with the orthogonal
+projection of the corresponding circle point onto the main axis. To create a closed circle or ellipse the value
+of the parameter ’start_phi’ is set to 0 and the value of the parameter ’end_phi’ is set to 2π (with positive
+point order). The input value is mapped internally automatically to the interval [0, 2π].
+Suggested values: 0.0, 0.78, 6.28318
+Default: 6.28318
+HALCON 26.05.0.0
+
+
+----- [page 88] -----
+40
+CHAPTER 2 2D METROLOGY
+’point_order’: The parameter speciﬁes the direction of the circular or elliptic arc. For the value ’positive’, the arc
+is deﬁned between ’start_phi’ and ’end_phi’ in mathematically positive direction (counterclockwise). For the
+value ’negative’, the arc is deﬁned between ’start_phi’ and ’end_phi’ in mathematically negative direction
+(clockwise).
+List of values: ’positive’, ’negative’
+Default: ’positive’
+Parameters
+▷MetrologyHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . metrology_model ; handle
+Handle of the metrology model.
+▷Shape (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . attribute.name(-array) ; string
+Type of the metrology object to be added.
+Default: ’circle’
+List of values: Shape ∈{’circle’, ’ellipse’, ’rectangle2’, ’line’}
+▷ShapeParam (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .attribute.value-array ; real / integer
+Parameters of the metrology object to be added.
+▷MeasureLength1 (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .number ; real / integer
+Half length of the measure regions perpendicular to the boundary.
+Default: 20.0
+Suggested values: MeasureLength1 ∈{10.0, 20.0, 30.0}
+Value range: 1.0 ≤MeasureLength1 ≤511.0 (lin)
+Minimum increment: 1.0
+Recommended increment: 10.0
+▷MeasureLength2 (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .number ; real / integer
+Half length of the measure regions tangential to the boundary.
+Default: 5.0
+Suggested values: MeasureLength2 ∈{3.0, 5.0, 10.0}
+Value range: 1.0 ≤MeasureLength2 ≤511.0 (lin)
+Minimum increment: 1.0
+Recommended increment: 10.0
+▷MeasureSigma (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . number ; real / integer
+Sigma of the Gaussian function for the smoothing.
+Default: 1.0
+Suggested values: MeasureSigma ∈{0.4, 0.6, 0.8, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 7.0, 10.0}
+Value range: 0.4 ≤MeasureSigma ≤100 (lin)
+Minimum increment: 0.01
+Recommended increment: 0.1
+▷MeasureThreshold (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . number ; real / integer
+Minimum edge amplitude.
+Default: 30.0
+Suggested values: MeasureThreshold ∈{5.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 90.0, 110.0}
+Value range: 1 ≤MeasureThreshold ≤255 (lin)
+Minimum increment: 0.5
+Recommended increment: 2
+▷GenParamName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . attribute.name-array ; string
+Names of the generic parameters.
+Default: []
+List of values: GenParamName ∈{’distance_threshold’, ’end_phi’, ’instances_outside_measure_regions’,
+’max_num_iterations’, ’measure_distance’, ’measure_interpolation’, ’measure_select’, ’measure_transition’,
+’min_score’, ’num_instances’, ’num_measures’, ’point_order’, ’rand_seed’, ’start_phi’}
+▷GenParamValue (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . .attribute.value-array ; real / integer / string
+Values of the generic parameters.
+Default: []
+Suggested values: GenParamValue ∈{1, 2, 3, 4, 5, 10, 20, ’all’, ’true’, ’false’, ’ﬁrst’, ’last’, ’positive’,
+’negative’, ’uniform’, ’nearest_neighbor’, ’bilinear’, ’bicubic’}
+▷Index (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .integer ; integer
+Index of the created metrology object.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 89] -----
+41
+Example
+create_metrology_model (MetrologyHandle)
+read_image (Image, 'fabrik')
+get_image_size (Image, Width, Height)
+set_metrology_model_image_size (MetrologyHandle, Width, Height)
+LinePar := [45,360,415,360]
+RectPar1 := [270,232,rad(0),30,25]
+RectPar2 := [360,230,rad(0),30,25]
+LinePar := [45,360,415,360]
+RectPar3 := [245,320,rad(-90),70,35]
+* Add two rectangles
+add_metrology_object_generic (MetrologyHandle, 'rectangle2', \
+[RectPar1,RectPar2], 20, 5, 1, 30, [], [], \
+Indices)
+* Add a rectangle and a line
+add_metrology_object_generic (MetrologyHandle, ['rectangle2','line'], \
+[RectPar3,LinePar], 20, 5, 1, 30, [], [], \
+Index)
+get_metrology_object_model_contour (Contour, MetrologyHandle, 'all', 1.5)
+apply_metrology_model (Image, MetrologyHandle)
+get_metrology_object_result_contour (Contour1, MetrologyHandle, 'all', \
+'all', 1.5)
+Result
+If the parameters are valid,
+the operator add_metrology_object_generic returns the value 2
+(H_MSG_TRUE). If necessary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+This operator modiﬁes the state of the following input parameter:
+• MetrologyHandle
+During execution of this operator, access to the value of this parameter must be synchronized if it is used across
+multiple threads.
+Possible Predecessors
+set_metrology_model_image_size, set_metrology_model_param
+Possible Successors
+align_metrology_model, apply_metrology_model, set_metrology_model_param
+See also
+get_metrology_object_model_contour
+Module
+2D Metrology
+add_metrology_object_line_measure ( :
+:
+MetrologyHandle,
+RowBegin,
+ColumnBegin,
+RowEnd,
+ColumnEnd,
+MeasureLength1,
+MeasureLength2,
+MeasureSigma,
+MeasureThreshold,
+GenParamName,
+GenParamValue :
+Index )
+Add a line to a metrology model.
+HALCON 26.05.0.0
+
+
+----- [page 90] -----
+42
+CHAPTER 2 2D METROLOGY
+add_metrology_object_line_measure adds a metrology object of type line to a metrology model and
+prepares the rectangular measure regions. The handle of the model is passed in MetrologyHandle.
+For an explanation of the concept of 2D metrology see the introduction of chapter 2D Metrology.
+The geometric shape of the metrology object of type line is described by the coordinates of the start point
+(RowBegin, ColumnBegin) and the coordinates of the end point (RowEnd, ColumnEnd). The rectangular
+measure regions lie perpendicular to the line. The half edge lengths of the measure regions perpendicular and
+tangential to the line are set in MeasureLength1 and MeasureLength2. The centers of the measure re-
+gions lie on the line. The parameter MeasureSigma speciﬁes a standard deviation that is used by the operator
+apply_metrology_model to smooth the gray values of the image. Salient edges can be selected with the
+parameter MeasureThreshold, which constitutes a threshold on the amplitude, i.e., the absolute value of the
+ﬁrst derivative of the edge.
+Furthermore, you can adjust some generic parameters within GenParamName and GenParamValue. In par-
+ticular, all generic parameters that are available in the operator set_metrology_object_param can be set.
+But note that for a lot of applications the default values are sufﬁcient and no adjustment is necessary.
+The operator add_metrology_object_line_measure returns the index of the added metrology object in
+the parameter Index.
+Parameters
+▷MetrologyHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . metrology_model ; handle
+Handle of the metrology model.
+▷RowBegin (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . line.begin.y(-array) ; real / integer
+Row (or Y) coordinate of the start of the line.
+▷ColumnBegin (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . line.begin.x(-array) ; real / integer
+Column (or X) coordinate of the start of the line.
+▷RowEnd (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . line.end.y(-array) ; real / integer
+Row (or Y) coordinate of the end of the line.
+▷ColumnEnd (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . line.end.x(-array) ; real / integer
+Column (or X) coordinate of the end of the line.
+▷MeasureLength1 (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .number ; real / integer
+Half length of the measure regions perpendicular to the boundary.
+Default: 20.0
+Suggested values: MeasureLength1 ∈{10.0, 20.0, 30.0}
+Value range: 1.0 ≤MeasureLength1
+Minimum increment: 1.0
+Recommended increment: 10.0
+▷MeasureLength2 (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .number ; real / integer
+Half length of the measure regions tangential to the boundary.
+Default: 5.0
+Suggested values: MeasureLength2 ∈{3.0, 5.0, 10.0}
+Value range: 1.0 ≤MeasureLength2
+Minimum increment: 1.0
+Recommended increment: 10.0
+▷MeasureSigma (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . number ; real / integer
+Sigma of the Gaussian function for the smoothing.
+Default: 1.0
+Suggested values: MeasureSigma ∈{0.4, 0.6, 0.8, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 7.0, 10.0}
+Value range: 0.4 ≤MeasureSigma ≤100.0
+Minimum increment: 0.01
+Recommended increment: 0.1
+▷MeasureThreshold (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . number ; real / integer
+Minimum edge amplitude.
+Default: 30.0
+Suggested values: MeasureThreshold ∈{5.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 90.0, 110.0}
+Value range: 1 ≤MeasureThreshold ≤255 (lin)
+Minimum increment: 0.5
+Recommended increment: 2
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 91] -----
+43
+▷GenParamName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . attribute.name-array ; string
+Names of the generic parameters.
+Default: []
+List of values: GenParamName ∈{’distance_threshold’, ’instances_outside_measure_regions’,
+’max_num_iterations’, ’measure_distance’, ’measure_interpolation’, ’measure_select’, ’measure_transition’,
+’min_score’, ’num_instances’, ’num_measures’, ’rand_seed’}
+▷GenParamValue (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . .attribute.value-array ; real / integer / string
+Values of the generic parameters.
+Default: []
+Suggested values: GenParamValue ∈{1, 2, 3, 4, 5, 10, 20, ’all’, ’true’, ’false’, ’ﬁrst’, ’last’, ’positive’,
+’negative’, ’uniform’, ’nearest_neighbor’, ’bilinear’, ’bicubic’}
+▷Index (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .integer ; integer
+Index of the created metrology object.
+Result
+If the parameters are valid, the operator add_metrology_object_line_measure returns the value 2
+(H_MSG_TRUE). If necessary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+This operator modiﬁes the state of the following input parameter:
+• MetrologyHandle
+During execution of this operator, access to the value of this parameter must be synchronized if it is used across
+multiple threads.
+Possible Predecessors
+set_metrology_model_image_size
+Possible Successors
+align_metrology_model, apply_metrology_model
+Alternatives
+add_metrology_object_generic
+See also
+get_metrology_object_model_contour, set_metrology_model_param,
+add_metrology_object_circle_measure, add_metrology_object_ellipse_measure,
+add_metrology_object_rectangle2_measure
+Module
+2D Metrology
+add_metrology_object_rectangle2_measure ( :
+:
+MetrologyHandle,
+Row,
+Column,
+Phi,
+Length1,
+Length2,
+MeasureLength1,
+MeasureLength2,
+MeasureSigma,
+MeasureThreshold,
+GenParamName,
+GenParamValue :
+Index )
+Add a rectangle to a metrology model.
+add_metrology_object_rectangle2_measure adds a metrology object of type rectangle to a
+metrology model and prepares the rectangular measure regions.
+The handle of the model is passed in
+MetrologyHandle.
+For an explanation of the concept of 2D metrology see the introduction of chapter 2D Metrology.
+The geometric shape of the metrology object of type rectangle is speciﬁed by its center (Row, Column), the
+orientation of the main axis Phi, and the half edge lengths Length1 and Length2. The input value for Phi is
+mapped automatically to the interval ] −π, π]. The rectangular measure regions lie perpendicular to the boundary
+HALCON 26.05.0.0
+
+
+----- [page 92] -----
+44
+CHAPTER 2 2D METROLOGY
+of the rectangle. The half edge lengths of the measure regions perpendicular and tangential to the boundary of
+the rectangle are set in MeasureLength1 and MeasureLength2. The centers of the measure regions lie on
+the boundary of the rectangle. The parameter MeasureSigma speciﬁes a standard deviation that is used by the
+operator apply_metrology_model to smooth the gray values of the image. Salient edges can be selected
+with the parameter MeasureThreshold, which constitutes a threshold on the amplitude, i.e., the absolute value
+of the ﬁrst derivative of the edge.
+Furthermore, you can adjust some generic parameters within GenParamName and GenParamValue. In par-
+ticular, all generic parameters that are available in the operator set_metrology_object_param can be set.
+But note that for a lot of applications the default values are sufﬁcient and no adjustment is necessary.
+The operator add_metrology_object_rectangle2_measure returns the index of the added metrology
+object within the metrology model in the parameter Index.
+Parameters
+▷MetrologyHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . metrology_model ; handle
+Handle of the metrology model.
+▷Row (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . rectangle2.center.y(-array) ; real / integer
+Row (or Y) coordinate of the center of the rectangle.
+▷Column (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . rectangle2.center.x(-array) ; real / integer
+Column (or X) coordinate of the center of the rectangle.
+▷Phi (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . rectangle2.angle.rad(-array) ; real / integer
+Orientation of the main axis [rad].
+▷Length1 (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .rectangle2.hwidth(-array) ; real / integer
+Length of the larger half edge of the rectangle.
+▷Length2 (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . rectangle2.hheight(-array) ; real / integer
+Length of the smaller half edge of the rectangle.
+▷MeasureLength1 (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .number ; real / integer
+Half length of the measure regions perpendicular to the boundary.
+Default: 20.0
+Suggested values: MeasureLength1 ∈{10.0, 20.0, 30.0}
+Value range: 1.0 ≤MeasureLength1
+Minimum increment: 1.0
+Recommended increment: 10.0
+Restriction: MeasureLength1 < Length1 && MeasureLength1 < Length2
+▷MeasureLength2 (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .number ; real / integer
+Half length of the measure regions tangential to the boundary.
+Default: 5.0
+Suggested values: MeasureLength2 ∈{3.0, 5.0, 10.0}
+Value range: 1.0 ≤MeasureLength2
+Minimum increment: 1.0
+Recommended increment: 10.0
+▷MeasureSigma (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . number ; real / integer
+Sigma of the Gaussian function for the smoothing.
+Default: 1.0
+Suggested values: MeasureSigma ∈{0.4, 0.6, 0.8, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 7.0, 10.0}
+Value range: 0.4 ≤MeasureSigma ≤100.0
+Minimum increment: 0.01
+Recommended increment: 0.1
+▷MeasureThreshold (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . number ; real / integer
+Minimum edge amplitude.
+Default: 30.0
+Suggested values: MeasureThreshold ∈{5.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 90.0, 110.0}
+Value range: 1 ≤MeasureThreshold ≤255 (lin)
+Minimum increment: 0.5
+Recommended increment: 2
+▷GenParamName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . attribute.name-array ; string
+Names of the generic parameters.
+Default: []
+List of values: GenParamName ∈{’distance_threshold’, ’instances_outside_measure_regions’,
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 93] -----
+45
+’max_num_iterations’, ’measure_distance’, ’measure_interpolation’, ’measure_select’, ’measure_transition’,
+’min_score’, ’num_instances’, ’num_measures’, ’rand_seed’}
+▷GenParamValue (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . .attribute.value-array ; real / integer / string
+Values of the generic parameters.
+Default: []
+Suggested values: GenParamValue ∈{1, 2, 3, 4, 5, 10, 20, ’all’, ’true’, ’false’, ’ﬁrst’, ’last’, ’positive’,
+’negative’, ’uniform’, ’nearest_neighbor’, ’bilinear’, ’bicubic’}
+▷Index (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .integer ; integer
+Index of the created metrology object.
+Result
+If the parameters are valid, the operator add_metrology_object_rectangle2_measure returns the
+value 2 (H_MSG_TRUE). If necessary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+This operator modiﬁes the state of the following input parameter:
+• MetrologyHandle
+During execution of this operator, access to the value of this parameter must be synchronized if it is used across
+multiple threads.
+Possible Predecessors
+set_metrology_model_image_size
+Possible Successors
+align_metrology_model, apply_metrology_model
+Alternatives
+add_metrology_object_generic
+See also
+get_metrology_object_model_contour, set_metrology_model_param,
+add_metrology_object_circle_measure, add_metrology_object_ellipse_measure,
+add_metrology_object_line_measure
+Module
+2D Metrology
+align_metrology_model ( :
+:
+MetrologyHandle,
+Row,
+Column,
+Angle :
+)
+Alignment of a metrology model.
+align_metrology_model moves and rotates the whole metrology model MetrologyHandle relative to
+the image coordinate system which has its origin in the top left corner.
+For an explanation of the concept of 2D metrology see the introduction of chapter 2D Metrology.
+An alignment ensures, that the position and orientation of the metrology model is adapted to the objects to be
+measured in the current image. The alignment is then used by apply_metrology_model to perform the
+measurement. First the metrology model is rotated by Angle, then the metrology model is translated by Row and
+Column. The values of the alignment are overwritten by the next call of align_metrology_model.
+Computation of the parameters of the alignment
+The parameters of the alignment can be determined using diverse methods. Here, three possibilities to determine
+the parameters are listed:
+HALCON 26.05.0.0
+
+
+----- [page 94] -----
+46
+CHAPTER 2 2D METROLOGY
+Using region analysis:
+If the metrology model can be extracted using region processing and if the pose of the Region changes
+only slightly in subsequent images, the parameters of the reference system of the metrology model
+and of the alignment can be derived using region analysis.
+In the following picture threshold and
+smallest_rectangle2 were used to obtain these parameter.
+The region extracted with threshold is shown in red. The rectangle computed with
+smallest_rectangle2 is shown in green.
+1. Setting the reference system
+In the image in which the metrology model was deﬁned, extract a region containing the metrology
+objects. The pose of this region with respect to the image coordinate system is determined and set as the
+reference system of the metrology model using set_metrology_model_param. This step is only
+performed once when setting up the metrology model.
+Example:
+threshold(Image, Region, 0, 50)
+smallest_rectangle2(Region, RowOrig, ColumnOrig, AngleOrig, Length1,
+Length2)
+set_metrology_model_param(MetrologyHandle, ’reference_system’,
+[RowOrig, ColumnOrig, AngleOrig])
+2. Determining the alignment
+In an image where the metrology model occurs in a different Pose, the current pose if the extracted
+region is determined. This pose is then used to align the metrology model.
+Example:
+threshold(CurrentImage, Region, 0, 50)
+smallest_rectangle2(Region, RowAlign, ColumnAlign, AngleAlign,
+Length1, Length2)
+align_metrology_model(MetrologyHandle, RowAlign, ColumnAlign,
+AngleAlign)
+Using a shape model:
+If a shape model is used to align the metrology model, the reference system with respect to which the metrol-
+ogy objects are given has to be set so that it coincides with the coordinate system used by the shape model.
+Only then, the results (’row’, ’column’, ’angle’) of get_generic_shape_model_result can be used
+directly in align_metrology_model to align the metrology model in the current image. The individual
+steps that are needed, are shown below.
+(1)
+(2)
+(3)
+(1) The contours of the metrology model (2) The contours of the shape model (3) The contours of the
+metrology model after setting the correct reference system.
+1. Setting the reference system
+In the image in which the metrology model was deﬁned,
+the pose of the origin of the
+shape model is determined and set as the reference system of the metrology model using
+set_metrology_model_param. This step is only performed once when setting up the metrology
+model.
+Example:
+train_generic_shape_model(Image, ModelID)
+area_center(Image, Area, RowOrig, ColumnOrig)
+set_metrology_model_param(MetrologyHandle, ’reference_system’,
+[RowOrig,ColumnOrig,0])
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 95] -----
+47
+2. Determining the alignment
+In an image, in which the object to be measured occurs in a different pose, the current pose of the shape
+model is determined and set in the metrology model using align_metrology_model.
+Example:
+find_generic_shape_model(CurrentImage, ModelID, MatchResultID,
+NumMatchResult)
+get_generic_shape_model_result(MatchResultID, ’all’, ’row’, RowAlign)
+get_generic_shape_model_result(MatchResultID, ’all’, ’column’,
+ColumnAlign)
+get_generic_shape_model_result(MatchResultID, ’all’, ’angle’,
+AngleAlign)
+align_metrology_model(MetrologyHandle, RowAlign, ColumnAlign,
+AngleAlign)
+Using a rigid 2D transformation:
+If certain model points (given as [PRowModel], [PColumnModel]) can be clearly identiﬁed and if they can
+still be clearly identiﬁed in further images in which the objects to be measured can occur shifted or rotated, a
+rigid transformation can be calculated between those points. The transformation parameters can then directly
+be used for aligning the model. In this case, the reference point of the metrology model does not have to be
+changed.
+(1)
+(2)
+(1) The contours of the metrology object and the four corresponding points in the image that was used for the
+creation of the metrology model. (2) The contours of the metrology object and the four corresponding points
+in a new image.
+1. Determine the point correspondences
+2. Estimate the model pose
+The following operator sequence calculates the parameters of the model pose (Row, Column, Angle)
+from corresponding points in the model image and one other image.
+Example:
+vector_to_rigid(PRowModel, PColumnModel, PRowCurrent, PColumnCurrent,
+HomMat2D)
+hom_mat2d_to_affine_par(HomMat2D, Sx, Sy, Angle, Theta, Row, Column)
+align_metrology_model(MetrologyHandle, Row, Column, Angle)
+Parameters
+▷MetrologyHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . metrology_model ; handle
+Handle of the metrology model.
+▷Row (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . real ; real / integer
+Row coordinate of the alignment.
+Default: 0
+▷Column (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . real ; real / integer
+Column coordinate of the alignment.
+Default: 0
+▷Angle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . angle.rad ; real / integer
+Rotation angle of the alignment.
+Default: 0
+Example
+read_image (Image, 'metal-parts/circle_plate_01')
+HALCON 26.05.0.0
+
+
+----- [page 96] -----
+48
+CHAPTER 2 2D METROLOGY
+create_metrology_model (MetrologyHandle)
+get_image_size (Image, Width, Height)
+set_metrology_model_image_size (MetrologyHandle, Width, Height)
+CircleParam := [354,274,53]
+CircleParam := [CircleParam,350,519,53]
+add_metrology_object_generic (MetrologyHandle, 'circle', CircleParam, 20,\
+5, 1, 30, [], [], CircleIndices)
+create_generic_shape_model (ModelID)
+set_generic_shape_model_param (ModelID, 'metric', 'use_polarity')
+set_generic_shape_model_param (ModelID, 'min_contrast', 20)
+train_generic_shape_model (Image, ModelID)
+* Determine location of shape model origin
+area_center (Image, Area, RowOrigin, ColOrigin)
+set_metrology_model_param (MetrologyHandle, 'reference_system', \
+[RowOrigin,ColOrigin,0])
+read_image (CurrentImage, 'metal-parts/circle_plate_02')
+find_generic_shape_model (CurrentImage, ModelID, MatchResultID, \
+NumMatchResult)
+get_generic_shape_model_result (MatchResultID, 'all', 'row', Row)
+get_generic_shape_model_result (MatchResultID, 'all', 'column', Col)
+get_generic_shape_model_result (MatchResultID, 'all', 'angle', Angle)
+align_metrology_model (MetrologyHandle, Row, Col, Angle)
+apply_metrology_model (CurrentImage, MetrologyHandle)
+get_metrology_object_result (MetrologyHandle, CircleIndices, 'all', \
+'result_type', 'all_param', Rectangle)
+get_metrology_object_result_contour (Contour, MetrologyHandle, \
+CircleIndices, 'all', 1.5)
+Result
+If the parameters are valid, the operator align_metrology_model returns the value 2 (H_MSG_TRUE). If
+necessary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+This operator modiﬁes the state of the following input parameter:
+• MetrologyHandle
+During execution of this operator, access to the value of this parameter must be synchronized if it is used across
+multiple threads.
+Possible Predecessors
+set_metrology_model_param, add_metrology_object_generic
+Possible Successors
+apply_metrology_model
+See also
+get_metrology_object_model_contour
+Module
+2D Metrology
+apply_metrology_model ( Image :
+:
+MetrologyHandle :
+)
+Measure and ﬁt the geometric shapes of all metrology objects of a metrology model.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 97] -----
+49
+apply_metrology_model locates the edges inside the measure regions of the metrology objects of the metrol-
+ogy model MetrologyHandle within Image and ﬁts the corresponding geometric shapes to the resulting edge
+positions.
+For an explanation of the concept of 2D metrology see the introduction of chapter 2D Metrology.
+The measurements are performed as follows:
+Determining the edge positions
+Within the measure regions of the metrology objects, the positions of the edges are determined. The edge location
+is calculated internally with the operator measure_pos or fuzzy_measure_pos. The latter is used if at least
+one fuzzy function was set for the metrology objects with set_metrology_object_fuzzy_param.
+Fitting geometric shapes to the edge positions
+The geometric shapes of the metrology objects are adapted to ﬁt optimally to the resulting edge positions. In
+particular, a RANSAC algorithm is used to select a set of initial edge positions that is necessary to create an
+instance of the speciﬁc geometric shape, e.g., three edge positions are selected for a metrology object of type
+circle.
+Then, those edge positions that are near the corresponding instance of the geometric shape are de-
+termined and, if the number of suitable edge positions is sufﬁcient (see the generic parameter ’min_score’ of
+set_metrology_object_param), are selected for the ﬁnal ﬁtting of the geometric shape. If the number
+of suitable edge positions is not sufﬁcient, another set of initial edge positions is tested until a suitable selection
+of edge positions is found. Into the edge positions that are selected for the ﬁnal ﬁtting, the geometric shape is
+ﬁtted and its parameters are stored in the metrology model. Note that more than one instance for each metrol-
+ogy object is returned if the generic parameter ’num_instances’ is set to value larger than 1. This and other
+parameters can be set when adding the metrology objects to the metrology model or separately with the operator
+set_metrology_object_param. Note that for each instance of the metrology object different initial edge
+positions are used, i.e., a second instance is based on edge positions that were not already used for the ﬁtting of the
+ﬁrst instance. The algorithm stops either when ’num_instances’ instances were found or if the remaining number
+of suitable initial edge positions is too low for a further ﬁtting of the geometric shape.
+Accessing the results
+The
+results
+of
+the
+measurements
+can
+be
+accessed
+from
+the
+metrology
+model
+using
+get_metrology_object_result.
+Note that if more than one instance of an object is returned,
+the order of the returned instances is arbitrary and therefore no measure for the quality of the ﬁt-
+ting.
+Note further that if the parameters ’camera_param’ and ’plane_pose’ were set for the metrology
+model using set_metrology_model_param,
+world coordinates are used for the ﬁtting.
+Other-
+wise, image coordinates are used.
+The XLD contours for the measured objects can be obtained using
+get_metrology_object_result_contour.
+Attention
+Note that all measure regions of all metrology objects must be recomputed if the width or the height
+of the input Image is not equal to the width and height stored in the metrology object (e.g., set with
+set_metrology_model_image_size). This leads to longer execution times of the operator.
+Note further that apply_metrology_model ignores the domain of Image for efﬁciency reasons (see also
+measure_pos).
+Parameters
+▷Image (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . singlechannelimage ; object : byte / uint2 / real
+Input image.
+▷MetrologyHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . metrology_model ; handle
+Handle of the metrology model.
+Result
+If the parameters are valid, the operator apply_metrology_model returns the value 2 (H_MSG_TRUE). If
+necessary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+This operator modiﬁes the state of the following input parameter:
+HALCON 26.05.0.0
+
+
+----- [page 98] -----
+50
+CHAPTER 2 2D METROLOGY
+• MetrologyHandle
+During execution of this operator, access to the value of this parameter must be synchronized if it is used across
+multiple threads.
+Possible Predecessors
+add_metrology_object_generic, add_metrology_object_circle_measure,
+add_metrology_object_ellipse_measure, add_metrology_object_line_measure,
+add_metrology_object_rectangle2_measure, align_metrology_model,
+set_metrology_model_param, set_metrology_object_param
+Possible Successors
+get_metrology_object_result, get_metrology_object_result_contour,
+get_metrology_object_measures
+See also
+set_metrology_object_fuzzy_param, read_metrology_model, write_metrology_model
+Module
+2D Metrology
+clear_metrology_model ( :
+:
+MetrologyHandle :
+)
+Delete a metrology model and free the allocated memory.
+clear_metrology_model deletes a metrology model that was created by create_metrology_model,
+copy_metrology_model, read_metrology_model, or deserialize_metrology_model. Note
+that by deleting the model also the including metrology objects are deleted. All memory used by the metrology
+model and the metrology objects is freed. The handle of the model is passed in MetrologyHandle. After the
+operator call, the metrology model is invalid.
+For an explanation of the concept of 2D metrology see the introduction of chapter 2D Metrology.
+Parameters
+▷MetrologyHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . metrology_model ; handle
+Handle of the metrology model.
+Result
+The operator clear_metrology_model returns the value 2 (H_MSG_TRUE) if a valid handle was passed and
+the referred metrology model can be freed correctly. Otherwise, an exception will be raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+This operator modiﬁes the state of the following input parameter:
+• MetrologyHandle
+During execution of this operator, access to the value of this parameter must be synchronized if it is used across
+multiple threads.
+Possible Predecessors
+get_metrology_object_result, write_metrology_model
+Module
+2D Metrology
+clear_metrology_object ( :
+:
+MetrologyHandle,
+Index :
+)
+Delete metrology objects and free the allocated memory.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 99] -----
+51
+clear_metrology_object
+deletes
+in
+a
+metrology
+model
+metrology
+objects
+created,
+e.g,
+by
+add_metrology_object_circle_measure,
+add_metrology_object_ellipse_measure,
+add_metrology_object_line_measure, or add_metrology_object_rectangle2_measure.
+For an explanation of the concept of 2D metrology see the introduction of chapter 2D Metrology.
+All memory used by the metrology objects is freed.
+The handle of the metrology model is passed in
+MetrologyHandle. The index of the metrology objects is passed in Index. If Index is set to ’all’, all
+metrology objects are deleted. After the operator call the metrology objects are invalid.
+Parameters
+▷MetrologyHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . metrology_model ; handle
+Handle of the metrology model.
+▷Index (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer(-array) ; string / integer
+Index of the metrology objects.
+Default: ’all’
+Suggested values: Index ∈{’all’, 0, 1, 2}
+Result
+If the parameters are valid, the operator clear_metrology_object returns the value 2 (H_MSG_TRUE). If
+necessary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+This operator modiﬁes the state of the following input parameter:
+• MetrologyHandle
+During execution of this operator, access to the value of this parameter must be synchronized if it is used across
+multiple threads.
+Module
+2D Metrology
+copy_metrology_model ( :
+:
+MetrologyHandle,
+Index :
+CopiedMetrologyHandle )
+Copy a metrology model.
+copy_metrology_model creates a new metrology model and copies the selected metrology objects of the
+input metrology model to this new output metrology model.
+For an explanation of the concept of 2D metrology see the introduction of chapter 2D Metrology.
+The input metrology model is deﬁned by a handle MetrologyHandle. The parameter Index determines
+the metrology objects that are copied.
+With Index set to ’all’, all metrology objects are copied.
+The
+operator returns the handle CopiedMetrologyHandle of the new metrology model.
+It can be used to
+save memory space.
+Access to the parameters of the metrology objects is possible, e.g., with the operator
+get_metrology_object_param.
+Parameters
+▷MetrologyHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . metrology_model ; handle
+Handle of the metrology model.
+▷Index (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer(-array) ; string / integer
+Index of the metrology objects.
+Default: ’all’
+Suggested values: Index ∈{’all’, 0, 1, 2}
+▷CopiedMetrologyHandle (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .integer ; integer
+Handle of the copied metrology model.
+HALCON 26.05.0.0
+
+
+----- [page 100] -----
+52
+CHAPTER 2 2D METROLOGY
+Result
+If the parameters are valid, the operator copy_metrology_model returns the value 2 (H_MSG_TRUE). If
+necessary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Module
+2D Metrology
+create_metrology_model ( :
+:
+:
+MetrologyHandle )
+Create the data structure that is needed to measure geometric shapes.
+create_metrology_model creates a metrology model, i.e., the data structure that is needed to measure
+objects with a speciﬁc geometric shape (metrology object) via 2D metrology, and returns it in the handle
+MetrologyHandle.
+For an explanation of the concept of 2D metrology see the introduction of chapter 2D Metrology.
+Attention
+Note,
+that
+after
+calling
+the
+operator
+create_metrology_model
+the
+operator
+set_metrology_model_image_size should be called for efﬁciency reasons.
+Parameters
+▷MetrologyHandle (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . metrology_model ; handle
+Handle of the metrology model.
+Example
+read_image (Image, 'fabrik')
+create_metrology_model (MetrologyHandle)
+get_image_size (Image, Width, Height)
+set_metrology_model_image_size (MetrologyHandle, Width, Height)
+add_metrology_object_rectangle2_measure (MetrologyHandle, 270, 230, 0, 30, \
+25, 10, 2, 1, 30, [], [], Index)
+apply_metrology_model (Image, MetrologyHandle)
+get_metrology_object_result (MetrologyHandle, Index, 'all', 'result_type', \
+'all_param', Rectangle)
+get_metrology_object_result_contour (Contour, MetrologyHandle, \
+Index, 'all', 1.5)
+Result
+If the parameters are valid, the operator create_metrology_model returns the value 2 (H_MSG_TRUE). If
+necessary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+This operator returns a handle. Note that the state of an instance of this handle type may be changed by speciﬁc
+operators even though the handle is used as an input parameter by those operators.
+Possible Successors
+set_metrology_model_image_size
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 101] -----
+53
+Module
+2D Metrology
+deserialize_metrology_model (
+:
+:
+SerializedItemHandle :
+MetrologyHandle )
+Deserialize a serialized metrology model.
+deserialize_metrology_model
+deserializes
+a
+metrology
+model,
+that
+was
+serialized
+by
+serialize_metrology_model (see fwrite_serialized_item for an introduction of the basic
+principle of serialization). The serialized metrology model is deﬁned by the handle SerializedItemHandle.
+The
+deserialized
+values
+are
+stored
+in
+an
+automatically
+created
+metrology
+model
+with
+the
+handle
+MetrologyHandle.
+Access to the parameters of the metrology model is possible, e.g., with the opera-
+tors get_metrology_object_param or get_metrology_object_fuzzy_param.
+For an explanation of the concept of 2D metrology see the introduction of chapter 2D Metrology.
+Parameters
+▷SerializedItemHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . serialized_item ; handle
+Handle of the serialized item.
+▷MetrologyHandle (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . metrology_model ; handle
+Handle of the metrology model.
+Result
+If the parameters are valid,
+the operator deserialize_metrology_model returns the value 2
+(H_MSG_TRUE). If necessary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+fread_serialized_item, receive_serialized_item, serialize_metrology_model
+Possible Successors
+get_metrology_object_param, get_metrology_object_fuzzy_param,
+apply_metrology_model
+Module
+2D Metrology
+get_metrology_model_param ( :
+:
+MetrologyHandle,
+GenParamName :
+GenParamValue )
+Get parameters that are valid for the entire metrology model.
+get_metrology_model_param queries parameters that are valid for the entire metrology model.
+For an explanation of the concept of 2D metrology see the introduction of chapter 2D Metrology.
+The metrology model is deﬁned by the handle MetrologyHandle.
+The following generic parameter names for GenParamName are possible:
+’camera_param’: The internal camera parameters that are set for the metrology model.
+’plane_pose’: The 3D pose of the measurement plane that is set for the metrology model. The 3D pose is given in
+camera coordinates.
+’reference_system’: The rotation and translation of the current reference coordinate system with respect to the
+image coordinate system. The tuple returned in GenParamValue contains [row, column, angle].
+HALCON 26.05.0.0
+
+
+----- [page 102] -----
+54
+CHAPTER 2 2D METROLOGY
+’scale’: The
+scaling
+factor
+or
+unit
+of
+the
+results
+of
+the
+measurement
+returned
+by
+get_metrology_object_result.
+Parameters
+▷MetrologyHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . metrology_model ; handle
+Handle of the metrology model.
+▷GenParamName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . attribute.name ; string
+Name of the generic parameter.
+Default: ’camera_param’
+List of values: GenParamName ∈{’camera_param’, ’plane_pose’, ’scale’, ’reference_system’}
+▷GenParamValue (output_control) . . . . . . . . . . . . . . . . . . . . . . . . attribute.value(-array) ; string / real / integer
+Value of the generic parameter.
+Result
+If the parameters are valid, the operator get_metrology_model_param returns the value 2 (H_MSG_TRUE).
+If necessary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+get_metrology_object_indices, set_metrology_model_param
+Possible Successors
+get_metrology_object_param
+See also
+get_metrology_object_param, get_metrology_object_num_instances
+Module
+2D Metrology
+get_metrology_object_fuzzy_param ( :
+:
+MetrologyHandle,
+Index,
+GenParamName :
+GenParamValue )
+Get a fuzzy parameter of a metrology model.
+get_metrology_object_param allows to access the fuzzy parameters of metrology objects.
+For an explanation of the concept of 2D metrology see the introduction of chapter 2D Metrology.
+The metrology model is deﬁned by the handle MetrologyHandle. The parameter Index speciﬁes for which
+metrology objects the information is accessed. With Index set to ’all’, the parameters of all metrology objects
+are accessed. The names of the desired parameters are passed in the generic parameter GenParamName, the
+corresponding values are returned in GenParamValue in the same order. All these fuzzy parameters can be set
+and changed at any time with the operator set_metrology_object_fuzzy_param.
+The following parameters can be accessed:
+’fuzzy_thresh’: The meaning and the use of this parameter is equivalent to the parameter FuzzyThresh of the
+operator fuzzy_measure_pos and is described there.
+’function_contrast’: With this parameter the fuzzy function of type contrast that is set in the operator
+set_metrology_object_param can be queried. The meaning and the use of this parameter is equiv-
+alent to the parameter SetType with the value ’contrast’ of the operator set_fuzzy_measure and is
+described there. The return value GenParamValue contains the function of the metrology object.
+’function_position’: With this parameter the fuzzy function of type position that is set in the operator
+set_metrology_object_param can be queried. Because only one fuzzy function of a type can be set,
+only the last set function can be returned. The type can be ’function_position’, ’function_position_center’,
+’function_position_end’, ’function_position_ﬁrst_edge’, or ’function_position_last_edge’.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 103] -----
+55
+Parameters
+▷MetrologyHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . metrology_model ; handle
+Handle of the metrology model.
+▷Index (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer(-array) ; string / integer
+Index of the metrology objects.
+Default: ’all’
+Suggested values: Index ∈{’all’, 0, 1, 2}
+▷GenParamName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . attribute.name-array ; string
+Names of the generic parameters.
+Default: ’fuzzy_thresh’
+List of values: GenParamName ∈{’function_contrast’, ’function_position’, ’fuzzy_thresh’}
+▷GenParamValue (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . attribute.value-array ; real / integer
+Values of the generic parameters.
+Result
+If the parameters are valid, the operator get_metrology_object_fuzzy_param returns the value 2
+(H_MSG_TRUE). If necessary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+get_metrology_object_indices, set_metrology_object_fuzzy_param
+Possible Successors
+set_metrology_object_fuzzy_param
+See also
+get_metrology_object_param
+Module
+2D Metrology
+get_metrology_object_indices ( :
+:
+MetrologyHandle :
+Indices )
+Get the indices of the metrology objects of a metrology model.
+get_metrology_object_indices allows to access the indices of the metrology objects.
+For an explanation of the concept of 2D metrology see the introduction of chapter 2D Metrology.
+The
+metrology
+model
+is
+deﬁned
+by
+the
+handle
+MetrologyHandle.
+The
+operator
+get_metrology_object_indices
+returns
+the
+indices
+of
+the
+metrology
+object
+in
+the
+parame-
+ter Indices.
+Access to the parameters of the metrology object is possible, e.g., with the operator
+get_metrology_object_param.
+Parameters
+▷MetrologyHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . metrology_model ; handle
+Handle of the metrology model.
+▷Indices (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer(-array) ; integer
+Indices of the metrology objects.
+Result
+If the parameters are valid,
+the operator get_metrology_object_indices returns the value 2
+(H_MSG_TRUE). If necessary, an exception is raised.
+Execution Information
+HALCON 26.05.0.0
+
+
+----- [page 104] -----
+56
+CHAPTER 2 2D METROLOGY
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+read_metrology_model
+Possible Successors
+get_metrology_object_param, get_metrology_object_fuzzy_param
+See also
+get_metrology_object_num_instances
+Module
+2D Metrology
+get_metrology_object_measures ( :
+Contours :
+MetrologyHandle,
+Index,
+Transition :
+Row,
+Column )
+Get the measure regions and the results of the edge location for the metrology objects of a metrology model.
+get_metrology_object_measures allows to access the measure regions of the metrology objects that were
+created with add_metrology_object_generic, add_metrology_object_circle_measure, etc.
+as XLD contours and the results of the edge location in image coordinates that was performed by
+apply_metrology_model.
+For an explanation of the concept of 2D metrology see the introduction of chapter 2D Metrology.
+The metrology model is deﬁned by the handle MetrologyHandle. The parameter Index determines for which
+metrology objects the information is accessed. With Index set to ’all’, the measure regions and the results of the
+edge location for all metrology objects are accessed.
+If positive and negative edges are available in the measure regions (see the generic parameter value ’mea-
+sure_transition’ of the operator set_metrology_object_param), with the parameter Transition the
+desired edges (positive or negative) can be selected. If Transition is set to ’positive’, only positive edges are
+returned. If Transition is set to ’negative’, only negative edges are returned. All edges are returned if the
+parameter Transition is set to ’all’.
+The operator get_metrology_object_measures returns for each measure region one rectangular
+XLD contour with the boundary of the measure region in the parameter Contours.
+After calling
+apply_metrology_model, additionally the image coordinates of the results of the edge location are returned
+as single points in the parameters Row and Column. Note that the order for the values of these points is not de-
+ﬁned. Furthermore, there is no possibility to assign the results of the edge location to speciﬁc measure regions. If
+get_metrology_object_measures is called before apply_metrology_model, the parameters Row
+and Column remain empty.
+Parameters
+▷Contours (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . xld_cont-array ; object
+Rectangular XLD Contours of measure regions.
+▷MetrologyHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . metrology_model ; handle
+Handle of the metrology model.
+▷Index (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer(-array) ; string / integer
+Index of the metrology objects.
+Default: ’all’
+Suggested values: Index ∈{’all’, 0, 1, 2}
+▷Transition (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+Select light/dark or dark/light edges.
+Default: ’all’
+List of values: Transition ∈{’all’, ’negative’, ’positive’}
+▷Row (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .point.y-array ; real
+Row coordinates of the measured edges.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 105] -----
+57
+▷Column (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . point.x-array ; real
+Column coordinates of the measured edges.
+Result
+If the parameters are valid, the operator get_metrology_object_measures returns the value 2
+(H_MSG_TRUE). If necessary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+apply_metrology_model
+See also
+add_metrology_object_generic, add_metrology_object_ellipse_measure,
+add_metrology_object_line_measure, add_metrology_object_rectangle2_measure,
+add_metrology_object_circle_measure
+Module
+2D Metrology
+get_metrology_object_model_contour ( :
+Contour :
+MetrologyHandle,
+Index,
+Resolution :
+)
+Query the model contour of a metrology object in image coordinates.
+get_metrology_object_model_contour returns the contours for the chosen metrology objects in image
+coordinates.
+For an explanation of the concept of 2D metrology see the introduction of chapter 2D Metrology.
+The metrology model is deﬁned by the handle MetrologyHandle. The parameter Index speciﬁes for which
+metrology objects the contours are queried. For Index set to ’all’, the contours of all metrology objects are
+returned.
+The form and pose of each contour is determined by the parameters set when adding the object using e.g.,
+add_metrology_object_generic, add_metrology_object_circle_measure, etc. If a differ-
+ent reference coordinate system was set for the metrology model using set_metrology_model_param or an
+alignment of the metrology model was performed using align_metrology_model, these values inﬂuence the
+current pose of the metrology objects and thus the pose of the contours returned in Contour.
+The resolution of the returned Contour is controlled via Resolution containing the Euclidean distance (in
+pixel) between neighboring contour points. If the input value falls below the minimal possible value (1.192e-7),
+the resolution is set internally to the smallest valid value.
+Parameters
+▷Contour (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . xld_cont(-array) ; object
+Model contour.
+▷MetrologyHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . metrology_model ; handle
+Handle of the metrology model.
+▷Index (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer(-array) ; integer / string
+Index of the metrology object.
+Default: 0
+Suggested values: Index ∈{’all’, 0, 1, 2}
+▷Resolution (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .real ; real
+Distance between neighboring contour points.
+Default: 1.5
+Restriction: Resolution >= 1.192e-7
+HALCON 26.05.0.0
+
+
+----- [page 106] -----
+58
+CHAPTER 2 2D METROLOGY
+Result
+If the parameters are valid, the operator get_metrology_object_model_contour returns the value 2
+(H_MSG_TRUE). If necessary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+add_metrology_object_generic, add_metrology_object_circle_measure,
+add_metrology_object_ellipse_measure,
+add_metrology_object_rectangle2_measure, add_metrology_object_line_measure
+Possible Successors
+apply_metrology_model
+See also
+set_metrology_model_param, get_metrology_object_measures,
+align_metrology_model
+Module
+2D Metrology
+get_metrology_object_num_instances ( :
+:
+MetrologyHandle,
+Index :
+NumInstances )
+Get the number of instances of the metrology objects of a metrology model.
+get_metrology_object_num_instances allows to access the number of instances (results) of mea-
+surements applied by apply_metrology_model for the metrology objects.
+Note that by default, the
+maximum number of instances of each metrology object is set to 1.
+Thus, by default, the result of
+get_metrology_object_num_instances will typically be 1 as well.
+To allow more instances, be-
+fore applying the measurement with apply_metrology_model you have to explicitly set the parameter
+’num_instances’ to a higher value or to ’all’ using set_metrology_object_param.
+For an explanation of the concept of 2D metrology see the introduction of chapter 2D Metrology.
+The metrology model is deﬁned by the handle MetrologyHandle. The parameter Index speciﬁes for which
+metrology object the instances are queried. For Index set to ’all’, the number of instances of all metrology objects
+are returned. The number of instances is returned in NumInstances for each metrology object that was passed
+in Index.
+Parameters
+▷MetrologyHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . metrology_model ; handle
+Handle of the metrology model.
+▷Index (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer(-array) ; integer / string
+Index of the metrology objects.
+Default: 0
+Suggested values: Index ∈{’all’, 0, 1, 2}
+▷NumInstances (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer(-array) ; real / integer
+Number of Instances of the metrology objects.
+Result
+If the parameters are valid, the operator get_metrology_object_num_instances returns the value 2
+(H_MSG_TRUE). If necessary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 107] -----
+59
+• Processed without parallelization.
+Possible Predecessors
+apply_metrology_model
+Possible Successors
+clear_metrology_model
+See also
+get_metrology_object_indices
+Module
+2D Metrology
+get_metrology_object_param ( :
+:
+MetrologyHandle,
+Index,
+GenParamName :
+GenParamValue )
+Get one or several parameters of a metrology model.
+get_metrology_object_param allows to access the parameters that are used by a metrology object.
+For an explanation of the concept of 2D metrology see the introduction of chapter 2D Metrology.
+The metrology model is deﬁned by the handle MetrologyHandle. The parameter Index determines for
+which metrology objects the information is accessed. With Index set to ’all’, the parameters of all metrology
+objects are accessed. The names of the desired parameters are passed in the generic parameter GenParamName,
+the corresponding values are returned in GenParamValue in the same order.
+All these general parame-
+ters can be set and changed at any time with the operator set_metrology_object_param.
+Parame-
+ters that describe the geometry of an object can only be set by creating the metrology object with the oper-
+ators add_metrology_object_circle_measure, add_metrology_object_ellipse_measure,
+add_metrology_object_line_measure, or add_metrology_object_rectangle2_measure.
+The following parameters can be accessed:
+• Valid for all types of metrology objects:
+’min_score’, ’num_instances’, ’instances_outside_measure_regions’: The meaning and the use of these pa-
+rameters is described with the operator set_metrology_object_param.
+’rand_seed’, ’distance_threshold’, ’max_num_iterations’: The meaning and the use of these parameters is
+described with the operator set_metrology_object_param.
+’measure_length1’, ’measure_length2’: The meaning and the use of these parameters is described with the
+operator set_metrology_object_param.
+’measure_sigma’, ’measure_threshold’, ’measure_transition’, ’measure_select’: The meaning and the use
+of these parameters is described with the operator measure_pos by the parameters Sigma,
+Threshold, Transition, and Select.
+’measure_interpolation’: The meaning and the use of this parameter is described with the operator
+gen_measure_rectangle2 by the parameter Interpolation.
+’measure_distance_min’: Returns the minimum distance between the centers of the generated mea-
+sure regions, which depends on the geometry of the object and the value of the input pa-
+rameter ’measure_distance’ or the value of the input parameter ’num_measures’ of the operator
+set_metrology_object_param. For a metrology object circle or a metrology object line the
+distances between measure regions are uniformly distributed. Therefore, ’measure_distance_min’ and
+’measure_distance_max’ return the same value.
+’measure_distance_max’: Returns the maximum distance between the centers of the generated mea-
+sure regions, which depends on the geometry of the object and the value of the input pa-
+rameter ’measure_distance’ or the value of the input parameter ’num_measures’ of the operator
+set_metrology_object_param. For a metrology object circle or a metrology object line the
+distances between measure regions are uniformly distributed. Therefore, ’measure_distance_min’ and
+’measure_distance_max’ return the same value.
+’num_measures’: Returns the number of generated measure regions, which depends on the geometry of
+the object and the value of the input parameter ’measure_distance’ or the value of the input parameter
+’num_measures’ of the operator set_metrology_object_param.
+HALCON 26.05.0.0
+
+
+----- [page 108] -----
+60
+CHAPTER 2 2D METROLOGY
+’object_type’: Type of the geometric shape of the metrology object. For a metrology object of type circle, the
+output parameter GenParamValue contains the value ’circle’. For a metrology object of type ellipse,
+the output parameter GenParamValue contains the value ’ellipse’. For a metrology object of type
+line, the output parameter GenParamValue contains the value ’line’. For a metrology object of type
+rectangle, the output parameter GenParamValue contains the value ’rectangle’.
+’object_params’: The parameters of the geometric shape of the metrology object. For a metrology object of
+type circle, the output parameter GenParamValue contains the geometry of the circle in the following
+order: ’row’, ’column’, ’radius’. The meaning and the use of these parameters is described with the
+operator add_metrology_object_circle_measure. For a metrology object of type ellipse,
+the output parameter GenParamValue contains the geometry of the ellipse in the following order:
+’row’, ’column’, ’phi’, ’radius1’, ’radius2’. The meaning and the use of these parameters is described
+with the operator add_metrology_object_ellipse_measure. For a metrology object of type
+line, the output parameter GenParamValue contains the geometry of the line in the following order:
+’row_begin’, ’column_begin’, ’row_end’, ’column_end’. The meaning and the use of these parameters
+is described with the operator add_metrology_object_line_measure. For a metrology object
+of type rectangle, the output parameter GenParamValue contains the geometry of the rectangle in
+the following order: ’row’, ’column’, ’phi’, ’length1’, ’length2’. The meaning and the use of these
+parameters is described with the operator add_metrology_object_rectangle2_measure.
+• Only valid for a metrology object of type circle:
+’row’, ’column’, ’radius’: These
+are
+parameters
+for
+a
+metrology
+object
+of
+type
+cir-
+cle.
+The
+meaning
+and
+the
+use
+of
+these
+parameters
+is
+described
+with
+the
+operator
+add_metrology_object_circle_measure.
+• Only valid for a metrology object of type ellipse:
+’row’, ’column’, ’phi’, ’radius1’, ’radius2’: These are parameters for a metrology object of type el-
+lipse.
+The
+meaning
+and
+the
+use
+of
+these
+parameters
+is
+described
+with
+the
+operator
+add_metrology_object_ellipse_measure.
+• Only valid for a metrology object of type line:
+’row_begin’, ’column_begin’, ’row_end’, ’column_end’: These are parameters for a metrology object
+of type line.
+The meaning and the use of these parameters is described with the operator
+add_metrology_object_line_measure.
+• Only valid for a metrology object of type rectangle:
+’row’, ’column’, ’phi’, ’length1’, ’length2’: These are parameters for a metrology object of type rect-
+angle.
+The
+meaning
+and
+the
+use
+of
+these
+parameters
+is
+described
+with
+the
+operator
+add_metrology_object_rectangle2_measure.
+Parameters
+▷MetrologyHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . metrology_model ; handle
+Handle of the metrology model.
+▷Index (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer(-array) ; string / integer
+Index of the metrology objects.
+Default: ’all’
+Suggested values: Index ∈{’all’, 0, 1, 2}
+▷GenParamName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . attribute.name-array ; string
+Names of the generic parameters.
+Default: ’num_measures’
+List of values: GenParamName ∈{’column’, ’column_begin’, ’column_end’, ’distance_threshold’,
+’end_phi’, ’instances_outside_measure_regions’, ’length1’, ’length2’, ’max_num_iterations’,
+’measure_distance_min’, ’measure_distance_min’, ’measure_interpolation’, ’measure_length1’,
+’measure_length2’, ’measure_select’, ’measure_sigma’, ’measure_threshold’, ’measure_transition’,
+’min_score’, ’num_instances’, ’num_measures’, ’object_params’, ’object_type’, ’phi’, ’point_order’, ’radius’,
+’radius1’, ’radius2’, ’rand_seed’, ’row’, ’row_begin’, ’row_end’, ’start_phi’, ’x’, ’y’, ’x_begin’, ’y_begin’,
+’x_end’, ’y_end’}
+▷GenParamValue (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . attribute.value-array ; string / real / integer
+Values of the generic parameters.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 109] -----
+61
+Result
+If the parameters are valid,
+the operator get_metrology_object_param returns the value 2
+(H_MSG_TRUE). If necessary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+get_metrology_object_indices, set_metrology_object_param
+Possible Successors
+set_metrology_object_param
+See also
+get_metrology_object_fuzzy_param, get_metrology_object_num_instances
+Module
+2D Metrology
+get_metrology_object_result ( :
+:
+MetrologyHandle,
+Index,
+Instance,
+GenParamName,
+GenParamValue :
+Parameter )
+Get the results of the measurement of a metrology model.
+get_metrology_object_result
+allows
+to
+access
+the
+results
+of
+a
+measurement
+obtained
+by
+apply_metrology_model for the metrology objects of the metrology model MetrologyHandle.
+For an explanation of the concept of 2D metrology see the introduction of chapter 2D Metrology.
+The parameter Index speciﬁes for which metrology objects the results are queried. For Index set to ’all’, the
+results of all metrology objects are returned. With the parameter Instance it can be speciﬁed, which instances
+of the results are returned in Parameter. The results for all instances are returned by setting Instance to ’all’.
+Different generic parameters can be used to control the returned values in Parameter. The generic parameter
+names are passed in GenParamName. The corresponding values are passed in GenParamValue. The following
+parameters and values are possible:
+’result_type’: If GenParamName is set to ’result_type’, then GenParamValue allows to control how and what
+results are returned for a metrology object. All measured parameters of the queried metrology object can be
+queried at once, speciﬁc parameters can be queried individually or the score for the metrology object can be
+queried.
+’Obtaining all parameters’: If GenParamValue is set to ’all_param’, then all measured parame-
+ters of a metrology object are returned.
+If camera parameters and a pose have been set (see
+set_metrology_model_param), the results are returned in metric coordinates, otherwise in pixels.
+For a circle, the return values are the coordinates of the center and the radius of the circle. The order is
+[’row’, ’column’, ’radius’] or [’x’, ’y’, ’radius’] respectively.
+For an ellipse, the return values are the coordinates of the center, the orientation of the major axis
+’phi’, the length of the larger half axis ’radius1’, and the length of the smaller half axis ’radius2’ of the
+ellipse. The order is [’row’, ’column’, ’phi’, ’radius1’, ’radius2’] or [’x’, ’y’, ’phi’, ’radius1’, ’radius2’]
+respectively.
+For a line, the start and end point of the line is returned. The order is [’row_begin’, ’column_begin’,
+’row_end’, ’column_end’] or [’x_begin’, ’y_begin’, ’x_end’, ’y_end’]
+For a rectangle, the return values are the coordinates of the center, the orientation of the main axis
+’phi’, the length of the larger half edge ’length1’, and the length of the smaller half edge ’length2’ of
+the rectangle. The order is [’row’, ’column’, ’phi’, ’length1’, ’length2’] or [’x’, ’y’, ’phi’, ’length1’,
+’length2’] respectively.
+’Obtaining speciﬁc parameters’: Measured object parameters can also be queried individually by providing
+the desired parameter name in GenParamName.
+HALCON 26.05.0.0
+
+
+----- [page 110] -----
+62
+CHAPTER 2 2D METROLOGY
+When no camera parameters and no measurement plane are set, the following parameters can be queried
+individually, depending on whether they are available for the respective object. Note that for lines,
+additionally the 3 parameters of the hessian normal form can be queried, i.e., the unit normal vector
+’nrow’, ’ncolumn’ and the orthogonal distance ’distance’ of the line from the origin of the coordinate
+system. The sign of the distance determines the side of the line on which the origin is located.
+List of values: ’row’, ’column’, ’radius’, ’phi’ , ’radius1’, ’radius2’, ’length1’, ’length2’, ’row_begin’,
+’column_begin’, ’row_end’, ’column_end’, ’nrow’, ’ncolumn’, ’distance’
+If camera parameters and a measurement plane was set, the parameters are returned in metric coordi-
+nates, the following parameters can be queried individually, depending on whether they are available for
+the respective object. Note that for lines, additionally the 3 parameters of the hessian normal form can
+be queried, i.e., the unit normal vector ’nx’, ’ny’ and the orthogonal distance ’distance’ of the line from
+the origin of the coordinate system. The sign of the distance determines the side of the line on which the
+origin is located.
+List of values: ’x’, ’y’, ’radius’, ’phi’ , ’radius1’, ’radius2’, ’length1’, ’length2’, ’radius1’, ’radius2’,
+’length1’, ’length2’, ’x_begin’, ’y_begin’, ’x_end’, ’y_end’, ’nx’, ’ny’, ’distance’
+’Obtaining the score’: If GenParamName is set to the ’score’, the ﬁtting scores are returned. The score
+represents the number of measurements that are used for the calculation of the results divided by the
+maximum number of measure regions.
+’used_edges’: To query the edge points, that were actually used for a ﬁtted metrology object, you can choose
+between following values for GenParamValue:
+’row’: Return the row coordinate of the edges that were used to ﬁt the metrology object.
+’column’: Return the column coordinate of the edges that were used to ﬁt the metrology object.
+’amplitude’: Return the edge amplitude of the edges that were used to ﬁt the metrology object.
+List of values: ’row’, ’column’, ’amplitude’
+’angle_direction’: The parameter determines the rotation direction for angles that result from the ﬁtting. Setting
+the parameter ’angle_direction’ to ’positive’ the angle is speciﬁed between the main axis of the object and the
+horizontal axis of the coordinate system in the mathematically positive direction (counterclockwise). Setting
+the parameter ’angle_direction’ to ’negative’ the angle is speciﬁed between the main axis of the object and
+the horizontal axis of the coordinate system in the mathematically negative direction (clockwise). The results
+of the angles are returned in radians.
+List of values: ’positive’, ’negative’
+Default: ’positive’
+It is possible to query the results of several metrology objects (see the parameter Index) and several instances
+(see the parameter Instance) of the metrology objects simultaneously. The results are returned in the following
+order in Parameter: 1st instance of 1st metrology object, 2nd instance of 1st metrology object, etc., 1st instance
+of 2nd metrology object, 2nd instance of 2nd metrology object, etc.
+Parameters
+▷MetrologyHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . metrology_model ; handle
+Handle of the metrology model.
+▷Index (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer(-array) ; integer / string
+Index of the metrology object.
+Default: 0
+Suggested values: Index ∈{’all’, 0, 1, 2}
+▷Instance (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .integer(-array) ; string / integer
+Instance of the metrology object.
+Default: ’all’
+Suggested values: Instance ∈{’all’, 0, 1, 2}
+▷GenParamName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . attribute.name-array ; string
+Name of the generic parameter.
+Default: ’result_type’
+List of values: GenParamName ∈{’result_type’, ’angle_direction’, ’used_edges’}
+▷GenParamValue (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .attribute.value-array ; string / real
+Value of the generic parameter.
+Default: ’all_param’
+Suggested values: GenParamValue ∈{’all_param’, ’score’, ’true’, ’false’, ’row’, ’column’, ’amplitude’,
+’radius’, ’phi’, ’radius1’, ’radius2’, ’length1’, ’length2’, ’row_begin’, ’column_begin’, ’row_end’,
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 111] -----
+63
+’column_end’, ’nrow’, ’ncolumn’, ’distance’, ’x’, ’y’, ’x_begin’, ’y_begin’, ’x_end’, ’y_end’, ’nx’, ’ny’,
+’positive’, ’negative’}
+▷Parameter (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . real(-array) ; real / integer / string
+Result values.
+Result
+If the parameters are valid,
+the operator get_metrology_object_result returns the value 2
+(H_MSG_TRUE). If necessary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+apply_metrology_model
+Possible Successors
+clear_metrology_model
+See also
+get_metrology_object_result_contour, get_metrology_object_measures
+Module
+2D Metrology
+get_metrology_object_result_contour (
+:
+Contour :
+MetrologyHandle,
+Index,
+Instance,
+Resolution :
+)
+Query the result contour of a metrology object.
+get_metrology_object_result_contour returns for the chosen metrology objects and object instances,
+the result contours of a measurement performed by apply_metrology_model in image coordinates.
+For an explanation of the concept of 2D metrology see the introduction of chapter 2D Metrology.
+The metrology model is deﬁned by the handle MetrologyHandle. The parameter Index speciﬁes for which
+metrology objects the result contours are queried. For Index set to ’all’, the result contours of all metrology
+objects are returned. If for a metrology object several results (instances) were computed, then the parameter
+Instance speciﬁes, for which instances the result contours are returned in Contour. The result contours for
+all instances are obtained by setting Instance to ’all’.
+The resolution of the resulting contour Contour is controlled via Resolution containing the Euclidean dis-
+tance between neighboring contour points in pixel. If the input value falls below the minimal possible value
+(1.192e-7), then the resolution is set internally to the smallest valid value.
+Parameters
+▷Contour (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . xld_cont(-array) ; object
+Result contour for the given metrology object.
+▷MetrologyHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . metrology_model ; handle
+Handle of the metrology model.
+▷Index (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer(-array) ; integer / string
+Index of the metrology object.
+Default: 0
+Suggested values: Index ∈{’all’, 0, 1, 2}
+▷Instance (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .integer(-array) ; string / integer
+Instance of the metrology object.
+Default: ’all’
+Suggested values: Instance ∈{’all’, 0, 1, 2}
+HALCON 26.05.0.0
+
+
+----- [page 112] -----
+64
+CHAPTER 2 2D METROLOGY
+▷Resolution (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .real ; real
+Distance between neighboring contour points.
+Default: 1.5
+Restriction: Resolution >= 1.192e-7
+Result
+If the parameters are valid, the operator get_metrology_object_result_contour returns the value 2
+(H_MSG_TRUE). If necessary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+apply_metrology_model
+See also
+get_metrology_object_result, get_metrology_object_measures
+Module
+2D Metrology
+read_metrology_model ( :
+:
+FileName :
+MetrologyHandle )
+Read a metrology model from a ﬁle.
+read_metrology_model
+reads
+a
+metrology
+model,
+which
+has
+been
+written
+to
+ﬁle
+with
+write_metrology_model, from the ﬁle FileName. The default HALCON ﬁle extension for a metrology
+model is ’mtr’. The values contained in the read metrology model are stored in a metrology model with the handle
+MetrologyHandle. Access to the parameters of the metrology model is possible, e.g., with the operator
+get_metrology_object_param or get_metrology_object_fuzzy_param.
+For an explanation of the concept of 2D metrology see the introduction of chapter 2D Metrology.
+Parameters
+▷FileName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .ﬁlename.read ; string
+File name.
+File extension: .mtr
+▷MetrologyHandle (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . metrology_model ; handle
+Handle of the metrology model.
+Result
+If the parameters are valid, the operator read_metrology_model returns the value 2 (H_MSG_TRUE). If
+necessary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+This operator returns a handle. Note that the state of an instance of this handle type may be changed by speciﬁc
+operators even though the handle is used as an input parameter by those operators.
+Possible Successors
+get_metrology_object_indices, apply_metrology_model
+See also
+write_metrology_model
+Module
+2D Metrology
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 113] -----
+65
+reset_metrology_object_fuzzy_param ( :
+:
+MetrologyHandle,
+Index :
+)
+Reset all fuzzy parameters and fuzzy functions of a metrology model.
+reset_metrology_object_fuzzy_param discards all fuzzy parameters and fuzzy functions of the
+metrology objects that can be set by the operator set_metrology_object_fuzzy_param and restores
+the default values.
+For an explanation of the concept of 2D metrology see the introduction of chapter 2D Metrology.
+The metrology model is deﬁned by the handle MetrologyHandle. The parameter Index determines the
+metrology objects to reset. With Index set to ’all’, all metrology objects are reset.
+Parameters
+▷MetrologyHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . metrology_model ; handle
+Handle of the metrology model.
+▷Index (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer(-array) ; string / integer
+Index of the metrology objects.
+Default: ’all’
+Suggested values: Index ∈{’all’, 0, 1, 2}
+Result
+If the parameters are valid, the operator reset_metrology_object_fuzzy_param returns the value 2
+(H_MSG_TRUE). If necessary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+This operator modiﬁes the state of the following input parameter:
+• MetrologyHandle
+During execution of this operator, access to the value of this parameter must be synchronized if it is used across
+multiple threads.
+Possible Predecessors
+set_metrology_object_fuzzy_param
+See also
+reset_metrology_object_param
+Module
+2D Metrology
+reset_metrology_object_param ( :
+:
+MetrologyHandle,
+Index :
+)
+Reset all parameters of a metrology model.
+reset_metrology_object_param discards all settings of the parameters for the metrology objects that can
+be set by the operator set_metrology_object_param and restores the default values.
+For an explanation of the concept of 2D metrology see the introduction of chapter 2D Metrology.
+The metrology model is deﬁned by the handle MetrologyHandle. The parameter Index determines the
+metrology objects to reset. With Index set to ’all’, all metrology objects are reset.
+HALCON 26.05.0.0
+
+
+----- [page 114] -----
+66
+CHAPTER 2 2D METROLOGY
+Parameters
+▷MetrologyHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . metrology_model ; handle
+Handle of the metrology model.
+▷Index (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer(-array) ; string / integer
+Index of the metrology objects.
+Default: ’all’
+Suggested values: Index ∈{’all’, 0, 1, 2}
+Result
+If the parameters are valid,
+the operator reset_metrology_object_param returns the value 2
+(H_MSG_TRUE). If necessary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+This operator modiﬁes the state of the following input parameter:
+• MetrologyHandle
+During execution of this operator, access to the value of this parameter must be synchronized if it is used across
+multiple threads.
+Possible Predecessors
+set_metrology_object_param
+See also
+reset_metrology_object_fuzzy_param
+Module
+2D Metrology
+serialize_metrology_model (
+:
+:
+MetrologyHandle :
+SerializedItemHandle )
+Serialize a metrology model.
+serialize_metrology_model
+serializes
+the
+data
+of
+a
+metrology
+model
+(see
+fwrite_serialized_item for an introduction of the basic principle of serialization).
+The same data that is written in a ﬁle by write_metrology_model is converted to a serialized item. The
+metrology model is deﬁned by the handle MetrologyHandle. The serialized metrology model is returned by
+the handle SerializedItemHandle and can be deserialized by deserialize_metrology_model.
+For an explanation of the concept of 2D metrology see the introduction of chapter 2D Metrology.
+Parameters
+▷MetrologyHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . metrology_model ; handle
+Handle of the metrology model.
+▷SerializedItemHandle (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .serialized_item ; handle
+Handle of the serialized item.
+Result
+If the parameters are valid, the operator serialize_metrology_model returns the value 2 (H_MSG_TRUE).
+If necessary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 115] -----
+67
+• Processed without parallelization.
+Possible Predecessors
+create_metrology_model, add_metrology_object_circle_measure,
+add_metrology_object_ellipse_measure, add_metrology_object_line_measure,
+add_metrology_object_rectangle2_measure, set_metrology_object_param,
+set_metrology_object_fuzzy_param, read_metrology_model
+Possible Successors
+fwrite_serialized_item, send_serialized_item, deserialize_metrology_model
+Module
+2D Metrology
+set_metrology_model_image_size ( :
+:
+MetrologyHandle,
+Width,
+Height :
+)
+Set the size of the image of metrology objects.
+set_metrology_model_image_size is used to set or change the size of the image in which the edge
+detection that is related to a metrology model will be performed.
+For an explanation of the concept of 2D metrology see the introduction of chapter 2D Metrology.
+The metrology model is deﬁned by the handle MetrologyHandle. The image width must be speciﬁed by the
+parameter Width. The image height must speciﬁed by the parameter Height.
+Attention
+Note
+that
+the
+operator
+set_metrology_model_image_size
+should
+be
+called
+before
+adding
+metrology objects to the metrology model using the operators add_metrology_object_generic,
+add_metrology_object_circle_measure,
+add_metrology_object_ellipse_measure,
+add_metrology_object_line_measure, or add_metrology_object_rectangle2_measure.
+Otherwise, all measure regions of existing metrology objects will be recomputed automatically upon calling
+set_metrology_model_image_size or apply_metrology_model.
+Parameters
+▷MetrologyHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . metrology_model ; handle
+Handle of the metrology model.
+▷Width (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .extent.x ; integer
+Width of the image to be processed.
+Default: 640
+Suggested values: Width ∈{128, 192, 256, 512, 640, 768, 1024, 1280, 2048}
+Value range: 0 ≤Width (lin)
+Minimum increment: 1
+Recommended increment: 16
+▷Height (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . extent.y ; integer
+Height of the image to be processed.
+Default: 480
+Suggested values: Height ∈{128, 192, 256, 512, 640, 768, 1024, 1280, 2048}
+Value range: 0 ≤Height (lin)
+Minimum increment: 1
+Recommended increment: 16
+Result
+If the parameters are valid, the operator set_metrology_model_image_size returns the value 2
+(H_MSG_TRUE). If necessary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+HALCON 26.05.0.0
+
+
+----- [page 116] -----
+68
+CHAPTER 2 2D METROLOGY
+This operator modiﬁes the state of the following input parameter:
+• MetrologyHandle
+During execution of this operator, access to the value of this parameter must be synchronized if it is used across
+multiple threads.
+Possible Predecessors
+create_metrology_model
+Possible Successors
+set_metrology_model_param, add_metrology_object_circle_measure,
+add_metrology_object_ellipse_measure, add_metrology_object_line_measure,
+add_metrology_object_rectangle2_measure, add_metrology_object_generic
+Module
+2D Metrology
+set_metrology_model_param ( :
+:
+MetrologyHandle,
+GenParamName,
+GenParamValue :
+)
+Set parameters that are valid for the entire metrology model.
+set_metrology_model_param sets or changes parameters that are valid for the entire metrology model
+MetrologyHandle.
+For an explanation of the concept of 2D metrology see the introduction of chapter 2D Metrology.
+The following values for GenParamName and GenParamValue are possible:
+Calibration
+If
+both
+internal
+camera
+parameters
+and
+the
+3D
+pose
+of
+the
+measurement
+plane
+are
+set,
+apply_metrology_model calculates the results in metric coordinates.
+’camera_param’: Often the internal camera parameters are the result of calibrating the camera with the operator
+calibrate_cameras (see Calibration for the sequence of the parameters and the underlying camera
+model). It is possible to discard the internal camera parameters by setting ’camera_param’ to [].
+Default: []
+’plane_pose’: The 3D pose of the measurement plane in camera coordinates. It is possible to discard the pose by
+setting ’plane_pose’ to [].
+Default: []
+Deﬁnition of a new reference system
+When adding the metrology objects to the metrology model using e.g., add_metrology_object_generic,
+add_metrology_object_circle_measure etc. the positions and orientations are given with respect
+to the image coordinate system which has its origin in the upper left corner of the image. In some cases it
+may be necessary to change the reference system with respect to which the metrology objects are given. This
+is for instance the case when using a shape model to align the metrology model in a new image.
+The re-
+sults from find_generic_shape_model can only be directly used in align_metrology_model if
+the reference system of the metrology model is the same as the system in which the shape model is given (see
+align_metrology_model for more details).
+’reference_system’: The tuple given in GenParamValue should contain [row, column, angle]. By default the
+reference system is the image coordinate system which has its origin in the top left corner. A new reference
+system is deﬁned with respect to the image coordinate system by its translation (row,colum) and its rotation
+angle (angle). All components of the metrology model are converted into the new reference coordinate
+system. In the following ﬁgure, the reference system of the metrology model is set to the center of the image.
+set_metrology_model_param(MetrologyHandle, ’reference_system’,
+[Height/2,Width/2,0])
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 117] -----
+69
+(1)
+(2)
+(1) Several metrology objects and their contours are shown in blue. (2) The new reference system for the
+metrology model is placed in the center of the image. As a consequence, the positions and orientations of
+the metrology objects are moved into the reverse direction. The resulting contours of the metrology objects
+are shown in blue.
+Default: [0, 0, 0]
+Scaling the results
+The results of the measurement queried by get_metrology_object_result can be scaled by setting a
+scaling factor.
+’scale’: The parameter ’scale’ must be speciﬁed as the ratio of the desired unit to the original unit. If no camera
+parameters are given, the default unit is pixel.
+If ’camera_param’ and ’plane_pose’ are set, the original unit is determined by the coordinates of the cal-
+ibration object. Standard HALCON calibration plates are deﬁned in metric coordinates. If it was used for
+the calibration, the desired unit can be set directly. The relation of units to scaling factors is given in the
+following table:
+Unit
+Scaling factor
+m
+1
+dm
+10
+cm
+100
+mm
+1000
+um, microns
+106
+Suggested values: 1.0, 0.1, ’m’, ’cm’, ’mm’, ’microns’, ’um’
+Default: 1.0
+Parameters
+▷MetrologyHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . metrology_model ; handle
+Handle of the metrology model.
+▷GenParamName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . attribute.name ; string
+Name of the generic parameter.
+Default: ’camera_param’
+List of values: GenParamName ∈{’camera_param’, ’plane_pose’, ’scale’, ’reference_system’}
+▷GenParamValue (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . attribute.value(-array) ; string / real / integer
+Value of the generic parameter.
+Default: []
+Suggested values: GenParamValue ∈{1.0, 0.1, ’m’, ’cm’, ’mm’, ’microns’, ’um’}
+Result
+If the parameters are valid, the operator set_metrology_model_param returns the value 2 (H_MSG_TRUE).
+If necessary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+This operator modiﬁes the state of the following input parameter:
+HALCON 26.05.0.0
+
+
+----- [page 118] -----
+70
+CHAPTER 2 2D METROLOGY
+• MetrologyHandle
+During execution of this operator, access to the value of this parameter must be synchronized if it is used across
+multiple threads.
+Possible Predecessors
+create_metrology_model, set_metrology_model_image_size
+Possible Successors
+add_metrology_object_generic, get_metrology_object_model_contour
+See also
+set_metrology_object_param, align_metrology_model, get_metrology_model_param
+Module
+2D Metrology
+set_metrology_object_fuzzy_param ( :
+:
+MetrologyHandle,
+Index,
+GenParamName,
+GenParamValue :
+)
+Set fuzzy parameters or fuzzy functions for a metrology model.
+set_metrology_object_param is used to set or change the fuzzy parameters or fuzzy functions of
+a metrology object in order to adapt the model to a particular edge selection before applying the operator
+apply_metrology_model.
+For an explanation of the concept of 2D metrology see the introduction of chapter 2D Metrology.
+The metrology model is deﬁned by the handle MetrologyHandle. The parameter Index speciﬁes the metrol-
+ogy objects for which the parameters should be changed or set. The parameters of all metrology objects are set if
+the parameter Index is set to ’all’.
+The fuzzy parameter or the type of fuzzy function is passed in the parameter GenParamName. The correspond-
+ing value or the fuzzy function is passed in the parameter GenParamValue. If at least one fuzzy function
+is set, internally the operator fuzzy_measure_pos will be used when searching the objects with the op-
+erator apply_metrology_model. More information about fuzzy functions can be found with the opera-
+tor fuzzy_measure_pos. The following generic parameters and parameter values for GenParamName and
+GenParamValue are possible:
+’fuzzy_thresh’: The parameter speciﬁes the minimum fuzzy value. The meaning and the use of this parameter
+is described with the operator fuzzy_measure_pos. There, the parameter corresponds to the parameter
+FuzzyThresh.
+Default: 0.5
+’function_contrast’: The parameter speciﬁes a fuzzy function of type contrast. The meaning and the use of
+this parameter is described with the operator set_fuzzy_measure. There, the parameter corresponds to
+the parameter SetType with the value ’contrast’ and its value corresponds to the parameter Function.
+Default: ’disabled’
+’function_position’: The parameter speciﬁes a fuzzy function of type position. The meaning and the use of
+this parameter is described with the operator set_fuzzy_measure. There, the parameter corresponds to
+the parameter SetType with the value ’position’ and its value corresponds to the parameter Function.
+Default: ’disabled’
+’function_position_center’: The parameter speciﬁes a fuzzy function of type position_center. The meaning
+and the use of this parameter is described with the operator set_fuzzy_measure. There, the parameter
+corresponds to the parameter SetType with the value ’position’ and its value corresponds to the parameter
+Function.
+Default: ’disabled’
+’function_position_end’: The parameter speciﬁes a fuzzy function of type position_end. The meaning and
+the use of this parameter is described with the operator set_fuzzy_measure. There, the parameter cor-
+responds to the parameter SetType with the value ’position_end’ and its value corresponds to the parameter
+Function.
+Default: ’disabled’
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 119] -----
+71
+’function_position_ﬁrst_edge’: The parameter speciﬁes a fuzzy function of type position_first_edge. The
+meaning and the use of this parameter is described with the operator set_fuzzy_measure. There, the
+parameter corresponds to the parameter SetType with the value ’position_ﬁrst_edge’ and its value corre-
+sponds to the parameter Function.
+Default: ’disabled’
+’function_position_last_edge’: The parameter speciﬁes a fuzzy function of type position_last_edge. The
+meaning and the use of this parameter is described with the operator set_fuzzy_measure. There, the
+parameter corresponds to the parameter SetType with the value ’position_last_edge’ and its value corre-
+sponds to the parameter Function.
+Default: ’disabled’
+A
+fuzzy
+function
+is
+discarded
+if
+the
+fuzzy
+function
+value
+is
+set
+to
+’disabled’.
+All
+pre-
+viously
+deﬁned
+fuzzy
+functions
+and
+fuzzy
+parameters
+can
+be
+discarded
+completely
+using
+reset_metrology_object_fuzzy_param.
+The current conﬁguration of the metrology objects can
+be accessed with get_metrology_object_fuzzy_param.
+Note that if at least one fuzzy function is
+speciﬁed, the operator fuzzy_measure_pos is used for the edge detection.
+Parameters
+▷MetrologyHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . metrology_model ; handle
+Handle of the metrology model.
+▷Index (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer(-array) ; string / integer
+Index of the metrology objects.
+Default: ’all’
+Suggested values: Index ∈{’all’, 0, 1, 2}
+▷GenParamName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . attribute.name-array ; string
+Names of the generic parameters.
+Default: ’fuzzy_thresh’
+List of values: GenParamName ∈{’function_contrast’, ’function_position’, ’function_position_center’,
+’function_position_end’, ’function_position_ﬁrst_edge’, ’function_position_last_edge’, ’fuzzy_thresh’}
+▷GenParamValue (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . attribute.value-array ; real / integer
+Values of the generic parameters.
+Default: 0.5
+Suggested values: GenParamValue ∈{0.1, 0.3, 0.5, 0.6, 0.7, 0.9, 1, 2, 3, 4, 5, 10, 20}
+Result
+If the parameters are valid, the operator set_metrology_object_fuzzy_param returns the value 2
+(H_MSG_TRUE). If necessary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+This operator modiﬁes the state of the following input parameter:
+• MetrologyHandle
+During execution of this operator, access to the value of this parameter must be synchronized if it is used across
+multiple threads.
+Possible Predecessors
+get_metrology_object_fuzzy_param
+Possible Successors
+apply_metrology_model, reset_metrology_object_fuzzy_param,
+get_metrology_object_fuzzy_param
+See also
+set_metrology_object_param
+Module
+2D Metrology
+HALCON 26.05.0.0
+
+
+----- [page 120] -----
+72
+CHAPTER 2 2D METROLOGY
+set_metrology_object_param ( :
+:
+MetrologyHandle,
+Index,
+GenParamName,
+GenParamValue :
+)
+Set parameters for the metrology objects of a metrology model.
+set_metrology_object_param is used to set or change the different parameters of a metrology object.
+For an explanation of the concept of 2D metrology see the introduction of chapter 2D Metrology.
+The metrology model is deﬁned by the handle MetrologyHandle.
+The parameter Index speciﬁes
+the metrology objects for which the parameters are set.
+The parameters of all metrology objects are set
+if the parameter Index is set to ’all’.
+All parameters can also be set when creating a metrology ob-
+ject
+with
+add_metrology_object_generic,
+add_metrology_object_circle_measure,
+add_metrology_object_ellipse_measure,
+add_metrology_object_line_measure,
+or
+add_metrology_object_rectangle2_measure.
+The
+current
+conﬁguration
+of
+the
+metrology
+model can be accessed with get_metrology_object_param.
+All parameters that can be set with
+set_metrology_object_param can be reset with reset_metrology_object_param.
+In the following all generic parameters with the default values are listed. But note that for a lot of applications
+the default values are sufﬁcient and no adjustment is necessary. The following values for GenParamName and
+GenParamValue are possible - ordered by different categories:
+Creating measure regions:
+’measure_length1’: The value of this parameter speciﬁes the half length of the measure regions perpendicular to
+the metrology object boundary. It is equivalent to the measure tolerance. The unit of this value is pixel.
+Suggested values: 10.0, 20.0, 30.0
+Default: 20.0
+Restriction: ’measure_length1’ >= 1.0
+’measure_length2’: The value of this parameter speciﬁes the half length of the measure regions tangential to the
+metrology object boundary. The unit of this value is pixel.
+Suggested values: 3.0, 5.0, 10.0
+Default: 5.0
+Restriction: ’measure_length2’ >= 0.0
+’measure_distance’: The value of this parameter speciﬁes the desired distance between the centers of two measure
+regions. If the value leads to too few measure regions, the parameter has no inﬂuence and the number of
+measure regions will be increased to the minimum required number of measure regions (circle = 3, ellipse =
+5, line = 2, rectangle = 2 per side = 8). The unit of this value is pixel.
+If this value is set, the parameter ’num_measures’ has no inﬂuence.
+Suggested values: 5.0, 15.0, 20.0, 30.0
+Default: 10.0
+’num_measures’: The value of this parameter speciﬁes the desired number of measure regions.
+The minimum number of measure regions depends on the type of the metrology object:
+• Line: 2 measure regions
+• Circle: 3 measure regions
+• Circular arc: 4 measure regions
+• Ellipse: 5 measure regions
+• Elliptic arc: 6 measure regions
+• Rectangle: 8 measure regions (2 regions each side)
+If the chosen value is too low, ’num_measures’ is automatically set to the respective minimum value.
+If this value is set, the parameter ’measure_distance’ has no inﬂuence.
+Suggested values: 8, 10, 16, 20, 30, 50, 100
+Edge detection:
+’measure_sigma’: The parameter speciﬁes the sigma for the Gaussian smoothing. The meaning, the use, and the
+default value of this parameter are described with the operator measure_pos by the parameter Sigma.
+’measure_threshold’: The parameter speciﬁes the minimum edge amplitude. The meaning, the use, and the default
+value of this parameter are described with the operator measure_pos by the parameter Threshold.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 121] -----
+73
+’measure_select’: The parameter speciﬁes the selection of end points of the edges. The meaning, the use, and the
+default value of this parameter are described with the operator measure_pos by the parameter Select.
+’measure_transition’: The parameter speciﬁes the use of dark/light or light/dark edges. The meaning and the use
+of the values ’all’, ’positive’, and ’negative’ for the parameter ’measure_transition’ is described with the
+operator measure_pos by the parameter Transition. Additionally, ’measure_transition’ can be set to
+the value ’uniform’. Then, all positive edges (dark/light edges) and all negative edges (light/dark edges) are
+detected by the edge detection but when ﬁtting the geometric shapes, the edges with different edge types are
+used separately, i.e., for each instance of a geometric shape either only the positive edges or the negative
+edges are used.
+The measure direction within the measure regions is from the inside to the outside of the metrology object
+for objects of the types circle, ellipse, or rectangle. For metrology objects of the type line measure direction
+within the measure regions is from the left to the right, seen from the ﬁrst point of the line (see RowBegin
+and ColumnBegin of the operator add_metrology_object_line_measure).
+List of values: ’all’, ’negative’, ’positive’, ’uniform’
+Default: ’all’
+’measure_interpolation’: The parameter speciﬁes the type of interpolation to be used. The meaning, the use and
+the default value of this parameter is described with the operator gen_measure_rectangle2 by the
+parameter Interpolation.
+Fitting the geometric shapes:
+’min_score’: The parameter determines what score a potential instance must at least have to be regarded as a valid
+instance of the metrology object. The score is the number of detected edges that are used to compute the
+results divided by the maximum number of measure regions (see apply_metrology_model). If it can
+be expected that all edges of the metrology object are present, the parameter ’min_score’ can be set to a value
+as high as 0.8 or even 0.9. Note that in images with a high degree of clutter or strong background texture the
+parameter ’min_score’ should be set to a value not much lower than 0.7 since otherwise false instances of a
+metrology object could be found.
+Suggested values: 0.5, 0.7, 0.9
+Default: 0.7
+’num_instances’: The parameter speciﬁes the maximum number of successfully ﬁtted instances of each metrology
+object after which the ﬁtting will stop (see apply_metrology_model). Successfully ﬁtted instances of
+the metrology objects must have a score of at least the value of ’min_score’.
+Suggested values: 1, 2, 3, 4
+Default: 1
+’distance_threshold’: apply_metrology_model uses a randomized search algorithm (RANSAC) to ﬁt the
+geometric shapes. An edge point is considered to be part of a ﬁtted geometric shape, if the distance of the
+edge point to the geometric shape does not exceed the value of ’distance_threshold’.
+Suggested values: 0, 1.0, 2.0, 3.5, 5.0
+Default: 3.5
+’max_num_iterations’: The RANSAC algorithm estimates the number of iterations necessary for ﬁtting the re-
+quested geometric shape. The estimation is based on the extracted edge data and the complexity of the shape.
+When setting the value of the parameter ’max_num_iterations’, an upper limit for the computed number of
+iterations is deﬁned. The number of iterations is still estimated by the RANSAC algorithm but cannot exceed
+the value of ’max_num_iterations’. Setting this parameter can be helpful, if the quality of the ﬁtting is not
+as important as observing time limits. However, if ’max_num_iterations’ is set too low, the algorithm will
+return low-quality or no results.
+By default, ’max_num_iterations’ is set to -1, indicating that no additional upper limit is set for the number
+of iterations of the RANSAC algorithm.
+Suggested values: 10, 100, 1000
+Default: -1
+’rand_seed’: The parameter speciﬁes the seed for the random number generator for the RANSAC algorithm that
+is used by the selection of the edges the in operator apply_metrology_model. If the value of the
+parameter ’rand_seed’ is set to a number unequal to the value 0, the operator yields the same result on every
+call with the same parameters, because the internally used random number generator is initialized with the
+value of the parameter ’rand_seed’.
+HALCON 26.05.0.0
+
+
+----- [page 122] -----
+74
+CHAPTER 2 2D METROLOGY
+If the parameter ’rand_seed’ is set to the value 0, the random number generator is initialized with the current
+time. In this case, the results are not reproducible.
+Suggested values: 0, 1, 42
+Default: 42
+’instances_outside_measure_regions’: The parameter speciﬁes the validation of the results of measurements. If
+the value of the parameter ’instances_outside_measure_regions’ is set to the value ’false’, only result-
+ing instances of an metrology object are valid that are inside the major axis of the measure regions of
+this metrology object. Instances which are not valid are not stored. If the value of the parameter ’in-
+stances_outside_measure_regions’ is set to the value ’true’, all instances of a metrology object are valid.
+List of values: ’true’, ’false’
+Default: ’false’
+Parameters
+▷MetrologyHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . metrology_model ; handle
+Handle of the metrology model.
+▷Index (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer(-array) ; string / integer
+Index of the metrology objects.
+Default: ’all’
+Suggested values: Index ∈{’all’, 0, 1, 2}
+▷GenParamName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . attribute.name-array ; string
+Names of the generic parameters.
+Default: ’num_instances’
+List of values: GenParamName ∈{’distance_threshold’, ’instances_outside_measure_regions’,
+’max_num_iterations’, ’measure_distance’, ’measure_interpolation’, ’measure_length1’, ’measure_length2’,
+’measure_select’, ’measure_sigma’, ’measure_threshold’, ’measure_transition’, ’min_score’,
+’num_instances’, ’num_measures’, ’rand_seed’}
+▷GenParamValue (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . .attribute.value-array ; string / real / integer
+Values of the generic parameters.
+Default: 1
+Suggested values: GenParamValue ∈{1, 2, 3, 4, 5, 10, 20, ’all’, ’true’, ’false’, ’ﬁrst’, ’last’, ’positive’,
+’negative’, ’uniform’, ’nearest_neighbor’, ’bilinear’, ’bicubic’}
+Result
+If the parameters are valid,
+the operator set_metrology_object_param returns the value 2
+(H_MSG_TRUE). If necessary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+This operator modiﬁes the state of the following input parameter:
+• MetrologyHandle
+During execution of this operator, access to the value of this parameter must be synchronized if it is used across
+multiple threads.
+Possible Predecessors
+get_metrology_object_param
+Possible Successors
+apply_metrology_model, reset_metrology_object_param,
+get_metrology_object_param
+See also
+set_metrology_object_fuzzy_param
+Module
+2D Metrology
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 123] -----
+75
+write_metrology_model ( :
+:
+MetrologyHandle,
+FileName :
+)
+Write a metrology model to a ﬁle.
+write_metrology_model writes a metrology model to the ﬁle FileName. The metrology model is deﬁned
+by the handle MetrologyHandle. The metrology model can be read with read_metrology_model. The
+default HALCON ﬁle extension for a metrology model is ’mtr’.
+For an explanation of the concept of 2D metrology see the introduction of chapter 2D Metrology.
+Attention
+Note that only the input values are saved, i.e., no measure regions and no results obtained by the operator
+apply_metrology_model are saved.
+Parameters
+▷MetrologyHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . metrology_model ; handle
+Handle of the metrology model.
+▷FileName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ﬁlename.write ; string
+File name.
+File extension: .mtr
+Result
+If the parameters are valid, the operator write_metrology_model returns the value 2 (H_MSG_TRUE). If
+necessary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+apply_metrology_model
+Possible Successors
+clear_metrology_model
+See also
+read_metrology_model
+Module
+2D Metrology
+HALCON 26.05.0.0
+
+
+----- [page 124] -----
+76
+CHAPTER 2 2D METROLOGY
+HALCON/HDevelop Reference Manual, 2026-5-12

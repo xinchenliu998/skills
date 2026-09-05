@@ -1,0 +1,775 @@
+
+
+----- [page 2357] -----
+Chapter 23
+Object
+This chapter contains operators that can be used to either query information related to iconic objects or to manip-
+ulate iconic objects.
+Available Iconic Objects
+HALCON provides different kinds of iconic objects that are suitable for different needs:
+(1)
+(2)
+(3)
+(4)
+(5)
+(6)
+Within the image of a metal part (1) a region (2), an ROI that is created using the dilated boundary of the region
+(3), contours (4), polygons (5), and parallels (6) are extracted.
+Images: An image consists of one to multiple channels, i.e., matrices of similar size that contain gray values of
+various pixel types. Images are the major source for most machine vision tasks.
+Regions: A region is deﬁned as a set of pixels. The pixels of a region do not need to be connected. This means that
+even an arbitrary collection of pixels can be handled as a single region. Region processing is suitable, e.g.,
+to apply a blob analysis within images or to deﬁne a region of interest (ROI) for following subpixel-precise
+operations.
+XLDs: XLD is the abbreviation for eXtended Line Description and comprises all contour and polygon based data.
+Note that XLD contours are returned or used by many HALCON operators whereas XLD polygons and
+XLD parallels are needed only in special cases. A contour is a sequence of subpixel-accurate 2D control
+points that are connected by lines. Typically, the distance between control points is about one pixel. XLD
+objects contain, besides the control points, so-called local and global attributes. Typical examples for these
+2309
+
+
+----- [page 2358] -----
+2310
+CHAPTER 23 OBJECT
+are, e.g., the edge amplitude of a control point or the regression parameters of a contour segment. Contour
+processing is suitable, e.g., for subpixel-precise measurements. Subpixel-precise operations can be faster if
+they are applied within an ROI.
+Further Information
+See the “Quick Guide” for further details about the available data structures.
+23.1
+Information
+compare_obj ( Objects1,
+Objects2 :
+:
+Epsilon :
+IsEqual )
+Compare iconic objects regarding equality.
+The operator compare_obj compares iconic objects regarding equality. The iconic objects are passed in the two
+input parameters Objects1 and Objects2 in form of (possibly mixed) tuples of images, regions, or XLDs.
+The n-th object in Objects1 is compared to the n-th object in Objects2 (for all n). If the two passed object
+tuples have the same length and if all objects are equal, the parameter IsEqual is set to 1, otherwise to 0.
+For a short description of the iconic objects that are available in HALCON see the introduction of chapter Object.
+Depending on the type of the input objects, different conditions must be met for the equality of two objects. In the
+following, the conditions for each possible iconic object are listed:
+Images: For all channels, the gray values of the respective pixels must not differ by more than Epsilon. Note
+that images are only compared within their domain (ROI) and they are only equal if they have the same
+domain (ROI).
+Regions: The regions must be equal. The parameter Epsilon has no effect for the comparison of regions.
+XLD contours: XLD contours must have the same number of points and attributes. The point coordinates and the
+attribute values must not differ by more than Epsilon.
+XLD polygons: XLD polygons must have the same number of line segments. The length and the orientation of
+these segments as well as the coordinates of the control points must not differ by more than Epsilon.
+XLD parallels and extended XLD parallels: XLD parallels must have an identical index of the start and end line
+segment of the parallels of the ﬁrst polygon (P1) and the second polygon (P2) as well as identical pointers to
+the underlying contours.
+Modiﬁed XLD parallels: For modiﬁed XLD parallels, the same conditions apply as for XLD parallels and ex-
+tended XLD parallels. Furthermore, the distances between the line segments of the parallel polygons must
+be identical.
+Note that compare_obj compares all objects regarding their actual content. In contrast test_equal_obj
+compares only regions regarding their actual content while for all other objects their location in memory is com-
+pared.
+Parameters
+▷Objects1 (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . object(-array) ; object
+Reference objects.
+▷Objects2 (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . object(-array) ; object
+Test objects.
+▷Epsilon (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . number ; real / integer
+Maximum allowed difference between two gray values or coordinates etc.
+Default: 0.0
+Suggested values: Epsilon ∈{0.0, 1.e-5}
+▷IsEqual (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer ; integer
+Boolean result value.
+Result
+The operator compare_obj returns the value 2 (H_MSG_TRUE) if the parameters are correct.
+The
+behavior in case of empty input (no input objects available) is set via the operator set_system(::
+’no_object_result’,<Result>:). If the number of objects differs an exception is raised.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2359] -----
+23.1. INFORMATION
+2311
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+See also
+test_equal_obj, test_equal_region
+Module
+Foundation
+count_obj ( Objects :
+:
+:
+Number )
+Number of objects in a tuple.
+The operator count_obj determines for the object parameter Objects the number of objects it contains. In
+this connection it should be noted that object is not the same as connection component (see connection). For
+example, the number of objects of one region consisting of three parts that are not connected is 1.
+For a short description of the iconic objects that are available in HALCON see the introduction of chapter Object.
+Parameters
+▷Objects (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . object-array ; object
+Objects to be examined.
+▷Number (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer ; integer
+Number of objects in the tuple Objects.
+Complexity
+Runtime complexity: O(|Objects|).
+Result
+count_obj returns the value 2 (H_MSG_TRUE).
+Execution Information
+• Supports objects on compute devices.
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+See also
+copy_obj, obj_to_integer, connection, set_system
+Module
+Foundation
+get_channel_info ( Object :
+:
+Request,
+Channel :
+Information )
+Information about the components of an image object.
+The operator get_channel_info gives information about the components of an image object. The following
+requests (Request) are currently possible:
+’creator’ Output of the names of the procedures which initially created the image components (not the object).
+’type’ Output of the type of image component (byte, int1, int2, uint2 int4, real, direction,
+cyclic, complex, vector_field). The component 0 is of type ’region’ or ’xld’.
+HALCON 26.05.0.0
+
+
+----- [page 2360] -----
+2312
+CHAPTER 23 OBJECT
+In the tuple Channel the numbers of the components about which information is required are stated. After car-
+rying out get_channel_info, Information contains a tuple of strings (one string per entry in Channel)
+with the required information.
+For a short description of the iconic objects that are available in HALCON see the introduction of chapter Object.
+Parameters
+▷Object (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .object ; object
+Image object to be examined.
+▷Request (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+Required information about object components.
+Default: ’creator’
+List of values: Request ∈{’creator’, ’type’}
+▷Channel (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . channel(-array) ; integer
+Components to be examined (0 for region/XLD).
+Default: 0
+Suggested values: Channel ∈{0, 1, 2, 3, 4, 5, 6, 7, 8}
+▷Information (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .string(-array) ; string
+Requested information.
+Result
+If the parameters are correct the operator get_channel_info returns the value 2 (H_MSG_TRUE). Otherwise
+an exception is raised.
+Execution Information
+• Supports objects on compute devices.
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+read_image
+See also
+count_relation
+Module
+Foundation
+get_obj_class ( Object :
+:
+:
+Class )
+Name of the class of an image object.
+get_obj_class returns the name of the corresponding class to each object. The following classes are possible:
+’image’ Object with region (deﬁnition domain) and at least one channel.
+’region’ Object with a region without gray values.
+’xld_cont’ XLD object as contour
+’xld_poly’ XLD object as polygon
+’xld_parallel’ XLD object with parallel polygons
+For a short description of the iconic objects that are available in HALCON see the introduction of chapter Object.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2361] -----
+23.1. INFORMATION
+2313
+Parameters
+▷Object (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .object(-array) ; object
+Image objects to be examined.
+▷Class (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string(-array) ; string
+Name of class.
+Result
+If the parameter values are correct the operator get_obj_class returns the value 2 (H_MSG_TRUE). Otherwise
+an exception is raised.
+Execution Information
+• Supports objects on compute devices.
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Successors
+disp_image, disp_region, disp_xld
+See also
+get_channel_info, count_relation
+Module
+Foundation
+test_equal_obj ( Objects1,
+Objects2 :
+:
+:
+IsEqual )
+Compare image objects regarding equality.
+The operator test_equal_obj compares the regions and gray value components of all objects of the two
+input parameters. The n-th object in Objects1 is compared to the n-th object in Objects2 (for all n). If
+all corresponding regions are equal and the number of regions is also identical the parameter IsEqual is set to
+TRUE, otherwise FALSE.
+For a short description of the iconic objects that are available in HALCON see the introduction of chapter Object.
+Attention
+Image matrices and XLDs are not compared regarding their contents. Thus, two images or XLDs, respectively,
+are “equal” if they are located at the same place in the storage. By contrast, regions that are not located at the
+same place in the storage are compared regarding their actual contents. If the input parameters are empty and
+the behavior was set via the operator set_system(::’no_object_result’,’true’:), the parameter
+IsEqual is set to TRUE, since all input (= empty set) is equal.
+Parameters
+▷Objects1 (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . object-array ; object
+Test objects.
+▷Objects2 (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . object-array ; object
+Comparative objects.
+▷IsEqual (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer ; integer
+Boolean result value.
+Complexity
+If F is the area of a region the runtime complexity is O(1) or O(sqrt(F)) if the result is TRUE and O(sqrt(F))
+if the result is FALSE.
+Result
+The operator test_equal_obj returns the value 2 (H_MSG_TRUE) if the parameters are correct.
+The
+behavior in case of empty input (no input objects available) is set via the operator set_system(::
+’no_object_result’,<Result>:).
+If the number of objects differs an exception is raised.
+Else
+test_equal_obj returns 2 (H_MSG_TRUE)
+Execution Information
+HALCON 26.05.0.0
+
+
+----- [page 2362] -----
+2314
+CHAPTER 23 OBJECT
+• Supports objects on compute devices.
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+See also
+compare_obj, test_equal_region
+Module
+Foundation
+23.2
+Manipulation
+clear_obj ( Objects :
+:
+:
+)
+Delete an iconic object from the HALCON database.
+clear_obj deletes iconic objects, which are no longer needed, from the HALCON database. It should be
+noted that clear_obj is the only way to delete objects from the database, and hence to reclaim their memory,
+in HALCON/C. In all other HALCON language interfaces, clear_obj must not be used because objects are
+destroyed automatically through appropriate destructors.
+Images and regions are normally used by several iconic objects at the same time (uses less memory!). This has the
+consequence that a region or an image is only deleted if all objects using it have been deleted.
+The operator reset_obj_db can be used to reset the system and clear all remaining iconic objects.
+For a short description of the iconic objects that are available in HALCON see the introduction of chapter Object.
+Attention
+Regarding the use of local variables in HALCON/C: When exiting a subroutine, the local variables are deleted, but
+the HALCON database is not updated. To update the database and thus free the memory, you must explicitly clear
+the local objects from the database before exiting the subroutine.
+Parameters
+▷Objects (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . object(-array) ; object
+Objects to be deleted.
+Result
+clear_obj returns 2 (H_MSG_TRUE) if all objects are contained in the HALCON database. If not all ob-
+jects are valid (e.g., already cleared), an exception is raised, which also clears all valid objects. The operator
+set_check(’~clear’) can be used to suppress the raising of this exception. If the input is empty the be-
+havior can be set via set_system(::’no_object_result’,<Result>:). If necessary, an exception is
+raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Alternatives
+reset_obj_db
+See also
+set_check
+Module
+none
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2363] -----
+23.2. MANIPULATION
+2315
+concat_obj ( Objects1,
+Objects2 :
+ObjectsConcat :
+:
+)
+Concatenate two iconic object tuples.
+concat_obj concatenates the two tuples of iconic objects Objects1 and Objects2 into a new tuple of iconic
+objects ObjectsConcat. Hence, this tuple contains all the iconic objects of the two input tuples:
+ObjectsConcat = [Objects1,Objects2]
+In ObjectsConcat, the objects of Objects1 are stored ﬁrst, followed by the objects of Objects2, i.e., the
+order of the objects is preserved. Note that only references to the corresponding images and regions are stored
+in ObjectsConcat, i.e., no new memory is allocated. Furthermore, this means that modiﬁcations of input
+images, e.g., with set_grayval, overpaint_gray, or overpaint_region directly affect the images of
+the output tuple ObjectsConcat and vice versa.
+concat_obj should not be confused with union1 or union2, in which regions are merged, i.e., in which the
+number of objects is modiﬁed.
+concat_obj can be used to concatenate objects of different image object types (e.g., images and XLD contours)
+into a single object. This is only recommended if it is necessary to accumulate in a single object variable, for
+example, the results of an image processing sequence. It should be noted that the only operators that can handle
+such object tuples of mixed type are concat_obj, copy_obj, select_obj, and disp_obj.
+For a short description of the iconic objects that are available in HALCON see the introduction of chapter Object.
+Parameters
+▷Objects1 (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . object(-array) ; object
+Object tuple 1.
+▷Objects2 (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . object(-array) ; object
+Object tuple 2.
+▷ObjectsConcat (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . object-array ; object
+Concatenated objects.
+Example
+/* generate a tuple of a circle and a rectangle */
+gen_circle(&Circle,200.0,400.0,23.0);
+gen_rectangle1(&Rectangle,23.0,44.0,203.0,201.0);
+concat_obj(Circle,Rectangle,&CircleAndRectangle);
+disp_region(CircleAndRectangle,WindowHandle);
+Complexity
+Runtime complexity: O(|Objects1| + |Objects2|);
+Memory complexity of the result objects: O(|Objects1| + |Objects2|)
+Result
+concat_obj returns 2 (H_MSG_TRUE) if all objects are contained in the HALCON database. If the input is
+empty the behavior can be set via set_system(::’no_object_result’,<Result>:). If necessary, an
+exception is raised.
+Execution Information
+• Supports objects on compute devices.
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+See also
+count_obj, copy_obj, select_obj, disp_obj
+Module
+Foundation
+HALCON 26.05.0.0
+
+
+----- [page 2364] -----
+2316
+CHAPTER 23 OBJECT
+copy_obj ( Objects :
+ObjectsSelected :
+Index,
+NumObj :
+)
+Copy an iconic object in the HALCON database.
+copy_obj copies NumObj iconic objects beginning with index Index (starting with 1) from the iconic input
+object tuple Objects to the output object ObjectsSelected. If -1 is passed for NumObj all objects beginning
+with Index are copied. No new storage is allocated for the regions and images. Instead, new objects containing
+references to the existing objects are created. The number of objects in an object tuple can be queried with the
+operator count_obj.
+For a short description of the iconic objects that are available in HALCON see the introduction of chapter Object.
+Parameters
+▷Objects (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . object(-array) ; object
+Objects to be copied.
+▷ObjectsSelected (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . object(-array) ; object
+Copied objects.
+▷Index (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .integer ; integer
+Starting index of the objects to be copied.
+Default: 1
+Suggested values: Index ∈{1, 2, 3, 4, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000}
+Value range: 1 ≤Index
+Restriction: Index <= number(Objects)
+▷NumObj (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer ; integer
+Number of objects to be copied or -1.
+Default: 1
+Suggested values: NumObj ∈{-1, 1, 2, 3, 4, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000}
+Value range: -1 ≤NumObj
+Restriction: NumObj + Index - 1 <= number(Objects) && NumObj != 0
+Example
+gen_circle (Circles, [100,200,400], [200,100,400], [100,100,50])
+copy_obj (Circles, CircleCopy, 2, 3)
+erosion_circle (CircleCopy, CircleErosion, 15.5)
+dev_set_color ('red')
+dev_set_draw ('fill')
+dev_display(Circles)
+dev_set_color ('white')
+dev_set_draw ('margin')
+dev_display (CircleCopy)
+dev_set_color ('green')
+dev_display (CircleErosion)
+Complexity
+Runtime complexity: O(|Objects| + NumObj);
+Memory complexity of the result object: O(NumObj)
+Result
+copy_obj returns 2 (H_MSG_TRUE) if all objects are contained in the HALCON database and
+all parameters are correct.
+If the input is empty the behavior can be set via set_system(::
+’no_object_result’,<Result>:). If necessary, an exception is raised.
+Execution Information
+• Supports objects on compute devices.
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2365] -----
+23.2. MANIPULATION
+2317
+Possible Predecessors
+count_obj
+Alternatives
+select_obj
+See also
+count_obj, concat_obj, obj_to_integer, copy_image
+Module
+Foundation
+gen_empty_obj ( :
+EmptyObject :
+:
+)
+Create an empty object tuple.
+The operator gen_empty_obj creates an empty tuple. This means that the output parameter does not contain
+any objects. Thus, the operator count_obj returns 0. However, clear_obj can be called for the output. It
+should be noted that no objects must not be confused with an empty region. In case of an empty region, i.e. a
+region with 0 pixels count_obj returns the value 1.
+For a short description of the iconic objects that are available in HALCON see the introduction of chapter Object.
+Parameters
+▷EmptyObject (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .object ; object
+No objects.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Module
+Foundation
+insert_obj ( Objects,
+ObjectsInsert :
+ObjectsExtended :
+Index :
+)
+Insert objects into an iconic object tuple.
+insert_obj inserts the elements of ObjectsInsert at Index into the object tuple Objects and returns
+the result in ObjectsExtended.
+Index must contain a single integer value. Note that, in contrast to control tuples, indices of object tuple elements
+start at 1. The length of ObjectsExtended is the sum of the length of Objects and ObjectsInsert. It is
+allowed to mix images, regions and XLDs in Objects and ObjectsInsert.
+Parameters
+▷Objects (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . object(-array) ; object
+Input object tuple.
+▷ObjectsInsert (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . object(-array) ; object
+Object tuple to insert.
+▷ObjectsExtended (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . object(-array) ; object
+Extended object tuple.
+▷Index (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . number ; integer
+Index to insert objects.
+Example
+HALCON 26.05.0.0
+
+
+----- [page 2366] -----
+2318
+CHAPTER 23 OBJECT
+gen_image_const (Image1, 'byte', 1, 1)
+gen_image_const (Image3, 'byte', 3, 3)
+concat_obj (Image1, Image3, Images)
+gen_image_const (Image, 'byte', 2, 2)
+insert_obj (Images, Image, Images, 2)
+Complexity
+Typical runtime complexity: O(|Objects| + |ObjectsInsert|).
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+count_obj
+Possible Successors
+count_obj
+Alternatives
+concat_obj
+See also
+count_obj, select_obj, copy_obj, remove_obj
+Module
+Foundation
+integer_to_obj ( :
+Objects :
+SurrogateTuple :
+)
+Convert an “integer number” into an iconic object.
+integer_to_obj is the inverse operator to obj_to_integer.
+All surrogates of objects passed in
+SurrogateTuple are stored as objects.
+In contrast to obj_to_integer, the objects are duplicated.
+integer_to_obj is intended especially for use in HALCON/C, because iconic objects and control parame-
+ters are treated differently in C. Please note that if you pass the value 0 in SurrogateTuple, the program will
+crash because 0 is no valid pointer.
+For a short description of the iconic objects that are available in HALCON see the introduction of chapter Object.
+Attention
+The objects are duplicated in the database.
+Parameters
+▷Objects (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . object(-array) ; object
+Created objects.
+▷SurrogateTuple (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . pointer(-array) ; integer
+Tuple of object surrogates.
+Result
+integer_to_obj returns 2 (H_MSG_TRUE) if all parameters are correct, i.e., if they are valid object keys. If
+the input is empty the behavior can be set via set_system(::’no_object_result’,<Result>:). If
+necessary, an exception is raised.
+Execution Information
+• Supports objects on compute devices.
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2367] -----
+23.2. MANIPULATION
+2319
+• Processed without parallelization.
+See also
+obj_to_integer
+Module
+Foundation
+obj_diff ( Objects,
+ObjectsSub :
+ObjectsDiff :
+:
+)
+Calculate the difference of two object tuples.
+obj_diff calculates the set-theoretic difference of two object tuples:
+(objects in Objects) −(objects in ObjectsSub)
+The resulting object tuple ObjectsDiff is deﬁned as the input tuple Objects with all objects from
+ObjectsSub removed.
+For a short description of the iconic objects that are available in HALCON see the introduction of chapter Object.
+Attention
+Image matrices and XLDs are not compared regarding their contents. Thus, two images or XLDs, respectively, are
+“equal” if they are located at the same place in the storage. By contrast, regions that are not located at the same
+place in the storage are compared regarding their actual contents.
+Parameters
+▷Objects (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . object(-array) ; object
+Object tuple 1.
+▷ObjectsSub (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . object(-array) ; object
+Object tuple 2.
+▷ObjectsDiff (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .object(-array) ; object
+Objects from Objects that are not part of ObjectsSub.
+Result
+obj_diff always returns 2 (H_MSG_TRUE).
+Execution Information
+• Supports objects on compute devices.
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+See also
+test_equal_obj, count_obj, copy_obj, select_obj
+Module
+Foundation
+obj_to_integer ( Objects :
+:
+Index,
+Number :
+SurrogateTuple )
+Convert an iconic object into an “integer number.”
+obj_to_integer stores Number, starting at index Index, of the database keys of the input object Objects
+as integer numbers in the output parameter SurrogateTuple. If -1 is passed for Number all objects beginning
+with Index are copied. This facilitates a direct access to an arbitrary element of Objects. In conjunction
+with count_obj (returns the number of objects in Objects) the elements of Objects can be processed
+successively. The objects are not duplicated by obj_to_integer and thus must not be cleared by clear_obj.
+HALCON 26.05.0.0
+
+
+----- [page 2368] -----
+2320
+CHAPTER 23 OBJECT
+For a short description of the iconic objects that are available in HALCON see the introduction of chapter Object.
+Attention
+The objects’ data is not duplicated.
+Parameters
+▷Objects (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . object(-array) ; object
+Objects for which the surrogates are to be returned.
+▷Index (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .integer ; integer
+Starting index of the surrogates to be returned.
+Default: 1
+Value range: 1 ≤Index
+▷Number (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer ; integer
+Number of surrogates to be returned.
+Default: -1
+Restriction: Number == -1 || Number + Index <= number(Objects)
+▷SurrogateTuple (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . pointer(-array) ; integer
+Tuple containing the surrogates.
+Example
+* Access the i-th element:
+obj_to_integer(Objects,i,1,Surrogat)
+Complexity
+Runtime complexity: O(|Objects| + Number)
+Result
+obj_to_integer returns 2 (H_MSG_TRUE) if all parameters are correct. If the input is empty the behavior can
+be set via set_system(::’no_object_result’,<Result>:). If necessary, an exception is raised.
+Execution Information
+• Supports objects on compute devices.
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Alternatives
+copy_obj, select_obj, copy_image, gen_image_proto
+See also
+integer_to_obj, count_obj
+Module
+Foundation
+remove_obj ( Objects :
+ObjectsReduced :
+Index :
+)
+Remove objects from an iconic object tuple.
+remove_obj removes the elements referred by Index from the tuple Objects and returns the rest in the tuple
+ObjectsReduced. Index determines the index of the elements to remove. Note that, in contrast to control
+tuples, indices for the object tuple elements start at 1, i.e. the ﬁrst tuple element has got the index 1. Duplicates
+and indices out of range are ignored.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2369] -----
+23.2. MANIPULATION
+2321
+Parameters
+▷Objects (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . object(-array) ; object
+Input object tuple.
+▷ObjectsReduced (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .object(-array) ; object
+Remaining object tuple.
+▷Index (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . number(-array) ; integer
+Indices of the objects to be removed.
+Example
+gen_empty_obj (Images)
+for Index := 1 to 10 by 1
+gen_image_const (Image, 'byte', Index, Index)
+concat_obj (Images, Image, Images)
+endfor
+remove_obj (Images, Images, [7, 4])
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Alternatives
+select_obj
+See also
+count_obj, select_obj, copy_obj, insert_obj
+Module
+Foundation
+replace_obj ( Objects,
+ObjectsReplace :
+Replaced :
+Index :
+)
+Replaces one or more elements of an iconic object tuple.
+replace_obj replaces one or more elements of the iconic input tuple Objects and returns them with
+Replaced. At this, Index determines the indices of the elements and ObjectsReplace the corresponding
+objects to replace. The parameter Index must contain one or more integer values (any ﬂoating point number must
+represent an integer value without fraction). Indices of iconic object elements start at 1. If ObjectsReplace
+contains only one value, this value will be replaced at all indices of Index. If a value of Index is greater than
+the length of the iconic input object tuple Objects, Replaced will be extended accordingly and initialized with
+empty regions.
+Exception: Empty input object
+If either Index or ObjectsReplace is empty and the other is not, an exception is raised. If both are empty, the
+output object tuple Replaced corresponds to the input Objects. If both are not empty, but the input Objects
+is, the empty object will be extended as described above.
+Parameters
+▷Objects (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . object(-array) ; object
+Iconic Input Object.
+▷ObjectsReplace (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . object(-array) ; object
+Element(s) to replace.
+▷Replaced (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . object(-array) ; object
+Tuple with replaced elements.
+▷Index (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . number(-array) ; integer
+Index/Indices of elements to be replaced.
+HALCON 26.05.0.0
+
+
+----- [page 2370] -----
+2322
+CHAPTER 23 OBJECT
+Example
+gen_empty_obj (Images)
+for Index := 1 to 10 by 1
+gen_image_const (Image, 'byte', Index, Index)
+concat_obj (Images, Image, Images)
+endfor
+gen_empty_obj (Replace)
+replace_obj (Images, Replace, Images, 1)
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Alternatives
+select_obj
+See also
+count_obj, select_obj, copy_obj, insert_obj
+Module
+Foundation
+select_obj ( Objects :
+ObjectSelected :
+Index :
+)
+Select objects from an object tuple.
+select_obj copies the iconic objects with the indices given by Index (starting with 1) from the iconic input
+object tuple Objects to the output object ObjectSelected. No new storage is allocated for the regions and
+images. Instead, new objects containing references to the existing objects are created. The number of objects in an
+object tuple can be queried with the operator count_obj.
+For a short description of the iconic objects that are available in HALCON see the introduction of chapter Object.
+Parameters
+▷Objects (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . object(-array) ; object
+Input objects.
+▷ObjectSelected (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .object(-array) ; object
+Selected objects.
+▷Index (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .integer(-array) ; integer
+Indices of the objects to be selected.
+Default: 1
+Suggested values: Index ∈{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 50, 100, 200, 500, 1000, 2000, 5000}
+Restriction: Index >= 1
+Example
+/* Access to all Regions */
+count_obj(Regions,&Num);
+for (i=1; i<=Num; i++)
+{
+select_obj(Regions,&Single,i);
+T_get_region_polygon(Single,5.0,&Row,&Column);
+T_disp_polygon(WindowHandleTuple,Row,Column);
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2371] -----
+23.2. MANIPULATION
+2323
+destroy_tuple(Row);
+destroy_tuple(Column);
+}
+Complexity
+Runtime complexity: O(|Objects|)
+Result
+select_obj returns 2 (H_MSG_TRUE) if all objects are contained in the HALCON database and
+all parameters are correct.
+If the input is empty the behavior can be set via set_system(::
+’no_object_result’,<Result>:). If necessary, an exception is raised.
+Execution Information
+• Supports objects on compute devices.
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+count_obj
+Alternatives
+copy_obj
+See also
+count_obj, concat_obj, obj_to_integer
+Module
+Foundation
+HALCON 26.05.0.0
+
+
+----- [page 2372] -----
+2324
+CHAPTER 23 OBJECT
+HALCON/HDevelop Reference Manual, 2026-5-12

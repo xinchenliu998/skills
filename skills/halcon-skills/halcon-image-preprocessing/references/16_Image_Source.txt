@@ -1,0 +1,1525 @@
+
+
+----- [page 1697] -----
+Chapter 16
+Image Source
+Introduction
+The image source concept enables the HALCON user to conﬁgure and handle the usage of machine vision cameras
+to acquire images for their machine vision task. It replaces the framegrabber operator set (see Image / Acquisition)
+as HALCON’s recommended way to access cameras.
+This chapter gives guidance on the concept and usage of image sources. Refer to the MVTec Interfaces Reference
+Documentation for the documentation of individual MVTec image source plugins.
+Image Source Concept
+The machine vision device and all further components that are involved in the process of acquiring image data
+can be controlled using an image source handle. It is designed to encapsulate the so-called modules of the image
+source:
+• plugins,
+• interfaces,
+• devices and
+• streams.
+These modules are structured in a hierarchical parent-child conﬁguration, with each module acting as a parent to
+the subsequent one. The module concept of the image sources is modeled after the GenICam GenTL standard.
+To acquire images from the image source handle, an image source plugin is used to communicate to the imaging
+device through an interface. The imaging device provides access to one or multiple image streams. The images
+transmitted through that stream eventually arrive in multiple buffers in the memory of the host application. All
+this complexity is hidden from the user in most applications, and per default any image source handle will try to
+connect to a full chain of image source modules: plugin > interface > device > stream.
+1649
+
+
+----- [page 1698] -----
+1650
+CHAPTER 16 IMAGE SOURCE
+'plugins'
+'interfaces'
+'devices'
+'streams'
+P1
+S1
+D1
+I1
+P2
+I2
+I3
+D3
+D2
+S3
+S4
+S2
+HALCON
+Schematic representation of the image source modules.
+However, for certain applications it might be necessary to connect to a speciﬁc module. For instance, using the
+scheme above as a representation of an exemplary system, it might be desired to conﬁgure the parameters of a
+framegrabber before a camera is connected to it. Image source handles can be conﬁgured to solely connect to the
+parent image source plugin P1 and the respective GenTL interface module I1. The interface module then allows
+to conﬁgure the framegrabber without a connection to a child module. Likewise, image source handles can be
+used to connect to any other available module or to specify a desired module if multiple options are available (e.g.,
+whether to choose stream S3 or S4 of the device D3 in the scheme above).
+States of the Image Source Handle
+An image source handle can be in different states. In each state a different set of operations is available. The image
+source operators can be used to trigger such state changes.
+disconnect_image_source
+connect_image_source
+stop_image_source
+snap_from_image_source
+start_image_source
+fetch_from_image_source
+create_image_source
+query_image_sources
+Schematic representation of the possible states of an image source handle. The scheme shows which image
+source operators cause a change of the image source handle state between initialized (gray), connected (green),
+and streaming (red) state.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 1699] -----
+1651
+The three possible states are:
+Initialized The image source handle should contain enough information to specify which device should
+be connected with connect_image_source.
+The operators set_image_source_param and
+get_image_source_param provide access to the parameters of the ’image_source’ group. These are
+always existent, regardless of the connection state.
+Connected The
+operator
+snap_from_image_source
+is
+only
+available
+in
+this
+state.
+snap_from_image_source brieﬂy changes the image source handle to the streaming state, but
+resets it again when an image has arrived.
+The operators set_image_source_param and get_image_source_param provide access to the
+parameters of all different modules, including the device module. The device module allows to conﬁgure
+the imaging hardware, e.g., a machine vision camera.
+In this state typical machine vision devices are utilized exclusively, meaning other applications can discover,
+but not access them.
+Streaming In this state the imaging device can transmit image data continuously in the background.
+The images arrive in an internal image buffer queue from which they can be pulled with
+fetch_from_image_source. fetch_from_image_source is only available in this state.
+In the streaming state the device might prevent certain parameters from being changed. This is done to ensure
+a reliable image transmission. As a consequence the operator set_image_source_param might not be
+able to change all device parameters and might deliver an error instead. In that case, return to the connected
+state ﬁrst.
+Parameter Groups and Their Relation to the Modules
+Each module can be conﬁgured with get_image_source_param. To indicate which module of the image
+source to conﬁgure the parameters are divided into groups. This is how the grouped parameters are related to the
+GenTL modules. Plugins that are not provided by MVTec, might group their parameter documentation according
+to the GenTL module names.
+HALCON 26.05.0.0
+
+
+----- [page 1700] -----
+1652
+CHAPTER 16 IMAGE SOURCE
+Parameter Group
+GenTL Module Name
+Remarks
+’image_source’
+-
+The parameter group ’image_source’ conﬁgures the mod-
+ule chain plugin > interface > device > stream and as such
+it sits ’on-top’ of the GenTL modules. These parame-
+ters are implemented by MVTec and exist all the time,
+regardless of the connection state. They are described in
+get_image_source_param.
+’plugin’
+System
+Parameters for global conﬁguration in the loaded plugin.
+Parameters in this group depend on which plugin is loaded
+and are implemented by the provider of the loaded plu-
+gin. Plugins can be provided by MVTec (see MVTec In-
+terfaces Reference Documentation ) or other manufactur-
+ers.
+’interface’
+Interface
+Parameters for conﬁguring the hardware component that
+is interfacing to the devices. Parameters in this group de-
+pend on which plugin is loaded and are implemented by
+the provider of the loaded plugin. Plugins can be pro-
+vided by MVTec (see MVTec Interfaces Reference Doc-
+umentation ) or other manufacturers.
+’local_device’
+Device
+Software abstraction for the hardware device. This group
+exists for technical reasons of the GenTL standard and can
+be ignored most of the cases. Parameters in this group de-
+pend on which plugin is loaded and are implemented by
+the provider of the loaded plugin. Plugins can be pro-
+vided by MVTec (see MVTec Interfaces Reference Doc-
+umentation ) or other manufacturers.
+’device’
+Remote Device
+Parameters for conﬁguring the imaging hardware (e.g.
+machine vision cameras, sensors, devices). Use this to
+conﬁgure the most important properties of the image gen-
+eration like exposure time, gain, width, height and trigger
+mode. Parameters in this group depend on which device
+is connected and are implemented by the manufacturer
+of the connected device.
+’stream’
+Stream
+Parameters for conﬁguring the details of the image trans-
+mission on the receiving side. Parameters in this group
+depend on which plugin is loaded and are implemented
+by the provider of the loaded plugin. Plugins can be pro-
+vided by MVTec (see MVTec Interfaces Reference Doc-
+umentation ) or other manufacturers.
+Conﬁguration persistence
+In many applications it is desirable to preserve the current conﬁguration of the device and the overall image source
+setup to restore it later. Typical use cases include keeping the optimal settings found during development or
+deploying the same conﬁguration to multiple machines performing an identical task.
+The image source provides two mechanisms for persisting settings, depending on the required scope:
+Persisting a speciﬁc GenICam module If only the conﬁguration of a speciﬁc GenICam module is relevant, such
+as the camera parameters in the group ’device’ (for example exposure time or trigger mode), that module
+can be persisted independently.
+To store the settings of a module, call control_image_source with the action ’write_state_string’. To
+restore them, call the operator with the action ’read_state_string’.
+See the documentation of control_image_source for details and a usage example.
+Persisting the complete image source conﬁguration If the complete conﬁguration of the image source, includ-
+ing all parameter groups (’image_source’, ’plugin’, ’interface’, ’device’, and ’stream’), should be stored for
+later restoration, create a conﬁguration ﬁle.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 1701] -----
+1653
+This approach preserves the camera selection deﬁned in the ’image_source’ group. This ensures that the
+restored conﬁguration automatically reconnects to the same device, providing consistent behavior across
+sessions and machines.
+To create such a ﬁle, call control_image_source with the action ’write_conﬁg_ﬁle’. To restore an
+image source from this ﬁle, create a new handle with create_image_source and the generic parameter
+’read_conﬁg_ﬁle’.
+For detailed information and an example, refer to the documentation of control_image_source and
+create_image_source.
+Warning Regarding Third-Party GenTL Producers
+HALCON supports the use of third-party GenTL producers from other manufacturers. The design, stability, and
+correctness of these components lie outside MVTec’s responsibility.
+If a producer fails to handle standard operations correctly or becomes unresponsive, undeﬁned behavior may be
+observed in HALCON. Use such producers with appropriate caution, as MVTec cannot guarantee proper function-
+ality or interoperability with all HALCON features.
+Migration Guide
+The following table provides a comparison between the old framegrabber and the new image source operators.
+When switching an application to the newer image sources, replace each framegrabber operator with its corre-
+sponding image source operator.
+HALCON 26.05.0.0
+
+
+----- [page 1702] -----
+1654
+CHAPTER 16 IMAGE SOURCE
+Operator
+Remarks concerning migration
+old: info_framegrabber
+new: query_image_sources
+info_framegrabber per default returns a string for each
+found device, which can be used for open_framegrabber.
+query_image_sources
+per
+default
+returns
+an
+im-
+age source handle for each device, which can be used for
+connect_image_source.
+old: No direct equivalent
+new: create_image_source
+create_image_source creates an image source handle in an
+unconnected state. This is not possible with framegrabber opera-
+tors.
+old: open_framegrabber
+new: connect_image_source
+open_framegrabber is creating the framegrabber handle and
+connecting to the imaging hardware at the same time. Image source
+handles split this into two operations: create_image_source
+followed by connect_image_source.
+This allows to
+use
+connect_image_source
+with
+handles
+obtained
+by
+create_image_source or by query_image_sources.
+old: close_framegrabber
+new: disconnect_image_source
+close_framegrabber
+at
+the
+same
+time
+destroys
+the
+framegrabber
+handle.
+It
+can
+only
+be
+re-created
+with
+open_framegrabber.
+disconnect_image_source
+leaves the image source handle intact.
+It can be used with
+connect_image_source to re-connect.
+old: get_framegrabber_param
+new: get_image_source_param
+Works similar, but the parameter group is now speciﬁed with the
+GenParam ’group’ instead of using the [<GenTL module>] pre-
+ﬁx. Example:
+old:
+get_framegrabber_param(AcqHandle,
+’[Stream]StreamBufferHandlingMode’, Value)
+new:
+get_image_source_param
+(ImageSourceHandle, ’StreamBufferHandlingMode’,
+’group’, ’stream’, Value)
+old: set_framegrabber_param
+new: set_image_source_param
+Works
+similar.
+The
+relation
+is
+analo-
+gous
+to
+get_framegrabber_param
+and
+get_image_source_param (see above).
+old: No direct equivalent
+new: control_image_source
+Framegrabber
+handles
+provide
+parameters
+with
+the
+preﬁx
+’do_’.
+This
+kind
+of
+parameters
+is
+replaced
+by
+actions
+available
+via
+control_image_source.
+control_image_source also allows to list all parame-
+ters (previously get_framegrabber_param).
+old: grab_image
+new: snap_from_image_source
+Works similar.
+old: grab_image_start
+new: start_image_source
+grab_image_start is automatically executed by the ﬁrst
+grab_image_async call, if grab_image_start was not
+previously called. start_image_source is not automatically
+executed by the ﬁrst fetch_from_image_source call.
+old: No direct equivalent
+new: stop_image_source
+Some
+framegrabber
+handles
+provide
+the
+special
+param-
+eter ’do_abort_grab’,
+which serves the same purpose that
+stop_image_source does.
+old: grab_image_async
+new: fetch_from_image_source
+Works similar.
+old: grab_data
+new: snap_from_image_source
+snap_from_image_source combines the use cases covered
+by grab_image and grab_data. Additionally, meta data like
+buffer timestamps and frame IDs is returned alongside and does not
+need to be queried separately.
+old: grab_data_async
+new: fetch_from_image_source
+fetch_from_image_source combines the use cases covered
+by grab_image_async and grab_data_async. Addition-
+ally, meta data like buffer timestamps and frame IDs is returned
+alongside and does not need to be queried separately.
+old: get_framegrabber_callback
+old: set_framegrabber_callback
+old: get_framegrabber_lut
+old: set_framegrabber_lut
+No direct equivalent
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 1703] -----
+1655
+The following table shows the relations between MVTec image source plugins (see MVTec Interfaces Reference
+Documentation for detailed information) and classical image acquisition interfaces:
+Image Source Plugin
+Corresponding image
+acquisition interface
+Remarks
+’mvtec_gigevision’
+GigEVision2
+The ’mvtec_gigevision’ plugin contains the same
+GigE Vision standard implementation that is con-
+tained in the GigEVision2 image acquisition inter-
+face. Despite its name (GigEVision2) the plugin, as
+well as the image acquisition interface, allow access
+to all GigE Vision cameras, regardless of which ver-
+sion of the GigE Vision standard the camera imple-
+ments.
+’mvtec_usb3vision’
+USB3Vision
+The ’mvtec_usb3vision’ plugin contains the same
+implementation of the USB3 Vision standard that is
+contained in the USB3Vision image acquisition in-
+terface.
+’mvtec_realsense’
+RealSense
+The ’mvtec_realsense’ plugin interfaces to the Intel
+RealSense SDK and contains the same low-level im-
+plementation that is contained in the RealSense im-
+age acquisition interface.
+’mvtec_mediafoundation’
+MediaFoundation
+The ’mvtec_mediafoundation’ plugin interfaces to
+the Microsoft Media Foundation API and contains
+the same low-level implementation that is contained
+in the MediaFoundation image acquisition interface.
+(Only available on Windows platforms)
+’mvtec_gstreamer’
+GStreamer
+The ’mvtec_gstreamer’ plugin interfaces to the open
+source GStreamer multimedia platform and contains
+the same low-level implementation that is contained
+in the GStreamer Image Acquisition Interface. (Only
+available on Linux platforms)
+More image source plugins to interface to even more image transmission technologies will be provided in the
+future.
+Classical image acquisition interfaces not mentioned here (like “File”, “SaperaLT”, “DirectShow”) do not have a
+corresponding image source plugin. They must be used with the framegrabber operators.
+Glossary
+In the following, we describe the most important terms used in the context of image sources:
+Device Device refers to the actual imaging device. This includes different kinds of sensors, ranging from conven-
+tional machine vision cameras to 3D sensors and, in special cases controllers or virtual devices.
+GenICam The GenICam standard allows machine vision devices to expose their conﬁguration properties
+to the connected application via a feature description XML ﬁle.
+HALCON image sources rely on
+this standard to provide access to the device conﬁguration (see set_image_source_param and
+get_image_source_param). Usually, HALCON users do not need to deal with these XML ﬁles di-
+rectly.
+The standard deﬁnes a wide range of features, many of which go beyond the scope of this documentation.
+For more detailed information, consult the ofﬁcial standard documents, particularly the GenICam Standard
+Features Naming Convention (SFNC) and the GenICam GenTL SFNC. These resources are hosted by the
+European Machine Vision Association (EMVA).
+GenTL The GenICam GenTL standard allows machine vision applications and frameworks from different ven-
+dors to access machine vision cameras and devices from different other vendors. It speciﬁes a clearly deﬁned
+software interface that allows to hide different implementation details from the using application. An appli-
+cation like HALCON using different GenTL producers like the plugins might also be referred to as GenTL
+consumer.
+HALCON 26.05.0.0
+
+
+----- [page 1704] -----
+1656
+CHAPTER 16 IMAGE SOURCE
+Image Source Handle An image source handle provides a generic interface to a wide variety of underlying image
+acquisition standards and technologies. From the viewpoint of the HALCON library any image source
+handle provides the same basic operations. The image source handle ties together software and hardware
+components that are needed in order to acquire images.
+Interface Interfaces refer to the hardware interfacing with the imaging device, e.g., where the cable coming from
+the imaging device is plugged into the host machine. Thus, in the image source context, the term “interface”
+does not refer to what was formerly called the image acquisition interface.
+In case framegrabbers are used, each framegrabber card is typically modeled as one interface. Per default,
+HALCON image sources hide the complexity of multiple interface by automatically using the correct one.
+Module The individual units of an image source (plugin, interface, device, stream) are called modules. Each
+module allows access to its parameters. The module names therefore also apply to parameter groups of the
+same name.
+Plugin Image source plugins abstract the various technologies used to transfer images from the imaging device
+to the receiving application. Elsewhere, they might also be referred to as GenTL Producer. Plugins exist in
+form of .cti ﬁles on each target machine. Plugins may be selected and installed with the MVTec Software
+Manager. Plugins (i.e. GenTL Producers) provided by other manufacturers are automatically available after
+installing the manufacturer’s proprietary SDK. Consult the manufacturers documentation for more in depth
+instructions. At runtime plugins not provided by MVTec are found by HALCON through the environment
+variable GENICAM_GENTL64_PATH (or GENICAM_GENTL32_PATH), which lists all the paths that
+contain .cti ﬁles.
+Stream A device can allow access to none, one or multiple streams of images. The typical machine vision cam-
+era however just gives access to one stream. Per default HALCON image sources hide the complexity of
+multiple streams.
+connect_image_source ( :
+:
+ImageSourceHandle,
+GenParamName,
+GenParamValue :
+)
+Connect to an image source.
+connect_image_source connects to the image source modules (device, plugin, etc.)
+speciﬁed in
+ImageSourceHandle.
+For further information about the states of an image source see Image Source.
+When calling connect_image_source with an image source handle containing invalid identiﬁers, an error is
+thrown.
+Currently, no generic parameters GenParamName and GenParamValue are supported.
+Parameters
+▷ImageSourceHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . image_source ; handle
+Image source handle to be connected.
+▷GenParamName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . attribute.name-array ; string
+Generic parameter name.
+Default: []
+▷GenParamValue (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . .attribute.value-array ; integer / real / string
+Generic parameter value.
+Default: []
+Result
+If
+the
+parameter
+values
+are
+correct
+and
+the
+desired
+image
+source
+modules
+could
+be
+connected,
+connect_image_source returns the value 2 (H_MSG_TRUE). Otherwise an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 1705] -----
+1657
+Possible Predecessors
+query_image_sources, create_image_source
+Possible Successors
+get_image_source_param, set_image_source_param, start_image_source
+See also
+disconnect_image_source
+Module
+Foundation
+control_image_source ( :
+:
+ImageSourceHandle,
+Action,
+GenParamName,
+GenParamValue :
+Result )
+Control actions available for an image source.
+control_image_source initiates actions for the image source speciﬁed in ImageSourceHandle. If the
+action returns a value, it is passed back in Result.
+For further information about the image source concept see Image Source.
+The requested action is determined in Action. Actions can be global or targeting the individual module in the
+image source. Some actions depend on whether the image source is in a connected state or not. The options for
+Action available for every image source are:
+’enumerate_groups’ Returns all parameter group names. When querying ’enumerate_groups’, the generic param-
+eters GenParamName and GenParamValue need to remain empty.
+’enumerate_params’ Returns all parameters available in the group that is set in GenParamValue. This action
+is speciﬁc to an image source module and therefore a parameter group has to be speciﬁed using generic
+parameters.
+’group’ is the only option for GenParamName. Specify the parameter group in GenParamValue by
+setting one of these options:
+• ’image_source’,
+• ’plugin’,
+• ’interface’,
+• ’local_device’,
+• ’device’,
+• ’stream’.
+When no generic parameters are set, GenParamName = ’group’ and GenParamValue = ’device’ are
+assumed by default.
+’query_param_tree’ Returns a nested HALCON dictionary containing all parameter categories, sub-categories,
+and their parameters. For each contained parameter, its parameter type is also reported.
+This action is speciﬁc to an image source module and therefore a parameter group has to be speciﬁed using
+generic parameters.
+’group’ is the only option for GenParamName. Specify the parameter group in GenParamValue by
+setting one of these options:
+• ’image_source’,
+• ’plugin’,
+• ’interface’,
+• ’local_device’,
+• ’device’,
+• ’stream’.
+When no generic parameters are set, GenParamName = ’group’ and GenParamValue = ’device’ are
+assumed by default.
+HALCON 26.05.0.0
+
+
+----- [page 1706] -----
+1658
+CHAPTER 16 IMAGE SOURCE
+’write_state_string’ Returns a string containing information required to restore the values of all persistable param-
+eters of the speciﬁed group. Only parameters whose parameter property ’persistable’ is ’true’ are included.
+This action is speciﬁc to an image source module and therefore a parameter group has to be speciﬁed using
+generic parameters.
+’group’ is the only option for GenParamName. Specify the parameter group in GenParamValue by
+setting one of these options:
+• ’plugin’,
+• ’interface’,
+• ’local_device’,
+• ’device’,
+• ’stream’.
+When no generic parameters are set, GenParamName is assumed to be ’group’ and GenParamValue is
+assumed to be ’device’.
+This action cannot be used for the ’image_source’ group.
+’read_state_string’ Restores all persistable parameters of the speciﬁed group from the state string passed in the
+generic parameter ’state_string’.
+’group’ and ’state_string’ are the valid options for GenParamName.
+The generic parameter ’state_string’ is mandatory and must contain the state string, which can be obtained
+using the ’write_state_string’ action.
+This action is speciﬁc to an image source module and therefore a parameter group has to be speciﬁed using
+generic parameters. Specify the parameter group in GenParamValue by setting one of these options:
+• ’plugin’,
+• ’interface’,
+• ’local_device’,
+• ’device’,
+• ’stream’.
+When the generic parameter ’group’ is not set, the value ’device’ is assumed by default.
+This action cannot be used for the ’image_source’ group.
+’write_conﬁg_ﬁle’ Writes an image source conﬁguration ﬁle, containing information required for a successful
+connection as well as to restore the values of all persistable parameters of all parameter groups.
+Writing the conﬁguration ﬁle is allowed in the connected as well as in the unconnected state. If written in
+the unconnected state, it will not contain any information regarding the persistable parameters of the image
+source modules (device, plugin, ...).
+This action requires a path to the ﬁle that should be written. It must be passed together with GenParamName
+= ’ﬁle_name’ in the corresponding GenParamValue.
+The default HALCON ﬁle extension for the image source conﬁguration ﬁles is ’.hisc’. If no extension is
+speciﬁed it will be appended automatically.
+To
+read
+these
+conﬁguration
+ﬁles
+(and
+restore
+image
+source
+handles
+from
+them)
+refer
+to
+create_image_source.
+Parameters
+▷ImageSourceHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . image_source ; handle
+Image source handle.
+▷Action (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+Action to be carried out.
+Default: ’enumerate_params’
+Suggested values: Action ∈{’enumerate_params’, ’enumerate_groups’, ’query_param_tree’,
+’write_state_string’, ’read_state_string’, ’write_conﬁg_ﬁle’}
+▷GenParamName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . attribute.name-array ; string
+Generic parameter name.
+Default: []
+Suggested values: GenParamName ∈{’group’, ’state_string’, ’ﬁle_name’}
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 1707] -----
+1659
+▷GenParamValue (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . .attribute.value-array ; integer / real / string
+Generic parameter value.
+Default: []
+Suggested values: GenParamValue ∈{’image_source’, ’plugin’, ’interface’, ’local_device’, ’device’,
+’stream’}
+▷Result (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string-array ; string / real / integer / handle
+Action result, if available.
+Result
+If the parameter values are correct, control_image_source returns the value 2 (H_MSG_TRUE). Otherwise
+an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+query_image_sources, create_image_source, connect_image_source
+Possible Successors
+disconnect_image_source
+See also
+set_image_source_param, get_image_source_param
+Module
+Foundation
+create_image_source ( :
+:
+PluginName,
+DeviceID,
+GenParamName,
+GenParamValue :
+ImageSourceHandle )
+Create an image source handle.
+create_image_source creates an image source handle and returns it in ImageSourceHandle. The cre-
+ated handle is in an unconnected state. The parameters PluginName and DeviceID can be used to specify the
+plugin and device module of the image source handle. Alternatively, the generic parameters GenParamName and
+GenParamValue can be used to specify modules using identiﬁers other than plugin name and device ID.
+The image source handle can also be created with its modules already speciﬁed by reading an image source con-
+ﬁguration ﬁle. Other parameters in the image source handle will also be set to the values conﬁgured in this ﬁle.
+The image source conﬁguration ﬁles can also store the values of the persistable parameters of the image source
+modules (device, plugin, ...), which will be applied during the call to connect_image_source. To write such
+conﬁguration ﬁles (for later use) refer to control_image_source.
+For further information about the image source concept see Image Source. See the MVTec Interfaces Reference
+Documentation for the documentation of individual MVTec image source plugins.
+The following options exist for PluginName.
+<plugin name> Specify an image source plugin by setting the plugin name in PluginName. You can use
+query_image_sources to retrieve the ’plugin_name’ of all available plugins.
+’none’ No plugin will be speciﬁed in ImageSourceHandle.
+’ignore’ Set PluginName to ’ignore’, when specifying the plugin using generic parameters (see below).
+The following options exist for DeviceID.
+<device ID> Specify a device by setting its device ID in DeviceID. You can use query_image_sources to
+retrieve the ’device_id’ of all available devices.
+’none’ No device will be speciﬁed in ImageSourceHandle.
+’ignore’ Set DeviceID to ’ignore’, when specifying the device using generic parameters (see below).
+HALCON 26.05.0.0
+
+
+----- [page 1708] -----
+1660
+CHAPTER 16 IMAGE SOURCE
+You can also specify modules of the ImageSourceHandle by providing one of the following options for
+GenParamName:
+’plugin_path’: Create a handle specifying a plugin by providing the path to the .cti plugin ﬁle as the corre-
+sponding GenParamValue.
+PluginName needs to be set to ’ignore’. DeviceID needs to be set to ’none’ or a device ID.
+’interface_id’: Create a handle specifying an interface by providing the interface ID as the corresponding
+GenParamValue.
+PluginName needs to be set to ’none’ or a plugin name. DeviceID needs to be set to ’none’ or a device
+ID.
+’device_user_name’: Create a handle specifying a device by providing the device user name as the corresponding
+GenParamValue.
+PluginName needs to be set to a plugin name. DeviceID needs to be set to ’ignore’.
+’device_serial_number’: Create a handle specifying a device by providing the device serial number as the corre-
+sponding GenParamValue.
+PluginName needs to be set to a plugin name. DeviceID needs to be set to ’ignore’.
+’stream_id’: Create a handle specifying a stream by providing the stream ID as the corresponding
+GenParamValue.
+PluginName needs to be set to a plugin name. DeviceID needs to be set to a device ID.
+’read_conﬁg_ﬁle’: Create a handle by reading an image source conﬁguration ﬁle, providing the path to the ﬁle as
+the corresponding GenParamValue. The default HALCON ﬁle extension for image source conﬁguration
+ﬁles is .hisc.
+The settings of the ’image_source’ group are applied immediately when the conﬁguration is loaded. The
+settings of all other modules are applied after the subsequent call to connect_image_source.
+PluginName needs to be set to ’ignore’. DeviceID needs to be set to ’ignore’.
+You can use query_image_sources to retrieve the values for all available image sources.
+An empty image source handle can be created by setting both PluginName and DeviceID to ’none’
+and not specifying any generic parameters.
+The empty image source handle can be extended using
+set_image_source_param.
+Parameters
+▷PluginName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+Name of an image source plugin.
+Default: ’none’
+Suggested values: PluginName ∈{’none’, ’ignore’, ’mvtec_gigevision’, ’mvtec_usb3vision’,
+’mvtec_realsense’, ’mvtec_gstreamer’, ’mvtec_mediafoundation’, ’<plugin_name>’}
+▷DeviceID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .string ; string
+ID of the image source device.
+Default: ’none’
+Suggested values: DeviceID ∈{’none’, ’ignore’}
+▷GenParamName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . attribute.name-array ; string
+Generic parameter name.
+Default: []
+Suggested values: GenParamName ∈{’plugin_path’, ’interface_id’, ’device_user_name’,
+’device_serial_number’, ’stream_id’, ’read_conﬁg_ﬁle’}
+▷GenParamValue (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . .attribute.value-array ; integer / real / string
+Generic parameter value.
+Default: []
+▷ImageSourceHandle (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . image_source ; handle
+Created image source handle storing module identiﬁers.
+Example
+* Specify the plugin for GigE Vision devices via its name.
+create_image_source ('mvtec_gigevision', 'none', [], [], ImageSourceHandle)
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 1709] -----
+1661
+* Specify a plugin by providing its path.
+create_image_source ('ignore', 'none', 'plugin_path', 'path/to/plugin.cti', ImageSourceH
+*
+* Specify a GigE Vision device by providing its unique ID.
+create_image_source ('mvtec_gigevision', '00305324c805_Basler_acA244020gc', [], [], Imag
+* Specify a GigE Vision camera by providing its user name.
+create_image_source ('mvtec_gigevision', 'ignore', 'device_user_name', 'MyDevice', Image
+Result
+If the parameter values are correct, create_image_source returns the value 2 (H_MSG_TRUE). Otherwise
+an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+This operator returns a handle. Note that the state of an instance of this handle type may be changed by speciﬁc
+operators even though the handle is used as an input parameter by those operators.
+Possible Successors
+connect_image_source, get_image_source_param, set_image_source_param
+Alternatives
+query_image_sources
+See also
+query_image_sources
+Module
+Foundation
+disconnect_image_source ( :
+:
+ImageSourceHandle,
+GenParamName,
+GenParamValue :
+)
+Disconnect an image source.
+disconnect_image_source
+closes
+the
+connection
+to
+the
+image
+source
+module
+speciﬁed
+in
+ImageSourceHandle. After the call, the handle ImageSourceHandle is in an unconnected state.
+For further information about the states of an image source see Image Source.
+Currently, no generic parameters GenParamName and GenParamValue are supported.
+Parameters
+▷ImageSourceHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . image_source ; handle
+Image source handle to be disconnected.
+▷GenParamName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . attribute.name-array ; string
+Generic parameter name.
+Default: []
+▷GenParamValue (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . .attribute.value-array ; integer / real / string
+Generic parameter value.
+Default: []
+Result
+If
+the
+parameter
+values
+are
+correct
+and
+the
+desired
+image
+source
+could
+be
+disconnected,
+disconnect_image_source returns the value 2 (H_MSG_TRUE). Otherwise an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+HALCON 26.05.0.0
+
+
+----- [page 1710] -----
+1662
+CHAPTER 16 IMAGE SOURCE
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+stop_image_source, connect_image_source
+See also
+connect_image_source
+Module
+Foundation
+fetch_from_image_source ( :
+Images :
+ImageSourceHandle :
+Data )
+Fetch images and corresponding meta data from the image source buffer queue.
+fetch_from_image_source fetches Images from the buffer queue of the image source deﬁned in the han-
+dle ImageSourceHandle. For conventional devices, Images is most likely to be a single image, but complex
+sensors, e.g. 3D sensors, might provide multiple images at once. Additionally, meta information is returned in
+Data.
+fetch_from_image_source tries to pull images from the buffer queue of the image source and deliver it to
+the application. If the buffer queue is empty, the operator waits for an image to arrive in the buffer queue up to
+the conﬁgured timeout value (see ’fetch_timeout’ in get_image_source_param). If images have arrived in
+the buffer queue before the call of fetch_from_image_source it returns immediately by pulling one buffer
+from the queue and delivering its contained images. The operator runtime depends on various factors like for
+example the state of the buffer queue and the current conﬁguration of the imaging device. See ’num_buffers’ in
+get_image_source_param on how to adapt the buffer queue capacity.
+Based on availability, the returned meta information in the Data dictionary contains the following:
+• In the sub-dictionary ’buffer_info’:
+’frame_id’ Linearly increasing image counter transmitted by the device alongside the image data. Inconsis-
+tencies in the counter sequence indicate lost buffers.
+’is_incomplete’ Completeness status of the acquired data. Incomplete data might indicate data transmission
+problems.
+List of values: 0 (complete), 1 (incomplete).
+’timestamp_ns’ Timestamp [ns] of the image transmitted by the device alongside the image data. It reﬂects
+the value of the devices internal clock at the moment of exposure.
+• In the sub-dictionary ’chunk_data’:
+If supported and activated on the device side, GenICam chunk data received alongside the image is returned
+here. This mechanism is usually controlled by the device parameters ’ChunkModeActive’, ’ChunkSelector’,
+and ’ChunkEnable’.
+In some cases it is not possible to return all chunk-related values via this output dictionary. For example,
+chunks that either select or are selected by others are not returned here. Therefore it is also possible to query
+the chunk values with get_image_source_param directly.
+The device and a corresponding stream deﬁned in ImageSourceHandle need to be connected and started
+when calling fetch_from_image_source.
+See connect_image_source on how to connect and
+start_image_source on how to start your image source.
+For further information about the states of an image source see Image Source.
+Parameters
+▷Images (output_object) . . . . . . . . . . . . . . . . image(-array) ; object : byte / int1 / int2 / uint2 / int4 / int8 / real
+Retrieved images.
+▷ImageSourceHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . image_source ; handle
+Handle of the image source whose buffer queue should be accessed.
+▷Data (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . dict ; handle
+Meta information about the images.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 1711] -----
+1663
+Result
+If the parameter values are correct, fetch_from_image_source returns the value 2 (H_MSG_TRUE). Other-
+wise an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+This operator returns a handle. Note that the state of an instance of this handle type may be changed by speciﬁc
+operators even though the handle is used as an input parameter by those operators.
+Possible Predecessors
+start_image_source
+Possible Successors
+stop_image_source
+Module
+Foundation
+get_image_source_param ( :
+:
+ImageSourceHandle,
+Param,
+GenParamName,
+GenParamValue :
+Value )
+Return the value of an image source parameter.
+The operator get_image_source_param returns the parameter values or parameter properties for an image
+source handle ImageSourceHandle in Value.
+For further information about the image source concept see Image Source.
+The parameter needs to be speciﬁed using Param. The parameter group can be speciﬁed using the generic param-
+eters. There are two types of information to be retrieved from the parameter Param. Use the generic parameter
+GenParamName to differentiate whether you want to get the value or meta information regarding the parameter.
+You have the following options for GenParamName:
+’group’ Specify the parameter group the parameter is found in with GenParamValue by setting one of these
+options:
+• ’image_source’,
+• ’plugin’,
+• ’interface’,
+• ’local_device’,
+• ’device’,
+• ’stream’.
+When setting no generic parameters, GenParamName = ’group’ and GenParamValue = ’device’ are
+assumed by default.
+The group ’image_source’ is always available, whereas a connection is needed for the other parameter groups.
+’property’ Retrieve meta information about Param.
+Specify the requested parameter property with
+GenParamValue by setting one of these options:
+• ’access’: Provides access permissions as a string.
+List of values: ’na’ ((currently) not available), ’ro’ (read-only), ’rw’ (read/write), ’wo’ (write-only).
+• ’description’: Provides a description of the parameter as a string.
+• ’display_name’: Provides the display name of the parameter as a string.
+• ’increment’: Provides the step width of the parameter as a real or integer value, depending on the data
+type of the parameter.
+• ’max’: Provides the maximum value of the parameter as a real or integer value, depending on the data
+type of the parameter.
+HALCON 26.05.0.0
+
+
+----- [page 1712] -----
+1664
+CHAPTER 16 IMAGE SOURCE
+• ’min’: Provides the minimum value of the parameter as a real or integer value, depending on the data
+type of the parameter.
+• ’persistable’: Provides information about the persistence of the parameter as an integer.
+List of values: 0 (false), 1 (true).
+• ’tooltip’: Provides a short description of the parameter.
+• ’type’: Provides the parameter type as a string.
+List of values: ’boolean’, ’command’, ’enumeration’ (string out of a list of allowed strings), ’integer’,
+’real’, ’register’, ’string’.
+• ’values’: Provides a list of all allowed values for parameters of ’type’ = ’enumeration’ and for some of
+’type’ ’integer’ and ’real’.
+• ’visibility’: Provides information about the visibility of the parameter.
+List of values: ’basic’, ’advanced’, ’all’.
+Image Source Handle Parameters
+It depends on the image source and its state, which parameters Param can be retrieved. While some parameters
+are speciﬁc to the hardware or software manufacturer and some depend on whether the image source is in a
+connected state or not, the parameters of the ’image_source’ group are always available. The following table
+gives an overview, which of those parameters can be set using set_image_source_param and which can be
+retrieved using get_image_source_param. A description of the parameters can be found below the table.
+GenParamName
+set
+get
+’device_access_ﬂags’
+x
+x
+’device_access_status’
+x
+’device_connect_mode’
+x
+’device_id’
+x
+x
+’device_is_connected’
+x
+’device_query_timeout’
+x
+x
+’device_user_name’
+x
+x
+’device_serial_number’
+x
+x
+’fetch_timeout’
+x
+x
+’interface_connect_mode’
+x
+’interface_display_name’
+x
+’interface_id’
+x
+x
+’interface_is_connected’
+x
+’interface_query_timeout’
+x
+x
+’num_buffers’
+x
+x
+’plugin_connect_mode’
+x
+’plugin_is_connected’
+x
+’plugin_name’
+x
+x
+’plugin_path’
+x
+x
+’stream_connect_mode’
+x
+’stream_id’
+x
+x
+’stream_is_connected’
+x
+’stream_state’
+x
+’version’
+x
+’device_access_ﬂags’ GenTL access ﬂags used when attempting to connect to the device.
+• ’control’: Open the device in a way that other hosts/processes can have read-only access to the device.
+Device access level is read/write for this process.
+• ’exclusive’: Open the device in a way that only this host/process can have access to the device. Device
+access level is read/write for this process.
+• ’none’: Either the device is not open because it was not opened before or the access to it was denied.
+• ’read_only’: Open the device read-only. All port functions can only read from the device.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 1713] -----
+1665
+• ’unknown’: Not used in a command. Can be used to initialize a variable to query that information.
+’device_access_status’ Current GenTL access status of the device.
+• ’busy’: Device has already been opened in ’exclusive’ mode by another process/host.
+• ’open_read_only’: Device has already been opened by this process. Connection is set up in read-only
+mode, a different application has the ’control’ mode (see ’device_access_ﬂags’).
+• ’open_read_write’: Device has already been opened by this process and handled in ’exclusive’ or ’con-
+trol’ mode (see ’device_access_ﬂags’).
+• ’no_access’: Device is not accessible (no connection possible).
+• ’read_only’: Device is available for read-only access.
+• ’read_write’: Device is available for read/write access (see ’device_access_ﬂags’).
+• ’unknown’: Device accessibility is not known.
+’device_connect_mode’ Connect mode for the device module.
+• ’automatic’: No identiﬁer is provided, the required module will be automatically found and connected.
+• ’exact’: A module identiﬁer has been indicated for the module connection.
+• ’none’: Module connection not needed.
+’device_id’ ID of the device as a string.
+It can be used to specify the device module to open during
+connect_image_source.
+’device_is_connected’ Connection status of the device as an integer.
+List of values: 0 (unconnected), 1 (connected).
+’device_query_timeout’ Desired timeout [ms] for aborting a pending device query. Is used as the device discovery
+timeout in GigEVision transport layers. If -1 is speciﬁed, the timeout is set to inﬁnite.
+Default: 1100
+’device_serial_number’ Serial number of the device as a string. It can be used to specify which device to connect
+to when preferring not to use ’device_id’.
+’device_user_name’ User name of the device as a string. It can be used to specify which device to connect to
+when preferring not to use ’device_id’.
+’fetch_timeout’ Desired timeout [ms] for aborting a pending grab. If -1 is speciﬁed, the timeout is set to inﬁnite.
+Default: 5000
+’interface_connect_mode’ Connect mode for the interface module.
+• ’automatic’: No identiﬁer is provided, the required module will be automatically found and connected.
+• ’exact’: A module identiﬁer has been indicated for the module connection.
+• ’none’: Module connection not needed.
+’interface_display_name’ Provides a human-readable secondary identiﬁer for the interface module as a string.
+’interface_id’ ID of the interface as a string. It can be used to specify the interface module to open during
+connect_image_source.
+’interface_is_connected’ Connection status of the interface as an integer.
+List of values: 0 (unconnected), 1 (connected).
+’interface_query_timeout’ Desired timeout [ms] for aborting a pending interface query. If -1 is speciﬁed, the
+timeout is set to inﬁnite.
+Default: 1100
+’num_buffers’ Number of buffers that will be prepared by start_image_source for receiving images. A
+larger number of buffers can help preventing image loss in short peak loads of the host system. The number
+of buffers can only be changed before starting the acquisition with start_image_source.
+Default: 4
+’plugin_connect_mode’ Connect mode for the plugin module.
+• ’automatic’: No identiﬁer is provided, the required module will be automatically found and connected.
+• ’exact’: A module identiﬁer has been indicated for the module connection.
+• ’none’: Module connection not needed.
+’plugin_is_connected’ Connection status of the plugin as an integer.
+List of values: 0 (unconnected), 1 (connected).
+HALCON 26.05.0.0
+
+
+----- [page 1714] -----
+1666
+CHAPTER 16 IMAGE SOURCE
+’plugin_name’ Name of the plugin as a string.
+’plugin_path’ Path to the .cti plugin ﬁle. Can be used to specify the plugin ﬁle even when the GenTL environ-
+ment variables to detect plugins do not contain the location of the desired plugin ﬁle.
+’stream_connect_mode’ Connect mode for the stream module.
+• ’automatic’: No identiﬁer is provided, the required module will be automatically found and connected.
+• ’exact’: A module identiﬁer has been indicated for the module connection.
+• ’none’: Module connection not needed.
+’stream_id’ ID of the stream as a string.
+Can be used to specify the stream module to open during
+connect_image_source.
+’stream_is_connected’ Connection status of the stream as an integer.
+List of values: 0 (unconnected), 1 (connected).
+’stream_state’ Current state of the stream.
+• ’initialized’: Stream is initialized but not running.
+• ’running’: Stream is currently running. This means resources like threads and buffers are allocated in
+order to receive images. Depending on the device conﬁguration, images are constantly transmitted in the
+background in this state.
+’version’ Version of the image source library.
+For plugins provided by MVTec, the MVTec Interfaces Reference Documentation describes all plugin-speciﬁc
+parameters.
+For further parameters, check the documentation of the respective software or hardware manufacturer.
+Parameters
+▷ImageSourceHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . image_source ; handle
+Image source handle.
+▷Param (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+Parameter to be retrieved.
+▷GenParamName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . attribute.name-array ; string
+Generic parameter name.
+Default: []
+Suggested values: GenParamName ∈{’group’, ’property’}
+▷GenParamValue (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . .attribute.value-array ; integer / real / string
+Generic parameter value.
+Default: []
+Suggested values: GenParamValue ∈{’image_source’, ’plugin’, ’interface’, ’local_device’, ’device’,
+’stream’, ’tooltip’, ’description’, ’display_name’, ’visibility’, ’access’, ’type’, ’persistable’, ’min’, ’max’,
+’increment’, ’values’}
+▷Value (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string-array ; string / real / integer / handle
+Retrieved value.
+Example
+* Get current selected pixel format (notice per default 'group'='device').
+get_image_source_param (ImageSourceHandle, 'PixelFormat', [], [], PixelFormat)
+* Get list of supported pixel formats by the device.
+get_image_source_param (ImageSourceHandle, 'PixelFormat', 'property', 'values', Availabl
+* Get the version information of the plugin.
+get_image_source_param (ImageSourceHandle, 'TLVersion', 'group', 'plugin', Version)
+Result
+If the parameter values are correct, get_image_source_param returns the value 2 (H_MSG_TRUE). Other-
+wise an exception is raised.
+Execution Information
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 1715] -----
+1667
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+query_image_sources, create_image_source, connect_image_source
+Possible Successors
+set_image_source_param, disconnect_image_source
+See also
+set_image_source_param
+Module
+Foundation
+query_image_sources ( :
+:
+PluginName,
+GenParamName,
+GenParamValue :
+ImageSourceHandles )
+Returns handles corresponding to image sources.
+According to the query speciﬁed by the plugin name and the input generic parameters, query_image_sources
+returns the corresponding handles in ImageSourceHandles. The queried handles are in an unconnected state.
+You can retrieve image source handles of the different image source modules:
+• plugins,
+• interfaces,
+• devices and
+• streams.
+These modules are structured in a hierarchical parent-child conﬁguration, with each module acting as a parent to
+the subsequent one.
+For further information about the image source concept see Image Source. See the MVTec Interfaces Reference
+Documentation for the documentation of individual MVTec image source plugins.
+To restrict the query to a speciﬁc plugin its name can be speciﬁed in PluginName. Set ’all’ to query all available
+plugins at the same time. When querying information on a speciﬁc plugin or interface handle, set PluginName
+to ’ignore’.
+List of values: ’all’, ’ignore’, ’<plugin_name>’.
+Default: ’all’.
+The generic parameters GenParamName and GenParamValue are used to specify the scope of the query. The
+supported GenParamName are:
+’query’: Query handles from available image sources.
+The options for GenParamValue are:
+’plugins’: For each available plugin, a handle is returned.
+’interfaces’: For each available interface, a handle is returned, corresponding to the interface and its respec-
+tive plugin module.
+’devices’: For each available device, a handle is returned, corresponding to the device and its respective
+interface and plugin module.
+’streams’: For each available stream in a given device, a handle is returned, corresponding to the stream and
+its respective device, interface and plugin module. PluginName must be set to ’ignore’.
+Note: Along with the generic parameter pair ’query’ and ’streams’, you need to provide the parameter
+’device_handle’ and a device handle:
+query_image_sources(’ignore’, [’query’, ’device_handle’] ,
+[’streams’, DeviceHandle], QueriedStreams)
+HALCON 26.05.0.0
+
+
+----- [page 1716] -----
+1668
+CHAPTER 16 IMAGE SOURCE
+’plugin_handle’: Specify a connected plugin handle in GenParamValue from which to query for all interface
+or device handles. See connect_image_source for information about connecting to an image source.
+PluginName must be set to ’ignore’.
+’interface_handle’: Specify a connected interface handle in GenParamValue from which to query for de-
+vice handles.
+See connect_image_source for information about connecting to an image source.
+PluginName must be set to ’ignore’.
+’device_handle’: Specify a connected device handle in GenParamValue from which to query for stream handles
+(see the ’query’ option ’streams’ above.) See connect_image_source for information about connecting
+to an image source.
+Parameters
+▷PluginName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+Name of an image source plugin.
+Default: ’all’
+Suggested values: PluginName ∈{’all’, ’ignore’, ’mvtec_gigevision’, ’mvtec_usb3vision’,
+’mvtec_realsense’, ’mvtec_gstreamer’, ’mvtec_mediafoundation’, ’<plugin_name>’}
+▷GenParamName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . attribute.name-array ; string
+Generic parameter name.
+Default: []
+Suggested values: GenParamName ∈{’query’, ’image_source_handle’, ’plugin_handle’,
+’interface_handle’, ’device_handle’}
+▷GenParamValue (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . attribute.value-array ; string / handle
+Generic parameter value.
+Default: []
+Suggested values: GenParamValue ∈{’plugins’, ’interfaces’, ’devices’, ’streams’}
+▷ImageSourceHandles (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . image_source-array ; handle
+Image source handles corresponding to modules available in the system.
+Example
+* Query different modules.
+query_image_sources ('all', 'query', 'plugins', Plugins)
+query_image_sources ('all', 'query', 'interfaces', Interfaces)
+query_image_sources ('all', 'query', 'devices', Devices)
+* Connect to an available plugin and interface.
+connect_image_source (Plugins[0], [], [])
+connect_image_source (Interfaces[0], [], [])
+* Restrict query to all device modules of one connected plugin.
+query_image_sources ('ignore', 'plugin_handle', Plugins[0], PluginSubHandles)
+* Restrict query to all sub-modules down to the interface level of one connected plugin.
+query_image_sources ('ignore', ['query', 'plugin_handle'], ['interfaces', Plugins[0]], I
+Result
+If the parameter values are correct, query_image_sources returns the value 2 (H_MSG_TRUE). Otherwise
+an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+This operator returns a handle. Note that the state of an instance of this handle type may be changed by speciﬁc
+operators even though the handle is used as an input parameter by those operators.
+Possible Successors
+connect_image_source, get_image_source_param, set_image_source_param
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 1717] -----
+1669
+Alternatives
+create_image_source
+See also
+create_image_source
+Module
+Foundation
+set_image_source_param ( :
+:
+ImageSourceHandle,
+Param,
+GenParamName,
+GenParamValue,
+Value :
+)
+Set a parameter of an image source.
+The operator set_image_source_param sets the parameter values for an image source handle
+ImageSourceHandle to Value.
+For further information about the image source concept see Image Source.
+The parameter needs to be speciﬁed using Param. The parameter group can be speciﬁed using the generic param-
+eters. You have the following options for GenParamName:
+’group’ Specify the parameter group the parameter is found in with GenParamValue by setting one of these
+options:
+• ’image_source’,
+• ’plugin’,
+• ’interface’,
+• ’local_device’,
+• ’device’,
+• ’stream’.
+When setting no generic parameters, GenParamName = ’group’ and GenParamValue = ’device’ are
+assumed by default.
+’command_wait’ Wait for the end of the command execution (blocking operation).
+List of values: ’false’, ’true’
+Default: ’true’
+Restriction: Only valid for a Param of type ’command’.
+’command_wait_interval’ Polling interval in [ms] to check if the command execution ﬁnished.
+Default: 100
+Restriction: Only valid for a Param of type ’command’.
+’command_wait_timeout’ Time in [ms] to wait for end of the command execution.
+Default: 5000
+Restriction: Only valid for a Param of type ’command’.
+It depends on the image source and its state, which parameters Param can be set. While some parameters are
+speciﬁc to the hardware or software manufacturer and some depend on whether the image source is in a connected
+state or not, the parameters of the ’image_source’ group are always available. The following list gives an overview,
+which of those parameters can be set using set_image_source_param. A description of the parameters can
+be found in get_image_source_param.
+’device_access_ﬂags’
+’device_id’
+’device_query_timeout’
+’device_user_name’
+’device_serial_number’
+’fetch_timeout’
+’interface_id’
+HALCON 26.05.0.0
+
+
+----- [page 1718] -----
+1670
+CHAPTER 16 IMAGE SOURCE
+’interface_query_timeout’
+’num_buffers’
+’plugin_name’
+’plugin_path’
+’stream_id’
+For plugins provided by MVTec, the MVTec Interfaces Reference Documentation describes all plugin-speciﬁc
+parameters.
+Param is used to determine the desired parameter. The value, the parameter should be set to is passed in Value.
+Parameters of type ’command’ can be executed by setting Value to ’execute’.
+Parameters
+▷ImageSourceHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . image_source ; handle
+Image source handle.
+▷Param (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+Parameter whose value is to be set.
+▷GenParamName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . attribute.name-array ; string
+Generic parameter name.
+Default: []
+Suggested values: GenParamName ∈{’group’, ’command_wait’, ’command_wait_timeout’,
+’command_wait_interval’}
+▷GenParamValue (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . .attribute.value-array ; integer / real / string
+Generic parameter value.
+Default: []
+Suggested values: GenParamValue ∈{’image_source’, ’plugin’, ’interface’, ’local_device’, ’device’,
+’stream’, 1, 5000, 100}
+▷Value (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string-array ; string / real / integer
+Value to be set.
+Example
+* Configure or change the 'device_id' of the ImageSource (before the connect).
+set_image_source_param (ImageSourceHandle,'device_id', 'group', 'image_source', '<desire
+* Configure the ExposureTime of the connected camera (notice per default 'group'='device
+set_image_source_param (ImageSourceHandle, 'ExposureTime', [], [], 50000)
+* Execute a software trigger (notice per default 'group'='device') without waiting for t
+set_image_source_param (ImageSourceHandle, 'TriggerSoftware', 'command_wait', 0,'execute
+* Configure the handling of image buffers in the stream module.
+set_image_source_param (ImageSourceHandle, 'StreamBufferHandlingMode', 'group', 'stream'
+Result
+If the parameter values are correct, set_image_source_param returns the value 2 (H_MSG_TRUE). Other-
+wise an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+query_image_sources, create_image_source, connect_image_source
+Possible Successors
+get_image_source_param, disconnect_image_source
+See also
+get_image_source_param
+Module
+Foundation
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 1719] -----
+1671
+snap_from_image_source ( :
+Images :
+ImageSourceHandle :
+Data )
+Acquire an image with corresponding meta data from an image source.
+snap_from_image_source actively causes the acquisition of Images with the image source deﬁned in the
+handle ImageSourceHandle. For conventional devices, Images is most likely to be a single image, but
+complex sensors, e.g. 3D sensors, might provide multiple images at once. Additionally, meta information is
+returned in Data.
+Internally, calling snap_from_image_source starts the image acquisition, retrieves an image, and stops the
+acquisition again, freeing all resources. It is therefore tailored towards the basic synchronous acquisition of one
+image. See fetch_from_image_source for continuous image acquisition.
+As far as supported by the respective plugin, meta information is returned in Data. If activated, meta information
+obtained from GenICam Chunk Data is also returned in Data. Refer to fetch_from_image_source for a
+description of the content of the Data dictionary.
+The
+device
+deﬁned
+in
+ImageSourceHandle
+needs
+to
+be
+connected
+when
+calling
+snap_from_image_source. See connect_image_source on how to connect your image source.
+For further information about the states of an image source see Image Source.
+Parameters
+▷Images (output_object) . . . . . . . . . . . . . . . . image(-array) ; object : byte / int1 / int2 / uint2 / int4 / int8 / real
+Acquired images.
+▷ImageSourceHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . image_source ; handle
+Handle of the image source that acquires the images.
+▷Data (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . dict ; handle
+Meta information about the images.
+Result
+If the parameter values are correct, snap_from_image_source returns the value 2 (H_MSG_TRUE). Other-
+wise an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+This operator returns a handle. Note that the state of an instance of this handle type may be changed by speciﬁc
+operators even though the handle is used as an input parameter by those operators.
+Possible Predecessors
+connect_image_source, set_image_source_param
+Possible Successors
+disconnect_image_source
+Module
+Foundation
+start_image_source ( :
+:
+ImageSourceHandle,
+GenParamName,
+GenParamValue :
+)
+Prepare the image source for continuously acquiring, transmitting and receiving images.
+start_image_source prepares the image source device deﬁned in the handle ImageSourceHandle for
+continuously acquiring, transmitting and receiving images. These preparations include, e.g., allocating memory,
+starting the receiver and ﬁnally starting the sending device. If the image source has been started successfully, the
+status parameter ’stream_state’ changes from ’initialized’ to ’running’.
+As soon as the stream has been started images are continuously acquired and stored in the receivers image buffer
+queue, assuming the device is in a free running conﬁguration. Images can be retrieved from the buffer queue
+HALCON 26.05.0.0
+
+
+----- [page 1720] -----
+1672
+CHAPTER 16 IMAGE SOURCE
+with fetch_from_image_source. See ’num_buffers’ in get_image_source_param on how to adapt
+the buffer queue capacity.
+The device and a corresponding stream deﬁned in ImageSourceHandle need to be connected when calling
+start_image_source. See connect_image_source on how to connect your image source.
+For further information about the states of an image source see Image Source.
+Currently, no generic parameters GenParamName and GenParamValue are supported.
+Parameters
+▷ImageSourceHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . image_source ; handle
+Handle of the image source to start the stream.
+▷GenParamName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . attribute.name-array ; string
+Generic parameter name.
+Default: []
+▷GenParamValue (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . .attribute.value-array ; integer / real / string
+Generic parameter value.
+Default: []
+Result
+If the parameter values are correct, start_image_source returns the value 2 (H_MSG_TRUE). Otherwise an
+exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+connect_image_source, set_image_source_param
+Possible Successors
+fetch_from_image_source, stop_image_source
+See also
+stop_image_source
+Module
+Foundation
+stop_image_source ( :
+:
+ImageSourceHandle,
+GenParamName,
+GenParamValue :
+)
+Stop the continuous acquisition, transmission and reception of images of the image source.
+stop_image_source stops the continuous acquisition, transmission and reception of images of the im-
+age source device deﬁned in the handle ImageSourceHandle. It withdraws the preparations performed by
+start_image_source. The status parameter ’stream_state’ changes from ’running’ to ’initialized’.
+For further information about the states of an image source see Image Source.
+stop_image_source
+can
+be
+used
+from
+another
+thread
+to
+abort
+a
+blocking
+call
+of
+fetch_from_image_source.
+Currently, no generic parameters GenParamName and GenParamValue are supported.
+Parameters
+▷ImageSourceHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . image_source ; handle
+Handle of the image source to stop the stream.
+▷GenParamName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . attribute.name-array ; string
+Generic parameter name.
+Default: []
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 1721] -----
+1673
+▷GenParamValue (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . .attribute.value-array ; integer / real / string
+Generic parameter value.
+Default: []
+Result
+If the parameter values are correct, stop_image_source returns the value 2 (H_MSG_TRUE). Otherwise an
+exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+start_image_source, fetch_from_image_source
+Possible Successors
+disconnect_image_source
+See also
+start_image_source
+Module
+Foundation
+HALCON 26.05.0.0
+
+
+----- [page 1722] -----
+1674
+CHAPTER 16 IMAGE SOURCE
+HALCON/HDevelop Reference Manual, 2026-5-12

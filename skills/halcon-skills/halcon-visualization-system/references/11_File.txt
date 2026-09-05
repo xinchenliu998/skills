@@ -1,0 +1,2712 @@
+
+
+----- [page 979] -----
+Chapter 11
+File
+11.1
+Access
+close_file ( :
+:
+FileHandle :
+)
+Closing a text ﬁle.
+The operator close_file closes a ﬁle which was opened via the operator open_file.
+Parameters
+▷FileHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ﬁle(-array) ; handle
+File handle.
+Example
+open_file ('standard', 'output', FileHandle)
+* ....
+close_file(FileHandle)
+Result
+If the ﬁle handle is correct close_file returns the value 2 (H_MSG_TRUE). Otherwise an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+open_file
+See also
+open_file
+Module
+Foundation
+fnew_line ( :
+:
+FileHandle :
+)
+Write a line break and clear the output buffer.
+The operator fnew_line writes a line break into the output ﬁle deﬁned by the handle FileHandle. The input
+ﬁle must have been opened with open_file in text format. The call of fnew_line also empties possibly re-
+tained data from the output buffer into the ﬁle (see fwrite_string and set_system(::’flush_file’,
+<boolean-value>:)).
+931
+
+
+----- [page 980] -----
+932
+CHAPTER 11 FILE
+Which characters are written as line break depends on the operating system: under Windows the sequence ’\r\n’
+(carriage return + line feed) is used as the standard line break, under Linux just ’\n’ (line feed).
+Parameters
+▷FileHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ﬁle ; handle
+File handle.
+Example
+fwrite_string(FileHandle,'Good Morning')
+fnew_line(FileHandle)
+Result
+If an output ﬁle is open and it can be written to the ﬁle, the operator fnew_line returns the value 2
+(H_MSG_TRUE). Otherwise, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+fwrite_string
+See also
+fwrite_string
+Module
+Foundation
+fread_bytes ( :
+:
+FileHandle,
+NumberOfBytes :
+ReadData,
+IsEOF )
+Read bytes from a binary ﬁle.
+The operator fread_bytes reads bytes from the input ﬁle deﬁned by FileHandle. The input ﬁle must have
+been opened with open_file in binary format.
+The number of bytes to be read, greater than 0, is speciﬁed as NumberOfBytes.
+The bytes that are read are returned in ReadData. IsEOF is set to 1 if end of ﬁle is reached while reading the
+bytes from the input binary ﬁle. Otherwise, it is set to 0.
+When the number of bytes to be read is larger than the number of bytes in the input binary ﬁle, the operator
+fread_bytes returns all bytes read till the end of the ﬁle in ReadData and parameter IsEOF is set to 1.
+If no byte can be read because the end of the ﬁle is reached, ReadData is empty and IsEOF is set to 1.
+Parameters
+▷FileHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ﬁle ; handle
+File handle.
+▷NumberOfBytes (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .integer ; integer
+Number of bytes to be read.
+▷ReadData (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer-array ; integer
+Bytes read from the input binary ﬁle.
+▷IsEOF (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .integer ; integer
+Indicates if end of ﬁle is reached while reading the ﬁle.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 981] -----
+11.1. ACCESS
+933
+Example
+* Read a binary file 5 bytes at a time till EOF is reached.
+open_file(Filename,'input_binary',FileHandle)
+repeat
+fread_bytes(FileHandle, 5, BytesRead, IsEOF)
+until (IsEOF)
+close_file (FileHandle)
+Result
+If an input ﬁle is open in binary mode and no ﬁle read error occurs,the operator fread_bytes returns 2
+(H_MSG_TRUE). Otherwise, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+open_file
+Possible Successors
+close_file
+Alternatives
+fread_char
+See also
+open_file, close_file, fwrite_bytes
+Module
+Foundation
+fread_char ( :
+:
+FileHandle :
+Char )
+Read one character from a text ﬁle.
+The operator fread_char reads a character from the input ﬁle deﬁned by FileHandle. The input ﬁle must
+have been opened with open_file in text format.
+The read character or the control character sequence ’eof’ is returned in parameter Char.
+The opera-
+tor fread_char respects the encoding of the characters, unless the ﬁle was opened with the option ’ig-
+nore_encoding’ (see open_file). Thus, when opened with the correct encoding the operator fread_char
+returns multi-byte characters at once. If necessary, the character is transcoded into the current encoding of the
+HALCON library (see set_system(::’filename_encoding’,<encoding>:)).
+When the ﬁle was opened with encoding mode ’ignore_encoding’, Char always returns one byte without any
+interpretation or transcoding. This is useful for reading a ﬁle with special control bytes in a kind of raw mode.
+If no character can be read because the end of the ﬁle is reached, fread_char returns the control character
+sequence ’eof’ in Char.
+The operator fread_char emits a low-level error message, when the next byte or byte sequence does not rep-
+resent a valid code point in the speciﬁed encoding. Despite of the low-level error message, the operator will not
+fail and Char will contain the next byte. Furthermore, the operator also emits a low-level error message, when the
+read character cannot be transcoded without loss of information into the current encoding of the HALCON library.
+This can only happen when the ﬁle is UTF-8 encoded and the current encoding of the HALCON library is ’locale’
+(see set_system(::’filename_encoding’,’locale’:)).
+HALCON 26.05.0.0
+
+
+----- [page 982] -----
+934
+CHAPTER 11 FILE
+Parameters
+▷FileHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ﬁle ; handle
+File handle.
+▷Char (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+Read character, which can be multi-byte or the control string ’eof’.
+Example
+* Read a text file character by character.
+open_file (FileName, 'input', FileHandle)
+repeat
+fread_char (FileHandle, Char)
+until (Char == 'eof')
+close_file (FileHandle)
+Result
+If an input ﬁle is open, the operator fread_char returns 2 (H_MSG_TRUE). Otherwise, an exception is raised.
+Encoding errors have no inﬂuence on the result state.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+open_file
+Possible Successors
+close_file
+Alternatives
+fread_string, read_string, fread_line
+See also
+open_file, close_file, fread_string, fread_line
+Module
+Foundation
+fread_line ( :
+:
+FileHandle :
+OutLine,
+IsEOF )
+Read a character line from a text ﬁle.
+The operator fread_line reads a whole line (including the line break character) from the input ﬁle deﬁned by
+the handle FileHandle. The input ﬁle must have been opened with open_file in text format.
+The read line is returned in parameter OutLine. It starts at the current ﬁle position and ends at the end of the ﬁle
+or with the ﬁrst line break character found. A subsequent read operation on the ﬁle would start after the line break,
+i.e., at the beginning of the next line. If needed, the output string is transcoded into the current encoding of the
+HALCON library (the default is UTF-8).
+The range of control characters that are handled as line break depends on the ﬁle encoding, which can be speciﬁed
+when the ﬁle is opened with open_file. The standard line break characters are ’\n’ (line feed), ’\r’ (carriage
+return), and ’\f’ (form feed). These characters are accepted on all encodings or when the encoding has to be
+ignored. The line break sequence ’\r\n’ (carriage return + line feed), which is the default line break under
+Windows, is handled (on all systems) as one line break and returned as ’\n’ in the output string. In UTF-8 encoded
+ﬁles, the following Unicode control code points will also terminate the read line: U+0085 (next line), U+2028
+(line separator), and U+2029 (paragraph separator).
+If the end of the ﬁle is reached before any character was written to the output string, the parameter IsEOF returns
+the value 1, otherwise 0.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 983] -----
+11.1. ACCESS
+935
+The operator fread_line emits a low-level error message, when it encounters bytes that do not represent a
+valid code point in the speciﬁed encoding. Despite of the low-level error message, the operator will not fail and
+OutLine will contain potentially invalid bytes (invalid within the speciﬁed encoding). Furthermore, the operator
+also emits a low-level error message, when the output string cannot be transcoded without loss of information
+into the current encoding of the HALCON library. For a correctly encoded string this can only happen when
+the ﬁle is UTF-8 encoded and the current encoding of the HALCON library is ’locale’ (see set_system(::
+’filename_encoding’,’locale’:)).
+Parameters
+▷FileHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ﬁle ; handle
+File handle.
+▷OutLine (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+Read line.
+▷IsEOF (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .integer ; integer
+Reached end of ﬁle before any character was read.
+Example
+do {
+fread_line(FileHandle,&Line,&IsEOF);
+} while(IsEOF==0);
+Result
+If the ﬁle is open and a suitable line is read, fread_line returns the value 2 (H_MSG_TRUE). Otherwise, an
+exception is raised. Encoding errors have no inﬂuence on the result state.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+open_file
+Possible Successors
+close_file
+Alternatives
+fread_char, fread_string
+See also
+open_file, close_file, fread_char, fread_string
+Module
+Foundation
+fread_string ( :
+:
+FileHandle :
+OutString,
+IsEOF )
+Read a string from a text ﬁle.
+The operator fread_string reads a string from the input ﬁle deﬁned by the handle FileHandle. The input
+ﬁle must have been opened with open_file in text format.
+A string begins with the ﬁrst character that is not a separator, i.e., that is no white space or line break: all other
+characters, mainly letters, numbers, and all other printable characters, but also all other control characters that
+are no separators are added to the output string. The string ends at the ﬁrst separator character after one or more
+accepted characters, or when the end of the ﬁle was reached. The terminating separator character is not added to
+the output string, but the ﬁle position indicator remains after it. Thus, a subsequent read operation on the ﬁle would
+start after the terminating separator character. The read character sequence is returned in parameter OutString.
+If needed, the output string is transcoded into the current encoding of the HALCON library (the default is UTF-8).
+HALCON 26.05.0.0
+
+
+----- [page 984] -----
+936
+CHAPTER 11 FILE
+The range of characters that are handled as separator depends on the ﬁle encoding, which can be speciﬁed when
+the ﬁle is opened. The character ’ ’ (space) and the standard ASCII whitespace control characters ’\t’ (tab), ’\f’
+(form feed), ’\n’ (line feed), ’\r’ (carriage return), and ’\v’ (vertical tab) are all accepted as separator on all locales
+or when the encoding has to be ignored. Other encodings may provide additional separator characters, e.g., Latin-
+1 deﬁnes ’0xA0’ (no-break space) or Shift-JIS (as many other Asian encodings) deﬁnes ’0x8140’ (ideographic
+space) as valid separator. UTF-8 handles these characters also as a separator just as all other code points which
+in the Unicode standard are deﬁned as white spaces in the categories space separators Zs, line separators Zl, and
+paragraph separators Zp.
+If the end of the ﬁle is reached before any character was written to the output string, IsEOF returns the value 1,
+otherwise 0.
+The operator fread_string emits a low-level error message, when it encounters bytes that do not represent a
+valid code point in the speciﬁed encoding. Despite of the low-level error message, the operator will not fail and
+OutString will contain potentially invalid bytes (invalid within the speciﬁed encoding). Furthermore, the oper-
+ator also emits a low-level error message, when the output string cannot be transcoded without loss of information
+into the current encoding of the HALCON library. For a correctly encoded string this can only happen when
+the ﬁle is UTF-8 encoded and the current encoding of the HALCON library is ’locale’ (see set_system(::
+’filename_encoding’,’locale’:)).
+Parameters
+▷FileHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ﬁle ; handle
+File handle.
+▷OutString (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+Read character sequence.
+▷IsEOF (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .integer ; integer
+Reached end of ﬁle before any character was added to the output string.
+Example
+fwrite_string(FileHandle,'Please enter text and return: ..')
+fread_string(FileHandle,String,IsEOF)
+fwrite_string(FileHandle,['here it is again: ',String])
+fnew_line(FileHandle)
+Result
+If a ﬁle is open and a suitable string is read, fread_string returns the value 2 (H_MSG_TRUE). Otherwise, an
+exception is raised. Encoding errors have no inﬂuence on the result state.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+open_file
+Possible Successors
+close_file
+Alternatives
+fread_char, read_string, fread_line
+See also
+open_file, close_file, fread_char, fread_line
+Module
+Foundation
+fwrite_bytes ( :
+:
+FileHandle,
+DataToWrite :
+NumberOfBytesWritten )
+Write bytes to a binary ﬁle.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 985] -----
+11.1. ACCESS
+937
+The operator fwrite_bytes writes bytes to the output ﬁle deﬁned by FileHandle. The output ﬁle must have
+been opened with open_file in binary format.
+The data to be written to the ﬁle is speciﬁed as DataToWrite.
+The number of bytes that are written to the ﬁle is returned in NumberOfBytesWritten.
+Parameters
+▷FileHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ﬁle ; handle
+File handle.
+▷DataToWrite (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer-array ; integer
+Data to be written to the ﬁle.
+▷NumberOfBytesWritten (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer ; integer
+Number of bytes written to the output binary ﬁle.
+Example
+* Write a binary file byte by byte.
+open_file (Filename, 'append_binary', FileHandle)
+fwrite_bytes(FileHandle, [0x97, 99, 102], BytesWritten)
+close_file (FileHandle)
+Result
+If an output ﬁle is open in binary mode and no ﬁle write error occurs, the operator fwrite_bytes returns 2
+(H_MSG_TRUE). Otherwise, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+open_file
+Possible Successors
+close_file
+Alternatives
+fwrite_string
+See also
+open_file, close_file, fread_bytes
+Module
+Foundation
+fwrite_string ( :
+:
+FileHandle,
+String :
+)
+Write strings and numbers into a text ﬁle.
+The operator fwrite_string writes one or more strings or numbers to the output ﬁle deﬁned by the handle
+FileHandle. The output ﬁle must have been opened with open_file in text format.
+Strings and numbers that are to be written into the ﬁle are passed via the input parameter String to the operator
+fwrite_string. The parameter String accepts also tuples where strings and numbers are mixed. All ele-
+ments of the tuple are written consecutively into the ﬁle without blanks or other separators in between. Numbers
+are converted into a string before they are written.
+The operator fwrite_string emits a low-level error message, when the string cannot be transcoded
+without loss of information into the speciﬁed ﬁle encoding.
+This can only happen when the ﬁle encod-
+ing is ’locale_encoding’ and the current encoding of the HALCON library is ’utf8’ (see set_system(::
+’filename_encoding’,’utf8’:)).
+HALCON 26.05.0.0
+
+
+----- [page 986] -----
+938
+CHAPTER 11 FILE
+The call set_system(::’flush_file’, <boolean-value>:) determines whether the output charac-
+ters are immediately written to the ﬁle or not. If the value ’ﬂush_ﬁle’ is set to ’false’, the characters (especially in
+case of screen output) show up only after the operator fnew_line is called.
+Parameters
+▷FileHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ﬁle ; handle
+File handle.
+▷String (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string(-array) ; string / integer / real
+Values to be written into the ﬁle.
+Default: ’hallo’
+Example
+fwrite_string(FileHandle,['text with numbers:',5,' and ',1.0])
+* results in the following output:
+* 'text with numbers:5 and 1.00000'
+Result
+If the writing procedure was carried out successfully, the operator fwrite_string returns the value 2
+(H_MSG_TRUE). Otherwise, an exception is raised. Encoding errors have no inﬂuence on the result state.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+open_file
+Possible Successors
+close_file
+Alternatives
+write_string
+See also
+open_file, close_file, set_system
+Module
+Foundation
+open_file ( :
+:
+FileName,
+FileType :
+FileHandle )
+Open a ﬁle in text or binary format.
+open_file opens a ﬁle in text format or in binary format. The name of the ﬁle is deﬁned by the parameter
+FileName. The operator open_file returns a handle to the ﬁle in the output parameter FileHandle. The
+parameter FileType determines the type of the ﬁle. For text ﬁles this parameter can also be used to specify the
+encoding used for strings in that ﬁle, where besides UTF-8 only the local-8-bit encoding is supported.
+The following settings for FileType are supported:
+’input’: An already existing input ﬁle is opened for reading in text format.
+’output’: A new output ﬁle is opened for writing in text format.
+’append’: An already existing output ﬁle is opened for writing at the end of the ﬁle in text format.
+’input_binary’: An already existing input ﬁle is opened for reading in binary format.
+’output_binary’: A new output ﬁle is opened for writing in binary format.
+’append_binary’: An already existing output ﬁle is opened for writing at the end of the ﬁle in binary format.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 987] -----
+11.1. ACCESS
+939
+For text ﬁles the tuple passed to FileType can be extended by one of the following encoding settings:
+’utf8_encoding’: Strings in the ﬁle are encoded in UTF-8. This is the default, so for UTF-8 encoded ﬁles and all
+ﬁles which use only pure 7-bit US-ASCII characters this value can be omitted.
+’locale_encoding’: Strings in the ﬁle are encoded in the local-8-bit encoding which depends on the system’s
+current locale setting. Valid encodings are deﬁned, e.g., under Windows by the code pages 1252 (a Microsoft
+dialect of Latin-1) or 932 (Shift-JIS) or on Linux by the locales en_US.utf8, de_DE.iso885915, or ja_JP.sjis.
+’ignore_encoding’: The encoding of the strings that are read from the ﬁle or written into it is not handled. In
+that mode multi-byte characters are neither processed nor interpreted, the operator fread_char returns
+always one byte, and separator characters that depend on a speciﬁc locale are not handled in fread_line
+and fread_string. Furthermore, the strings are not transcoded into or from the current encoding of the
+HALCON library.
+Note: Strings are still transcoded in the HALCON C/C++ interface, when the encoding of the HALCON
+C/C++ interface differs from the encoding of the HALCON library. For HDevelop scripts, the encoding is
+always set to UTF-8. To avoid transcoding of strings to HDevelop, the encoding of the HALCON library
+should be set to UTF-8.
+For the standard terminal input and output streams, the ﬁle names ’standard’ (’input’ and ’output’) and ’error’
+(only ’output’) are reserved.
+Parameters
+▷FileName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ﬁlename ; string
+Name of ﬁle to be opened.
+Default: ’standard’
+Suggested values: FileName ∈{’standard’, ’error’, ’/tmp/dat.dat’}
+▷FileType (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string(-array) ; string
+Type of ﬁle access and optional the string encoding.
+Default: ’output’
+List of values: FileType ∈{’input’, ’output’, ’append’, ’input_binary’, ’output_binary’, ’append_binary’,
+’utf8_encoding’, ’locale_encoding’, ’ignore_encoding’}
+▷FileHandle (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ﬁle ; handle
+File handle.
+Example
+* Create an output text file with the name '/tmp/log.txt'
+* and write a string to the file:
+open_file ('/tmp/log.txt', 'output', FileHandle)
+fwrite_string (FileHandle, 'these are the first and last lines')
+fnew_line (FileHandle)
+close_file (FileHandle)
+* Write a string to the standard output stream (stdout),
+* typically used to display information in the console:
+open_file ('standard', 'output', FileHandle)
+fwrite_string (FileHandle, 'Hello console')
+close_file (FileHandle)
+Result
+If the parameters are valid, the operator open_file returns the value 2 (H_MSG_TRUE). If necessary, an excep-
+tion is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+HALCON 26.05.0.0
+
+
+----- [page 988] -----
+940
+CHAPTER 11 FILE
+This operator returns a handle. Note that the state of an instance of this handle type may be changed by speciﬁc
+operators even though the handle is used as an input parameter by those operators.
+Possible Successors
+fwrite_string, fread_char, fread_string, fread_line, fread_serialized_item,
+fwrite_serialized_item, fread_bytes, fwrite_bytes, close_file
+See also
+close_file
+Module
+Foundation
+11.2
+Images
+deserialize_image ( :
+Image :
+SerializedItemHandle :
+)
+Deserialize a serialized image object.
+deserialize_image deserializes an image object, that was serialized by serialize_image (see
+fwrite_serialized_item for an introduction of the basic principle of serialization). The serialized image
+object is deﬁned by the parameter SerializedItemHandle. The deserialized image is stored in the image
+object deﬁned by the parameter Image.
+Parameters
+▷Image (output_object) . . . . . . image(-array) ; object : byte / direction / cyclic / int1 / complex / int2 / uint2
+/ vector_ﬁeld / int4 / int8 / real
+Image object.
+▷SerializedItemHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . serialized_item ; handle
+Handle of the serialized item.
+Result
+If the parameters are valid, the operator deserialize_image returns the value 2 (H_MSG_TRUE). If neces-
+sary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+fread_serialized_item, receive_serialized_item, serialize_image
+Possible Successors
+disp_image, threshold, regiongrowing, count_channels, decompose3, class_ndim_norm,
+gauss_filter, fill_interlace, zoom_image_size, zoom_image_factor, crop_part,
+write_image, rgb1_to_gray
+See also
+serialize_image
+Module
+Foundation
+image_to_memory_block ( Image :
+:
+Format,
+FillColor :
+MemoryBlockHandle )
+Write an image to a memory block in various graphic formats.
+The
+operator
+image_to_memory_block
+saves
+the
+input
+image
+Image
+to
+the
+memory
+block
+MemoryBlockHandle in the format Format. If the domain (region) cannot be saved in the speciﬁed Format
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 989] -----
+11.2. IMAGES
+941
+(this is the case for ’jpeg’), all pixels outside the region receive the color deﬁned by FillColor. For gray value
+images a value between 0 (black) and 255 (white) must be passed. For RGB color images the RGB values can be
+passed directly as a hexadecimal value: e.g., 0xffff00 for a yellow background (red=255, green=255, blue=0).
+The following formats can be set in Format:
+’jpeg’: JPEG format (lossy compression), ﬁle extension *.jpg This format can only store images with one
+channel (gray value image) or three channels (RGB image).
+Only images with the pixel type byte are supported for this ﬁle format.
+Together with the format string the quality value determining the compression rate can be provided. Large
+values (maximum 100) create a large memory block with high image quality. Small values signiﬁcantly
+decrease the image quality and the size of the memory block.
+Possible values: ’jpeg’, ’jpeg 30’, ’jpeg 60’.
+Attention: Images stored for being processed later should not be stored in this format due to the loss of
+information during compression.
+’png’: PNG format (lossless compression), ﬁle extension *.png This format can only store images with one
+channel (gray value image) or three channels (RGB image). The maximal supported image size (width x
+height) for PNG is 231 −1, also in HALCON XL.
+Images of type byte and uint2 can be stored in PNG format.
+Together with the format string, a compression level between 0 and 9 can be speciﬁed, where 0 corresponds
+to no compression and 9 to the best possible compression. Alternatively, the compression can be selected by
+using string constants.
+Possible values: ’png’, ’png 7’, ’png none’, ’png best’, ’png fastest’.
+If an image with a reduced domain is written, the region is stored as the alpha channel, where the points
+within the domain are stored as the maximum gray value of the image type and the points outside the domain
+are stored as the gray value 0. If an image with a full domain is written, no alpha channel is stored.
+Parameters
+▷Image (input_object) . . . . . . (multichannel-)image ; object : byte / direction / cyclic / int1 / complex / int2
+/ uint2 / vector_ﬁeld / int4 / int8 / real
+Input image.
+▷Format (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+Graphic format.
+Default: ’jpeg’
+Suggested values: Format ∈{’jpeg’, ’png’}
+▷FillColor (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . number ; integer / real
+Gray value for pixels not belonging to the image domain (region).
+Default: 0
+Suggested values: FillColor ∈{-1, 0, 255, 65280, 16711680}
+▷MemoryBlockHandle (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . memory_block ; handle
+Memory block handle.
+Result
+If the parameter values are correct the operator image_to_memory_block returns the value 2
+(H_MSG_TRUE). Otherwise an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+This operator returns a handle. Note that the state of an instance of this handle type may be changed by speciﬁc
+operators even though the handle is used as an input parameter by those operators.
+Possible Predecessors
+read_image
+Possible Successors
+get_memory_block_ptr, write_memory_block, serialize_tuple
+HALCON 26.05.0.0
+
+
+----- [page 990] -----
+942
+CHAPTER 11 FILE
+See also
+memory_block_to_image
+Module
+Foundation
+memory_block_to_image ( :
+Image :
+MemoryBlockHandle :
+)
+Read an image from a memory block with different ﬁle formats.
+The
+operator
+memory_block_to_image
+reads
+image
+data
+from
+the
+indicated
+memory
+block
+MemoryBlockHandle and generates the image Image.
+The formats JPEG and PNG can be read. The ﬁle formats are recognized by the internal structure of the memory
+block. In case of colored images an image with three color channels is created, the red channel being stored in the
+ﬁrst, the green channel in the second and the blue channel in the third component (channel number).
+For the PNG image format binary alpha channels are interpreted as domains. Otherwise, the domain of the gener-
+ated image object (all pixels of the matrix) is chosen maximal.
+Attention
+If CMYK or YCCK JPEG memory blocks are read, HALCON assumes that these follow the Adobe Photoshop
+convention that the CMYK channels are stored inverted, i.e., 0 represents 100% ink coverage, rather than 0% ink
+as one would expect. The images are converted to RGB images using this convention. If the JPEG memory block
+does not follow this convention, but stores the CMYK channels in the usual fashion, invert_image must be
+called after reading the image.
+If PNG images that contain an alpha channel are read, the alpha channel is returned as the second or fourth channel
+of the output image, unless the alpha channel contains exactly two different gray values, in which case a one or
+three channel image with a reduced domain is returned, in which the points in the domain correspond to the points
+with the higher gray value in the alpha channel.
+Parameters
+▷Image (output_object) . . . . . . image ; object : byte / direction / cyclic / int1 / complex / int2 / uint2 / vec-
+tor_ﬁeld / int4 / int8 / real
+Read image.
+▷MemoryBlockHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . memory_block ; handle
+Memory block handle.
+Result
+If the parameters are correct the operator memory_block_to_image returns the value 2 (H_MSG_TRUE).
+Otherwise an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+read_memory_block, deserialize_tuple
+Possible Successors
+disp_image, threshold, regiongrowing, count_channels, decompose3, class_ndim_norm,
+gauss_filter, fill_interlace, zoom_image_size, zoom_image_factor, crop_part,
+write_image, rgb1_to_gray
+See also
+image_to_memory_block
+Module
+Foundation
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 991] -----
+11.2. IMAGES
+943
+read_image ( :
+Image :
+FileName :
+)
+Read an image with different ﬁle formats.
+The operator read_image reads the indicated image ﬁles from the background storage and generates the image.
+One or more ﬁle names can be passed in FileName. If more than one ﬁle name is passed, an image object tuple
+with the corresponding number of image objects is returned.
+HALCON formats (HOBJ and IMA)
+For images in the HALCON Iconic Object format (HOBJ), multiple images saved in one ﬁle are returned as a tuple
+of images. If regions or XLDs are contained within the ﬁle, an exception is raised. See write_object for more
+information about the HOBJ format.
+All images ﬁles written by the operator write_image (format ’ima’) have the extension ’.ima’. A description
+ﬁle can be available for every image in IMA format (same ﬁle name with extension ’.exp’). The type of the
+pixel data (byte, int4, real) can also be taken from the description ﬁle. If the description ﬁle is not available,
+the type byte is used by default as well as a default data size (’height’ x ’width’) that can be queried via
+get_system. If the data size of the ’.ima’ ﬁle and the default data size are not equal, an exception is raised.
+Other formats
+Besides the HALCON formats, TIFF, GIF, BMP, JPEG, JPEG-2000, JPEG-XR, PNG, PCX, SUN-Raster, PGM,
+PPM, PBM, and XWD ﬁles can also be read. The gray values of PBM images are set at the values 0 and 255. The
+ﬁle formats are either recognized by the extension (if indicated) or because of the internal structure of the ﬁles. If
+the extension is indicated the image can be found faster. If no extension is indicated, ﬁles with an extension are
+preferred to ﬁles without extension. In case of PGM, PPM, and PBM the corresponding extension (e.g., ’pgm’)
+or the general value ’pnm’ can be used. In case of TIFF ’tiff’ and ’tif’ are accepted. In case of JPEG-XR
+’jxr’, ’wdp’, ’wmp’, and ’hdp’ are accepted. In case of JPEG-2000 only ’jp2’ is accepted. In case of
+colored images an image with three color channels is created, the red channel being stored in the ﬁrst, the green
+channel in the second and the blue channel in the third component (channel number).
+For the image formats TIFF, PNG, JPEG-XR, and JPEG-2000, binary alpha channels are interpreted as domains.
+For TIFF ﬁles, additionally binary SubIFDs with PhotometricInterpretation = TransparencyMask are interpreted
+as domains. Otherwise, the domain of the generated image object (= all pixels of the matrix) is chosen maximal.
+For TIFF images, multipage TIFF ﬁles are returned as image object tuples. SubIFDs in a TIFF ﬁle are only read if
+their dimensions are equal to the dimensions of the main image.
+Images of type ’int8’ can be read on 64 bit systems only. Furthermore, only the IMA and the TIFF format support
+this image type.
+Image ﬁles are searched in the current directory and in the image directory of HALCON (determined by the envi-
+ronment variable). The image directory of HALCON is preset at ’.’ and ’/usr/local/halcon/images’
+in a Unix-like environment and can be set via the operator set_system. More than one image directory can be
+indicated. This is done by separating the individual directories by a colon.
+Furthermore, the search path can be set via the environment variable HALCONIMAGES (same structure as
+’image_dir’). Example:
+setenv HALCONIMAGES "/usr/images:/usr/local/halcon/images"
+HALCON also searches images in the subdirectory ’images’ (Images for the program examples). The environ-
+ment variable HALCONROOT is used for the HALCON directory.
+Attention
+If CMYK or YCCK JPEG/JPEG-XR ﬁles are read, HALCON assumes that these ﬁles follow the Adobe Photoshop
+convention that the CMYK channels are stored inverted, i.e., 0 represents 100% ink coverage, rather than 0% ink
+as one would expect. The images are converted to RGB images using this convention. If the JPEG ﬁle does not
+follow this convention, but stores the CMYK channels in the usual fashion, invert_image must be called after
+reading the image.
+If PNG images that contain an alpha channel are read, the alpha channel is returned as the second or fourth channel
+of the output image, unless the alpha channel contains exactly two different gray values, in which case a one or
+three channel image with a reduced domain is returned, in which the points in the domain correspond to the points
+with the higher gray value in the alpha channel.
+HALCON 26.05.0.0
+
+
+----- [page 992] -----
+944
+CHAPTER 11 FILE
+Parameters
+▷Image (output_object) . . . . . . image(-array) ; object : byte / direction / cyclic / int1 / complex / int2 / uint2
+/ vector_ﬁeld / int4 / int8 / real
+Read image.
+▷FileName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .ﬁlename.read(-array) ; string
+Name of the image to be read.
+Default: ’printer_chip/printer_chip_01’
+Suggested values: FileName ∈{’fabrik’, ’fuse’, ’mreut’, ’multiple_dies_01’, ’particle’, ’patras’,
+’printer_chip/printer_chip_01’, ’rings_and_nuts’, ’tooth_rim’}
+File extension: .hobj, .ima, .tif, .tiff, .gif, .bmp, .jpg, .jpeg, .jp2, .jxr, .png, .pcx,
+.ras, .xwd, .pbm, .pnm, .pgm, .ppm
+Example
+* Reading an image:
+read_image(Image,'mreut')
+* Reading 3 images into an image array:
+read_image(Images,['ic0','ic1','ic2'])
+* Setting of search path for images on '/mnt/images' and '/home/images':
+set_system('image_dir','/mnt/images:/home/images')
+Result
+If the parameters are correct the operator read_image returns the value 2 (H_MSG_TRUE). Otherwise an ex-
+ception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Successors
+disp_image, threshold, regiongrowing, count_channels, decompose3, class_ndim_norm,
+gauss_filter, fill_interlace, zoom_image_size, zoom_image_factor, crop_part,
+write_image, rgb1_to_gray
+Alternatives
+read_sequence
+See also
+set_system, write_image
+Module
+Foundation
+read_image_metadata ( :
+:
+Format,
+TagName,
+FileName :
+TagValue )
+Read metadata from image ﬁles.
+The operator read_image_metadata reads the metadata of the ﬁle FileName and returns the information in
+TagValue. With TagName you specify, for which single tag or tuple of tags you want to retrieve the information.
+The parameter Format speciﬁes, in which format the metadata is encoded.
+This operators supports for Format the TIFF metadata formats ’tiff’ and ’bigtiff’. The ﬁle extension .tif is
+expected.
+The following tags are readable:
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 993] -----
+11.2. IMAGES
+945
+TagName
+TagValue data type
+’tiff_aperture_value’
+double
+’tiff_copyright’
+string
+’tiff_date_time’
+string
+’tiff_exposure_time’
+double
+’tiff_image_description’
+string
+’tiff_light_source’
+integer
+’tiff_make’
+string
+’tiff_software’
+string
+Note, the operator returns an error in case the tag speciﬁed by TagName has no value set.
+You can retrieve all readable tags with the string ’tiff_tags_supported_for_reading’ for TagName as well as re-
+trieve all writable tags with the string ’tiff_tags_supported_for_writing’. Each of both strings can be used only as
+single value for TagName.
+Parameters
+▷Format (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+Graphic format.
+Default: ’tiff’
+Suggested values: Format ∈{’tiff’, ’bigtiff’}
+▷TagName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .tuple ; string
+Name of the tag to be written in the image ﬁle.
+Default: ’tiff_image_description’
+Suggested values: TagName ∈{’tiff_image_description’, ’tiff_make’, ’tiff_software’, ’tiff_date_time’,
+’tiff_copyright’, ’tiff_exposure_time’, ’tiff_aperture_value’, ’tiff_light_source’,
+’tiff_tags_supported_for_reading’, ’tiff_tags_supported_for_writing’}
+▷FileName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .ﬁlename.read ; string
+Name of image ﬁle.
+File extension: .tif, .tiff
+▷TagValue (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . tuple ; string / integer / real
+Output tag value read from the image ﬁle.
+Result
+If TagValue can be correctly read for the speciﬁed input parameters the operator read_image_metadata
+returns the value 2 (H_MSG_TRUE). Otherwise an exception is raised. In this case, an extended error information,
+as e.g., the causative tag, may be set and can be queried with the operator get_extended_error_info.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+write_image_metadata
+Possible Successors
+read_image
+Module
+Foundation
+read_sequence ( :
+Image :
+HeaderSize,
+SourceWidth,
+SourceHeight,
+StartRow,
+StartColumn,
+DestWidth,
+DestHeight,
+PixelType,
+BitOrder,
+ByteOrder,
+Pad,
+Index,
+FileName :
+)
+Read images.
+HALCON 26.05.0.0
+
+
+----- [page 994] -----
+946
+CHAPTER 11 FILE
+The operator read_sequence reads unformatted image data, from a ﬁle and returns a “suitable” image. The
+image data must be ﬁlled consecutively pixel by pixel and line by line.
+Any ﬁle headers (with the length HeaderSize bytes) are skipped.
+The parameters SourceWidth and
+SourceHeight indicate the size of the ﬁlled image. DestWidth and DestHeight indicate the size of the
+image. In the simplest case these parameters are the same. However, areas can also be read. The upper left corner
+of the required image area can be determined via StartRow and StartColumn.
+The pixel types ’bit’, ’byte’, ’short’ (16 bits, unsigned), ’signed_short’ (16 bits, signed), ’long’ (32 bits, signed),
+’swapped_long’ (32 bits, with swapped segments), and ’real’ (32 bit ﬂoating point numbers) are supported. Fur-
+thermore, the operator read_sequence enables the extraction of components of a RBG image, if a triple of three
+bytes (in the sequence “red”, “green”, “blue”) was ﬁled in the image ﬁle. For the red component the pixel type
+’r_byte’ must be chosen, and correspondingly for the green and blue components ’g_byte’ or ’b_byte’, respectively.
+’MSBFirst’ (most signiﬁcant bit ﬁrst) or the inversion thereof (’LSBFirst’) can be chosen for the bit order
+(BitOrder). The byte orders (ByteOrder) ’MSBFirst’ (most signiﬁcant byte ﬁrst) or ’LSBFirst’, respectively,
+are processed analogously. Finally an alignment (Pad) can be set at the end of the line: ’byte’, ’short’ or ’long’. If
+a whole image sequence is stored in the ﬁle a single image (beginning at Index 1) can be chosen via the parameter
+Index.
+Image ﬁles are searched in the current directory (determined by the environment variable) and in the image direc-
+tory of HALCON. The image directory of HALCON is preset at ’.’ and ’/usr/local/halcon/images’
+in a Unix-like environment and can be set via the operator set_system. More than one image directory can be
+indicated. This is done by separating the individual directories by a colon.
+Furthermore the search path can be set via the environment variable HALCONIMAGES (same structure as ’im-
+age_dir’). Example:
+setenv HALCONIMAGES "/usr/images:/usr/local/halcon/images"
+HALCON also searches images in the subdirectory ’images’ (Images for the program examples). The environ-
+ment variable HALCONROOT is used for the HALCON directory.
+Attention
+If ﬁles of pixel type ’real’ are read and the byte order is chosen incorrectly (i.e., differently from the byte order in
+which the data is stored in the ﬁle) program error and even crashes because of ﬂoating point exceptions may result.
+Parameters
+▷Image (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . image ; object : byte / int2 / uint2 / int4
+Image read.
+▷HeaderSize (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer ; integer
+Number of bytes for ﬁle header.
+Default: 0
+Value range: 0 ≤HeaderSize
+▷SourceWidth (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .extent.x ; integer
+Number of image columns of the ﬁled image.
+Default: 512
+Value range: 1 ≤SourceWidth
+▷SourceHeight (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . extent.y ; integer
+Number of image lines of the ﬁled image.
+Default: 512
+Value range: 1 ≤SourceHeight
+▷StartRow (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . point.y ; integer
+Starting point of image area (line).
+Default: 0
+Value range: 0 ≤StartRow
+Restriction: StartRow < SourceHeight
+▷StartColumn (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . point.x ; integer
+Starting point of image area (column).
+Default: 0
+Value range: 0 ≤StartColumn
+Restriction: StartColumn < SourceWidth
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 995] -----
+11.2. IMAGES
+947
+▷DestWidth (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . extent.x ; integer
+Number of image columns of output image.
+Default: 512
+Value range: 1 ≤DestWidth
+Restriction: DestWidth <= SourceWidth
+▷DestHeight (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . extent.y ; integer
+Number of image lines of output image.
+Default: 512
+Value range: 1 ≤DestHeight
+Restriction: DestHeight <= SourceHeight
+▷PixelType (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+Type of pixel values.
+Default: ’byte’
+List of values: PixelType ∈{’bit’, ’byte’, ’r_byte’, ’g_byte’, ’b_byte’, ’short’, ’signed_short’, ’long’,
+’swapped_long’, ’real’}
+▷BitOrder (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .string ; string
+Sequence of bits within one byte.
+Default: ’MSBFirst’
+List of values: BitOrder ∈{’MSBFirst’, ’LSBFirst’}
+▷ByteOrder (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+Sequence of bytes within one ’short’ unit.
+Default: ’MSBFirst’
+List of values: ByteOrder ∈{’MSBFirst’, ’LSBFirst’}
+▷Pad (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .string ; string
+Data units within one image line (alignment).
+Default: ’byte’
+List of values: Pad ∈{’byte’, ’short’, ’long’}
+▷Index (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .integer ; integer
+Number of images in the ﬁle.
+Default: 1
+Value range: 1 ≤Index (lin)
+▷FileName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .ﬁlename.read ; string
+Name of input ﬁle.
+Result
+If the parameter values are correct the operator read_sequence returns the value 2 (H_MSG_TRUE). Otherwise
+an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Successors
+disp_image, count_channels, decompose3, write_image, rgb1_to_gray
+Alternatives
+read_image
+See also
+read_image
+Module
+Foundation
+serialize_image ( Image :
+:
+:
+SerializedItemHandle )
+Serialize an image object.
+HALCON 26.05.0.0
+
+
+----- [page 996] -----
+948
+CHAPTER 11 FILE
+serialize_image serializes an image object (see fwrite_serialized_item for an introduction of the
+basic principle of serialization). The image object is deﬁned by the parameter Image. The serialized image object
+is returned by the handle SerializedItemHandle and can be deserialized by deserialize_image.
+Parameters
+▷Image (input_object) . . . . . . (multichannel-)image(-array) ; object : byte / direction / cyclic / int1 / com-
+plex / int2 / uint2 / vector_ﬁeld / int4 / int8 /
+real
+Image object.
+▷SerializedItemHandle (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .serialized_item ; handle
+Handle of the serialized item.
+Result
+If the parameters are valid, the operator serialize_image returns the value 2 (H_MSG_TRUE). If necessary,
+an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+read_image
+Possible Successors
+fwrite_serialized_item, send_serialized_item, deserialize_image
+Module
+Foundation
+write_image ( Image :
+:
+Format,
+FillColor,
+FileName :
+)
+Write images in graphic formats.
+The operator write_image saves the input image Image in the ﬁle FileName in the format Format. If the
+domain (region) cannot be saved in the speciﬁed Format (this is the case for ’bmp’, ’jpeg’, and ’ima’), all pixels
+outside the region receive the color deﬁned by FillColor. For gray value images a value between 0 (black) and
+255 (white) must be passed. For RGB color images the RGB values can be passed directly as a hexadecimal value:
+e.g., 0xffff00 for a yellow background (red=255, green=255, blue=0).
+The following formats are currently supported:
+’tiff’, ’bigtiff’: TIFF format, ﬁle extension *.tif
+All HALCON pixel types are supported. Image object tuples with up to 65535 image objects and up to 65535
+channels can be written. Image objects with channels of mixed pixel types can be written.
+Compression is possible with
+’deﬂate [num]’:
+Adobe deﬂate compression (lossless)
+’jpeg [num]’:
+JPEG (lossy)
+’lzw’
+LZW (lossless)
+’packbits’
+PackBits (lossless)
+Here, ’[num]’ denotes an optional speciﬁcation of a compression parameter. For ’deﬂate’, a number between 0
+(no compression) and 9 (maximum compression) can be speciﬁed. For ’jpeg’, a number between 0 and 100 can
+be speciﬁed. The semantics are identical to the semantics of ’jpeg’ described below. ’jpeg’ can only be used for
+images of type byte and int1 with up to four channels.
+The domain (region) of each image object can be saved in compressed form via ’mask’ (default setting) or as an
+additional alpha channel via ’alpha’. The domain is only stored if it does not comprise the full image. ’jpeg’ and
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 997] -----
+11.2. IMAGES
+949
+’alpha’ cannot be used together because owing to the lossy compression of JPEG the domain of the image cannot
+be reconstructed correctly. The different options can be accumulated by appending them separated by a space
+character.
+Examples:
+’tiff deﬂate 9’:
+Adobe deﬂate compression,
+the domain is stored as a mask image if necessary
+’tiff jpeg 90’:
+JPEG compression with high quality,
+the domain is stored as a mask image if necessary
+’tiff lzw alpha’:
+LZW compression,
+the domain is stored as an alpha channel if necessary
+’tiff’ or ’tiff none’:
+no compression,
+the domain is stored as a mask image if necessary
+Attention: Note that ’bigtiff’ denotes TIFF ﬁles that can be larger than 4 GB, while ’tiff’ denotes TIFF ﬁles that are
+limited to 4 GB. The ﬁle size depends on the image size and the selected compression. Therefore, ’bigtiff’ should
+be selected if there is a possibility that the compressed ﬁle will grow to more than 4 GB.
+’bmp’: Windows-BMP format, ﬁle extension *.bmp
+Restriction:
+• This format can only store images with one channel (gray value image) or three channels (RGB image).
+• Only images with the pixel type byte are supported for this ﬁle format.
+’jpeg’: JPEG format (lossy compression), ﬁle extension *.jpg
+Together with the format string the quality value determining the compression rate can be provided, e.g., ’jpeg 30’.
+Restriction:
+• This format can only store images with one channel (gray value image) or three channels (RGB image).
+• Only images with the pixel type byte are supported for this ﬁle format.
+Attention: Images stored for being processed later should not be stored in this format due to the loss of information
+during compression.
+’jp2’: JPEG-2000 format (lossless and lossy compression), ﬁle extension *.jp2
+The format string can contain additional parameters in the form ’jp2 [rate] [mode] [w,h] r[num]’. All parameters
+except ’jp2’ are optional.
+• ’[rate]’ is the desired compression rate, corresponding to the ratio of the size of the compressed image to
+the uncompressed image in percent. Valid values are in the range [0..100]. Since lossless JPEG-2000 com-
+pression already reduces the ﬁle size signiﬁcantly, only smaller values (typically smaller than 50) inﬂuence
+the ﬁle size. If no value, 0 or 100 is given for the compression rate, the image is written using lossless
+compression.
+• ’[mode]’ selects the type of discrete wavelet transform to use to compress the image. Possible values are
+’int’, which selects a reversible 5/3 transform, and ’real’, which selects an irreversible 9/7 transform. If the
+mode is not provided, ’int’ will be used if the compression is lossless or the image has a reduced domain, and
+’real’ otherwise.
+• ’[w,h]’ sets the tile width and tile height to use when writing the image. If no tile size is provided, the image
+is stored as a single tile. Note that tiling the image into multiple tiles reduces the amount of memory required
+by write_image and read_image.
+• ’r[num]’ sets the number of resolutions to save the image in. The number must be in the range [1..33]. A
+value of 1 saves the image at full resolution only. If no value is given for the number of resolutions to save,
+6 is used by default. write_image will only save as many resolutions as are supported by the selected tile
+size.
+Example:
+HALCON 26.05.0.0
+
+
+----- [page 998] -----
+950
+CHAPTER 11 FILE
+’jp2 40 real 512,512 r6’:
+Compression rate 40%, 9/7 DWT, tile size 512x512, six resolutions
+The image can contain an arbitrary number of channels. Possible types are byte, cyclic, direction, int1, uint2, int2,
+and int4. In the case of int4 it is only possible to store images with less or equal to 24 bits precision (otherwise an
+exception is raised). If the image contains a direction channel, the image will be written with lossless compression
+regardless of the supplied compression parameters. If an image with a reduced domain is written, the region is
+stored as 1-bit alpha channel.
+Restriction: The maximal supported image size (width x height) for JPEG-2000 is 231 −1 also in HALCON-XL.
+Attention: Note that the JPEG-2000 encoding of an image requires a lot of memory. For large images, it is therefore
+recommended to either save the image in multiple tiles or to use a different format (e.g., ’tiff’).
+Attention: Compression parameters apply globally to all channels of the image, including the 1-bit alpha channel
+that is stored if the image has a reduced domain. If you do not want compression artifacts in the alpha channel,
+you must save the domain separately from the image data.
+’jpegxr’: JPEG-XR format (lossless and lossy compression), ﬁle extension *.jxr
+Together with the format string the quality value determining the compression rate can be provided, e.g., ’jpegxr
+30’ (use ’jpegxr 100’ or ’jpegxr’ for lossless encoding). Image object tuples with an arbitrary number of image
+objects can be written. In the case of int4 and real images, the numeric range is compressed to 24 bit accuracy.
+Note that this may induce loss regardless of the quality setting. If an image with a reduced domain is written, the
+region is stored without loss as 1-bit alpha channel. Complex images, vector ﬁelds and regular images with two
+gray value channels are padded with an empty third channel to be compliant with the standard.
+Restriction:
+• This format cannot be written in parallel.
+• Images can have up to 8 channels.
+• All HALCON pixel types except int8 are supported.
+Attention: Note that you need to have write permission in your current working directory in order to save an image
+in JPEG-XR format, regardless of the target directory.
+’png’: PNG format (lossless compression), ﬁle extension *.png
+Together with the format string, a compression level between 0 and 9 can be speciﬁed, where 0 corresponds to
+no compression and 9 to the best possible compression. Alternatively, the compression can be selected with the
+following strings: ’best’, ’fastest’, and ’none’. Hence, examples for correct parameters are ’png’, ’png 7’, and ’png
+none’.
+Images of type byte and uint2 can be stored in PNG ﬁles. If an image with a reduced domain is written, the region
+is stored as the alpha channel, where the points within the domain are stored as the maximum gray value of the
+image type and the points outside the domain are stored as the gray value 0. If an image with a full domain is
+written, no alpha channel is stored.
+Restriction:
+• This format can only store images with one channel (gray value image) or three channels (RGB image).
+• The maximal supported image size (width x height) for PNG is 231 −1 also in HALCON-XL.
+’hobj’: HALCON Iconic Object (HOBJ), ﬁle extension *.hobj
+All types of HALCON images are supported. See write_object for more information about the HOBJ format.
+’ima’: HALCON format, ﬁle extension *.ima and *.exp
+This ﬁle format is now legacy and the HOBJ format should be used instead. The data is written in binary form line
+by line (without header or carriage return). The size of the image and the pixel type are stored in the description
+ﬁle ”FileName.exp”. All HALCON pixel types except ’complex’ and ’vector_ﬁeld’ can be written.
+Restriction: This format can only store images with one channel (gray value image).
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 999] -----
+11.2. IMAGES
+951
+Parameters
+▷Image (input_object) . . . . . . (multichannel-)image(-array) ; object : byte / direction / cyclic / int1 / com-
+plex / int2 / uint2 / vector_ﬁeld / int4 / int8 /
+real
+Input images.
+▷Format (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+Graphic format.
+Default: ’tiff’
+Suggested values: Format ∈{’tiff’, ’tiff mask’, ’tiff alpha’, ’tiff deﬂate 9’, ’tiff deﬂate 9 alpha’, ’tiff jpeg
+90’, ’tiff lzw’, ’tiff lzw alpha ’, ’tiff packbits’, ’bigtiff’, ’bigtiff mask’, ’bigtiff alpha’, ’bigtiff deﬂate 9’,
+’bigtiff deﬂate 9 alpha’, ’bigtiff jpeg 90’, ’bigtiff lzw’, ’bigtiff lzw alpha ’, ’bigtiff packbits’, ’bmp’, ’jpeg’,
+’jpeg 100’, ’jpeg 80’, ’jpeg 60’, ’jpeg 40’, ’jpeg 20’, ’jp2’, ’jp2 50’, ’jp2 40’, ’jp2 30’, ’jp2 20’, ’jpegxr’,
+’jpegxr 50’, ’jpegxr 40’, ’jpegxr 30’, ’jpegxr 20’, ’png’, ’png best’, ’png fastest’, ’png none’, ’ima’, ’hobj’}
+▷FillColor (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . number ; integer / real
+Fill gray value for pixels not belonging to the image domain (region).
+Default: 0
+Suggested values: FillColor ∈{-1, 0, 255, 65280, 16711680}
+▷FileName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ﬁlename.write(-array) ; string
+Name of image ﬁle.
+File extension: .hobj, .ima, .tif, .tiff, .bmp, .jpg, .jpeg, .jp2, .jxr, .png
+Result
+If the parameter values are correct the operator write_image returns the value 2 (H_MSG_TRUE). Otherwise
+an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+read_image
+Module
+Foundation
+write_image_metadata ( :
+:
+Format,
+TagName,
+TagValue,
+FileName :
+)
+Write metadata of image ﬁles.
+The operator write_image_metadata saves the information in TagValue with the tag TagName into the
+ﬁle FileName. In doing so, TagValue and TagName can be single values or tuples of values. The parameter
+Format speciﬁes, in which format the metadata is to be written.
+This operators supports for Format the TIFF metadata formats ’tiff’ and ’bigtiff’. A ﬁle extension .tif is
+expected.
+A list of the supported tag names for TagName and the according data types for TagValue is given in
+read_image_metadata.
+Parameters
+▷Format (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+Graphic format.
+Default: ’tiff’
+Suggested values: Format ∈{’tiff’, ’bigtiff’}
+▷TagName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .tuple ; string
+Name of the tag to be written in the image ﬁle.
+Default: ’tiff_image_description’
+Suggested values: TagName ∈{’tiff_image_description’, ’tiff_make’, ’tiff_software’, ’tiff_date_time’,
+’tiff_copyright’, ’tiff_exposure_time’, ’tiff_aperture_value’, ’tiff_light_source’}
+HALCON 26.05.0.0
+
+
+----- [page 1000] -----
+952
+CHAPTER 11 FILE
+▷TagValue (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . tuple ; string / integer / real
+Value of the tag to be written in the image ﬁle.
+▷FileName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ﬁlename.write ; string
+Name of image ﬁle.
+File extension: .tif, .tiff
+Result
+If TagValue can be correctly written for the speciﬁed parameters the operator write_image_metadata
+returns the value 2 (H_MSG_TRUE). Otherwise an exception is raised. In this case, an extended error information,
+as e.g., the causative tag, may be set and can be queried with the operator get_extended_error_info.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+write_image
+Possible Successors
+read_image_metadata
+Module
+Foundation
+11.3
+Misc
+copy_file ( :
+:
+SourceFile,
+DestinationFile :
+)
+Copy a ﬁle to a new location.
+copy_file copies SourceFile to DestinationFile. Existing ﬁles are silently overwritten. The ﬁle
+attributes of SourceFile are kept.
+Parameters
+▷SourceFile (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ﬁlename.read ; string
+File to be copied.
+▷DestinationFile (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ﬁlename.write ; string
+Target location.
+Result
+copy_file returns the value 2 (H_MSG_TRUE) if the ﬁle could be copied. Otherwise, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Module
+Foundation
+delete_file ( :
+:
+FileName :
+)
+Delete a ﬁle.
+delete_file deletes the ﬁle given by FileName.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 1001] -----
+11.3. MISC
+953
+Parameters
+▷FileName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ﬁlename ; string
+File to be deleted.
+Result
+delete_file returns the value 2 (H_MSG_TRUE) if the ﬁle exists and could be deleted. Otherwise, an exception
+is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Module
+Foundation
+file_exists ( :
+:
+FileName :
+FileExists )
+Check whether ﬁle exists.
+The operator file_exists checks whether the indicated ﬁle already exists. If this is the case, the parameter
+FileExists is set to TRUE, otherwise to FALSE.
+Parameters
+▷FileName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ﬁlename ; string
+Name of ﬁle to be checked.
+Default: ’/bin/cc’
+▷FileExists (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .integer ; integer
+Boolean number.
+Result
+If the parameters are correct the operator file_exists returns the value 2 (H_MSG_TRUE). Otherwise, an
+exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Successors
+open_file
+Alternatives
+open_file
+Module
+Foundation
+get_current_dir ( :
+:
+:
+DirName )
+Get the current working directory.
+get_current_dir returns the current working directory in DirName.
+HALCON 26.05.0.0
+
+
+----- [page 1002] -----
+954
+CHAPTER 11 FILE
+Parameters
+▷DirName (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ﬁlename.dir ; string
+Name of current working directory.
+Result
+get_current_dir returns the value 2 (H_MSG_TRUE) if the current working directory could be determined.
+Otherwise, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Module
+Foundation
+list_files ( :
+:
+Directory,
+Options :
+Files )
+List all ﬁles in a directory.
+list_files returns all ﬁles in the directory given by Directory in the parameters Files. The current
+directory can be speciﬁed with ” or ’.’. The parameter Options can be used to specify different processing
+options by passing a tuple of values.
+If Options contains ’ﬁles’ only the ﬁles present in Directory are returned. If ’directories’ is passed, only the
+directories present in Directory are returned. On Unix-like systems ’symlinks’ may be passed to list symbolic
+links. Directories are marked by a trailing ’\’ (Windows) or a trailing ’/’ (Unix-like systems). If ﬁles as well as
+directories should be returned, [’ﬁles’,’directories’] must be passed. If none of ’ﬁles’, ’directories’ or ’symlinks’ is
+passed, list_files returns an empty tuple.
+By passing ’recursive’, it can be speciﬁed that the directory tree should be searched recursively by examining
+all sub-directories. On Unix-like systems, ’follow_links’ can be used to specify that symbolic links to ﬁles or
+directories should be followed. In the default setting, symbolic links are not dereferenced, and hence are not
+searched if they point to directories, and not returned if they point to ﬁles. The option ’follow_links’ can not be
+used in conjunction with the option ’symlinks’.
+For the recursive search, a maximum search depth can be speciﬁed with ’max_depth <d>’ , where ’<d>’ is a
+number that speciﬁes the maximum depth. Hence, ’max_depth 2’ speciﬁes that Directory and all immediate
+sub-directories should be searched. If symbolic links should be followed it might happen that the search does not
+terminate if the symbolic links lead to a cycle in the directory structure. Because of this, at most 1000000 ﬁles
+(and directories) are returned in Files. By specifying a different number with ’max_ﬁles <d>’, this value can
+be modiﬁed.
+Parameters
+▷Directory (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .ﬁlename.dir ; string
+Name of directory to be listed.
+▷Options (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string(-array) ; string
+Processing options.
+Default: ’ﬁles’
+Suggested values: Options ∈{’ﬁles’, ’directories’, ’symlinks’, ’recursive’, ’follow_links’, ’max_depth 5’,
+’max_ﬁles 1000’}
+▷Files (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string-array ; string
+Found ﬁles (and directories).
+Result
+list_files returns the value 2 (H_MSG_TRUE) if the directory exists and could be read. Otherwise, an excep-
+tion is raised.
+Execution Information
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 1003] -----
+11.3. MISC
+955
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Successors
+tuple_regexp_select
+Module
+Foundation
+make_dir ( :
+:
+DirName :
+)
+Make a directory.
+make_dir creates the directory given by DirName.
+Parameters
+▷DirName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ﬁlename.dir ; string
+Name of directory to be created.
+Result
+make_dir returns the value 2 (H_MSG_TRUE) if the directory could be created. Otherwise, an exception is
+raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Module
+Foundation
+read_world_file ( :
+:
+FileName :
+WorldTransformation )
+Read the geo coding from an ARC/INFO world ﬁle.
+read_world_file reads a geocoding from an ARC/INFO world ﬁle with the ﬁle name FileName
+and returns it as a homogeneous 2D transformation matrix in WorldTransformation.
+To ﬁnd the ﬁle
+FileName, all directories contained in the HALCON system variable ’image_dir’ (usually this is the con-
+tent of the environment variable HALCONIMAGES) are searched (see read_image).
+This transforma-
+tion matrix can be used to transform XLD contours to the world coordinate system before writing them
+with write_contour_xld_arc_info.
+If the matrix WorldTransformation is inverted by calling
+hom_mat2d_invert, the resulting matrix can be used to transform contours that have been read with
+read_contour_xld_arc_info to the image coordinate system.
+Parameters
+▷FileName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .ﬁlename.read ; string
+Name of the ARC/INFO world ﬁle.
+▷WorldTransformation (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .hom_mat2d ; real
+Transformation matrix from image to world coordinates.
+Result
+If the parameters are correct and the world ﬁle could be read, the operator read_world_file returns the value
+2 (H_MSG_TRUE). Otherwise an exception is raised.
+Execution Information
+HALCON 26.05.0.0
+
+
+----- [page 1004] -----
+956
+CHAPTER 11 FILE
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Successors
+hom_mat2d_invert, affine_trans_contour_xld, affine_trans_polygon_xld
+See also
+write_contour_xld_arc_info, read_contour_xld_arc_info,
+write_polygon_xld_arc_info, read_polygon_xld_arc_info
+Module
+Foundation
+remove_dir ( :
+:
+DirName :
+)
+Delete an empty directory.
+remove_dir deletes the empty directory given by DirName.
+Parameters
+▷DirName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ﬁlename.dir ; string
+Name of directory to be deleted.
+Result
+remove_dir returns the value 2 (H_MSG_TRUE) if the directory could be deleted. Otherwise, an exception is
+raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Module
+Foundation
+set_current_dir ( :
+:
+DirName :
+)
+Set the current working directory.
+set_current_dir sets the current working directory to the directory DirName.
+Parameters
+▷DirName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ﬁlename.dir ; string
+Name of current working directory to be set.
+Result
+set_current_dir returns the value 2 (H_MSG_TRUE) if the current working directory could be set. Other-
+wise, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Module
+Foundation
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 1005] -----
+11.4. OBJECT
+957
+11.4
+Object
+deserialize_object ( :
+Object :
+SerializedItemHandle :
+)
+Deserialize a serialized iconic object.
+deserialize_object deserializes an iconic object, that was serialized by serialize_object (see
+fwrite_serialized_item for an introduction of the basic principle of serialization). The serialized iconic
+object is deﬁned by the parameter SerializedItemHandle. The deserialized iconic object is stored in the
+iconic object deﬁned by the parameter Object.
+Parameters
+▷Object (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .object(-array) ; object
+Iconic object.
+▷SerializedItemHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . serialized_item ; handle
+Handle of the serialized item.
+Result
+If the parameters are valid, the operator deserialize_object returns the value 2 (H_MSG_TRUE). If neces-
+sary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+fread_serialized_item, receive_serialized_item, serialize_object
+See also
+serialize_object
+Module
+Foundation
+read_object ( :
+Object :
+FileName :
+)
+Read an iconic object.
+read_object reads an iconic object from the ﬁle FileName. The ﬁle must be written in the HALCON
+Iconic Object format (HOBJ), which is supported by the operators write_object, write_image, and
+write_region. See write_object for more information about the HOBJ format.
+Parameters
+▷Object (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .object(-array) ; object
+Iconic object.
+▷FileName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ﬁlename ; string
+Name of ﬁle.
+File extension: .hobj
+Result
+If the parameters are valid, the operator read_object returns the value 2 (H_MSG_TRUE). If necessary, an
+exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+HALCON 26.05.0.0
+
+
+----- [page 1006] -----
+958
+CHAPTER 11 FILE
+• Processed without parallelization.
+Possible Predecessors
+write_image, write_object
+See also
+write_object, write_image, read_image
+Module
+Foundation
+serialize_object ( Object :
+:
+:
+SerializedItemHandle )
+Serialize an iconic object.
+serialize_object serializes an iconic object (see fwrite_serialized_item for an introduction of
+the basic principle of serialization).
+The iconic object is a tuple of image objects, region objects, or XLD
+objects, and is deﬁned by the parameter Object.
+The serialized iconic object is returned by the handle
+SerializedItemHandle and can be deserialized by deserialize_object.
+Parameters
+▷Object (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .object(-array) ; object
+Iconic object.
+▷SerializedItemHandle (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .serialized_item ; handle
+Handle of the serialized item.
+Result
+If the parameters are valid, the operator serialize_object returns the value 2 (H_MSG_TRUE). If necessary,
+an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Successors
+fwrite_serialized_item, send_serialized_item, deserialize_object
+See also
+deserialize_object
+Module
+Foundation
+write_object ( Object :
+:
+FileName :
+)
+Write an iconic object.
+write_object writes the iconic Object to the ﬁle FileName. The iconic object is a (possibly mixed) tuple
+of images, regions, or XLDs. If no extension is speciﬁed in FileName, the extension ’.hobj’ will be appended.
+The iconic data is written in the HALCON Iconic Object format described below.
+HALCON Iconic Object (HOBJ): HOBJ is a binary ﬁle format, which provides the functionality to write and
+read all kinds of iconic HALCON objects (images, regions, and XLDs). Since data is written with neither
+compression nor conversion, writing this ﬁle format is faster than other supported ﬁle formats in most cir-
+cumstances. Hence, if an application needs to read and write all kinds of iconic HALCON objects as fast
+as possible and no compression is required, this format should be used. The default ﬁle extension for this
+ﬁle format is ’.hobj’. For images, all HALCON pixel types can be written. Multi-channel images are
+supported. The channels can have mixed pixel types but must have the same width and height. The domain
+of an image and it’s creation date are stored in the ﬁle as well. An object tuple is written into a single ﬁle.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 1007] -----
+11.5. REGION
+959
+Parameters
+▷Object (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .object(-array) ; object
+Iconic object.
+▷FileName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ﬁlename ; string
+Name of ﬁle.
+File extension: .hobj
+Result
+If the parameters are valid, the operator write_object returns the value 2 (H_MSG_TRUE). If necessary, an
+exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Successors
+read_object, read_image
+See also
+read_object, write_image, read_image, write_region, read_region
+Module
+Foundation
+11.5
+Region
+deserialize_region ( :
+Region :
+SerializedItemHandle :
+)
+Deserialize a serialized region.
+deserialize_region
+deserializes
+a
+region,
+that
+was
+serialized
+by
+serialize_region
+(see
+fwrite_serialized_item for an introduction of the basic principle of serialization). The serialized re-
+gion is deﬁned by the parameter SerializedItemHandle. The deserialized region is stored in the region
+deﬁned by the parameter Region.
+Parameters
+▷Region (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Region.
+▷SerializedItemHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . serialized_item ; handle
+Handle of the serialized item.
+Result
+If the parameters are valid, the operator deserialize_region returns the value 2 (H_MSG_TRUE). If neces-
+sary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+read_image, fread_serialized_item, receive_serialized_item, serialize_region
+Possible Successors
+reduce_domain, disp_region
+See also
+serialize_region
+HALCON 26.05.0.0
+
+
+----- [page 1008] -----
+960
+CHAPTER 11 FILE
+Module
+Foundation
+read_region ( :
+Region :
+FileName :
+)
+Read binary images or HALCON regions.
+The operator read_region reads regions from a binary ﬁle.
+The following formats are currently supported:
+HALCON Iconic Object (HOBJ): File format for iconic HALCON objects. The HOBJ ﬁle must contain only
+regions to be readable by read_region. If other objects (e.g., images or XLDs) are stored in the ﬁle, an
+exception is raised. In this case read_object can be used to read the corresponding HOBJ ﬁle. The HOBJ
+format is the default ﬁle format for regions. Therefore, the extension ’.hobj’ does not have to be speciﬁed
+when reading or writing the ﬁle. See write_object for more information about the HOBJ format.
+HALCON regions: File format for HALCON regions. This ﬁle format supports multiple regions in a single ﬁle.
+The ﬁle extension is ’.reg’. This format is now legacy and the HOBJ format should be used instead.
+Tiff: Binary Tiff images with extension ’.tiff’ or ’.tif’. A tiff image can contain any number of regions.
+The color white is used as foreground.
+PNG: Binary PNG images with extension ’.png’. The result is always one region. The color white is used as
+foreground.
+BMP: Binary Windows bitmap images with extension ’.bmp’. The result is always one region. The color white
+is used as foreground.
+A search path (’image_dir’) can be deﬁned analogous to the operator read_image.
+Attention
+The
+clipping
+based
+on
+the
+current
+image
+format
+is
+set
+via
+the
+operator
+set_system(’clip_region’,<’true’/’false’>).
+Consequently, if no image of sufﬁcient size
+has been created before the call to read_region, set_system(’clip_region’,’false’) should be
+called before calling read_region to ensure that the region is not being clipped.
+Parameters
+▷Region (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Read region.
+▷FileName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .ﬁlename.read ; string
+Name of the region to be read.
+File extension: .hobj, .reg, .tif, .tiff, .png, .bmp
+Example
+* Reading of regions and giving them gray values.
+read_image(Img,'ima_test')
+read_region(Regs,'reg_test')
+reduce_domain(Img,Regs,Res)
+Result
+If the parameter values are correct the operator read_region returns the value 2 (H_MSG_TRUE). Otherwise
+an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 1009] -----
+11.5. REGION
+961
+Possible Predecessors
+read_image
+Possible Successors
+reduce_domain, disp_region
+See also
+write_region, read_image, write_object
+Module
+Foundation
+serialize_region ( Region :
+:
+:
+SerializedItemHandle )
+Serialize a region.
+serialize_region serializes a region (see fwrite_serialized_item for an introduction of the basic
+principle of serialization). The region is deﬁned by the parameter Region. The serialized region is returned by
+the handle SerializedItemHandle and can be deserialized by deserialize_region.
+Parameters
+▷Region (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Region.
+▷SerializedItemHandle (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .serialized_item ; handle
+Handle of the serialized item.
+Result
+If the parameters are valid, the operator serialize_region returns the value 2 (H_MSG_TRUE). If necessary,
+an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+read_image, read_region, threshold, regiongrowing
+Possible Successors
+fwrite_serialized_item, send_serialized_item, deserialize_region
+See also
+deserialize_region
+Module
+Foundation
+write_region ( Region :
+:
+FileName :
+)
+Write regions to a ﬁle.
+The operator write_region writes the regions in Region into a binary ﬁle. The regions can be written in the
+HALCON Iconic Object format (HOBJ), as TIFF ﬁles or as HALCON region ﬁles. The format is selected via the
+ﬁle name extension of FileName. If no extension is speciﬁed or if the ﬁle extension is ’.hobj’, the regions are
+stored in the HOBJ format. If no extension is speciﬁed in FileName, the extension ’.hobj’ will be appended.
+See write_object for more information about the HOBJ format. If the extension ’.tif’ or ’.tiff’ is
+speciﬁed, the regions are stored as TIFF ﬁles. If the extension ’.reg’ is speciﬁed, the regions are stored as a
+HALCON region ﬁle. The HALCON region ﬁle format is now legacy and the ﬁle format HOBJ should be used
+instead unless the ﬁles must be readable with HALCON versions older than 12.0. Iconic object tuples with an
+arbitrary number of regions can be written. The output data can be read via the operator read_region.
+HALCON 26.05.0.0
+
+
+----- [page 1010] -----
+962
+CHAPTER 11 FILE
+Parameters
+▷Region (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . region(-array) ; object
+Region of the images which are returned.
+▷FileName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ﬁlename.write ; string
+Name of region ﬁle.
+Default: ’region.hobj’
+File extension: .hobj, .reg, .tif, .tiff
+Example
+regiongrowing(Img,Segments,3,3,5,10)
+write_region(Segments,'result1')
+Result
+If the parameter values are correct the operator write_region returns the value 2 (H_MSG_TRUE). Otherwise
+an exception handling is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+read_image, read_region, read_object, threshold, regiongrowing
+See also
+read_region
+Module
+Foundation
+11.6
+Tuple
+deserialize_handle ( :
+:
+SerializedItem :
+Handle )
+Deserialize a serialized item.
+deserialize_handle deserializes the content of SerializedItem and returns the deserialized item in
+Handle (see fwrite_serialized_item for an introduction of the basic principle of serialization).
+The serialized item must have been created by serialize_handle, or by the type speciﬁc serialization opera-
+tors, such as serialize_matrix or serialize_shape_model.
+Parameters
+▷SerializedItem (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . serialized_item ; handle
+Handle containing the serialized item to be deserialized.
+▷Handle (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .handle ; handle
+Handle containing the deserialized item.
+Example
+create_matrix (3, 3, 0, MatrixID)
+serialize_handle (MatrixID, SerializedMatrix)
+deserialize_handle (SerializedMatrix, MatrixID2)
+Result
+If the parameters are valid, the operator deserialize_handle returns the value 2 (H_MSG_TRUE). Other-
+wise, an exception is raised.
+Execution Information
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 1011] -----
+11.6. TUPLE
+963
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+serialize_handle, fread_serialized_item, receive_serialized_item
+Module
+Foundation
+deserialize_tuple ( :
+:
+SerializedItemHandle :
+Tuple )
+Deserialize a serialized tuple.
+deserialize_tuple deserializes the data of a tuple, that was serialized by serialize_tuple (see
+fwrite_serialized_item for an introduction of the basic principle of serialization). The serialized data
+of the tuple is deﬁned by the handle SerializedItemHandle. The deserialized values are stored in an auto-
+matically created tuple with the handle Tuple.
+Parameters
+▷SerializedItemHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . serialized_item ; handle
+Handle of the serialized item.
+▷Tuple (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . tuple(-array) ; real / integer / string / handle
+Tuple.
+Result
+If the parameters are valid, the operator deserialize_tuple returns the value 2 (H_MSG_TRUE). If neces-
+sary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+fread_serialized_item, receive_serialized_item, serialize_tuple
+Module
+Foundation
+read_tuple ( :
+:
+FileName :
+Tuple )
+Read a tuple from a ﬁle.
+The operator read_tuple reads the contents of FileName and converts it into Tuple. The default HALCON
+ﬁle extension for the tuple is ’tup’. The ﬁle has to be generated by write_tuple.
+Parameters
+▷FileName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .ﬁlename.read ; string
+Name of the ﬁle to be read.
+File extension: .tup
+▷Tuple (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . tuple(-array) ; real / integer / string
+Tuple with any kind of data.
+Result
+If the parameters are correct the operator read_tuple returns the value 2 (H_MSG_TRUE). Otherwise an ex-
+ception is raised.
+Execution Information
+HALCON 26.05.0.0
+
+
+----- [page 1012] -----
+964
+CHAPTER 11 FILE
+• Multithreading type: independent (runs in parallel even with exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Alternatives
+fwrite_string
+See also
+write_tuple, write_image, write_region, open_file
+Module
+Foundation
+serialize_handle ( :
+:
+Handle :
+SerializedItem )
+Serialize the content of a handle.
+serialize_handle serializes the content of Handle and returns the serialized item in SerializedItem
+(see fwrite_serialized_item for an introduction of the basic principle of serialization). The serialized
+item can later be deserialized with deserialize_handle.
+Note that not all handle types support serialization.
+To check if a handle can be serializes,
+use
+tuple_is_serializable or tuple_is_serializable_elem. Handles that have already been cleared
+cannot be serialized.
+Also note that the serialized item created by this operator is compatible with the type speciﬁc deserialization
+operators, such as deserialize_matrix or deserialize_shape_model.
+Parameters
+▷Handle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .handle ; handle
+Handle that should be serialized.
+▷SerializedItem (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . serialized_item ; handle
+Handle containing the serialized item.
+Example
+create_matrix (3, 3, 0, MatrixID)
+serialize_handle (MatrixID, SerializedMatrix)
+deserialize_handle (SerializedMatrix, MatrixID2)
+Result
+If the parameters are valid, the operator serialize_handle returns the value 2 (H_MSG_TRUE). Otherwise,
+an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+tuple_is_serializable, tuple_is_serializable_elem
+Possible Successors
+deserialize_handle, fwrite_serialized_item, send_serialized_item
+Module
+Foundation
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 1013] -----
+11.6. TUPLE
+965
+serialize_tuple ( :
+:
+Tuple :
+SerializedItemHandle )
+Serialize a tuple.
+serialize_tuple serializes the data of a tuple (see fwrite_serialized_item for an introduction of
+the basic principle of serialization). The same data that is written in a ﬁle by write_tuple is converted to a
+serialized item. The tuple is deﬁned by the handle Tuple. The serialized data of a tuple is returned by the handle
+SerializedItemHandle and can be deserialized by deserialize_tuple.
+Note that not all handle types can be serialized.
+If Tuple contains a handle that can not be serialized
+or that has been freed already, an exception is raised.
+The operators tuple_is_serializable and
+tuple_is_serializable_elem can be used to ﬁnd out if a tuple or its elements can be serialized.
+Parameters
+▷Tuple (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . tuple(-array) ; real / integer / string / handle
+Tuple.
+▷SerializedItemHandle (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .serialized_item ; handle
+Handle of the serialized item.
+Result
+If the parameters are valid, the operator serialize_tuple returns the value 2 (H_MSG_TRUE). If necessary,
+an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Successors
+fwrite_serialized_item, send_serialized_item, deserialize_tuple
+Module
+Foundation
+tuple_is_serializable ( :
+:
+Tuple :
+IsSerializable )
+Test if a tuple is serializable.
+tuple_is_serializable checks if Tuple can be serialized with serialize_tuple. If yes, 1 is returned
+in IsSerializable. Otherwise, 0 is returned.
+A tuple can be serialized if it contains only integers, strings, reals, and serializable handles.
+Han-
+dles that are already freed cannot be serialized.
+To check all elements of a tuple individually, use
+tuple_is_serializable_elem.
+Parameters
+▷Tuple (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . tuple(-array) ; handle / integer / real / string
+Tuple to check for serializability.
+▷IsSerializable (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .number ; integer
+Boolean value indicating if the input can be serialized.
+Result
+If the parameters are valid, the operator tuple_is_serializable returns the value 2 (H_MSG_TRUE).
+Execution Information
+• Multithreading type: independent (runs in parallel even with exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+HALCON 26.05.0.0
+
+
+----- [page 1014] -----
+966
+CHAPTER 11 FILE
+Possible Successors
+serialize_tuple, write_tuple
+Alternatives
+tuple_is_serializable_elem
+See also
+tuple_is_serializable_elem, serialize_tuple, serialize_handle,
+deserialize_tuple, deserialize_handle, write_tuple
+Module
+Foundation
+tuple_is_serializable_elem ( :
+:
+Tuple :
+IsSerializableElem )
+Test if the elements of a tuple are serializable.
+tuple_is_serializable checks if the elements of Tuple can be serialized with serialize_tuple.
+The output IsSerializableElem has the same length as the input Tuple and contains at each position either
+0 if the corresponding entry in Tuple cannot be serialized, or 1 if it can.
+A tuple element can be serialized if it is an integer, a string, a real value or a serializable handle.
+Han-
+dles that are already freed cannot be serialized.
+To check the complete tuple for serializability, use
+tuple_is_serializable.
+Parameters
+▷Tuple (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . tuple(-array) ; handle / integer / real / string
+Tuple to check for serializability.
+▷IsSerializableElem (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . number(-array) ; integer
+Boolean value indicating if the input elements can be serialized.
+Example
+* Serialize all serializable elements of a tuple
+tuple_is_serializable_elem (Tuple, IsSerializableElem)
+if (sum(IsSerializableElem[=]0)>0)
+Tuple[find(IsSerializableElem,0)] := HNULL
+endif
+serialize_tuple (Tuple, SerializedItem)
+Result
+If the parameters are valid, the operator tuple_is_serializable returns the value 2 (H_MSG_TRUE).
+Execution Information
+• Multithreading type: independent (runs in parallel even with exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Successors
+serialize_tuple, write_tuple
+Alternatives
+tuple_is_serializable
+See also
+tuple_is_serializable, serialize_tuple, serialize_handle, deserialize_tuple,
+deserialize_handle, write_tuple
+Module
+Foundation
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 1015] -----
+11.7. XLD
+967
+write_tuple ( :
+:
+Tuple,
+FileName :
+)
+Write a tuple to a ﬁle.
+The operator write_tuple writes the contents of Tuple to a ﬁle. The data is written in an ASCII format.
+Therefore, the ﬁle can be exchanged between different architectures (see also Tuple / String Operations). The
+default HALCON ﬁle extension for the tuple is ’tup’.
+Exception: Handles
+Note that write_tuple does not support handles, since binary data is not supported by the underlying ASCII
+format. Any handle contained in Tuple is replaced by the integer 0. To write a tuple that contains handles, use
+serialize_tuple and fwrite_serialized_item.
+Parameters
+▷Tuple (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . tuple(-array) ; real / integer / string
+Tuple with any kind of data.
+▷FileName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ﬁlename.write ; string
+Name of the ﬁle to be written.
+File extension: .tup
+Result
+If the parameters are correct the operator write_tuple returns the value 2 (H_MSG_TRUE). Otherwise an
+exception is raised.
+Execution Information
+• Multithreading type: independent (runs in parallel even with exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Alternatives
+fwrite_string
+See also
+read_tuple, write_image, write_region, open_file
+Module
+Foundation
+11.7
+XLD
+deserialize_xld ( :
+XLD : SerializedItemHandle :
+)
+Deserialize a serialized XLD object.
+deserialize_xld
+deserializes
+an
+XLD
+object,
+that
+was
+serialized
+by
+serialize_xld
+(see
+fwrite_serialized_item for an introduction of the basic principle of serialization). The serialized XLD
+object is deﬁned by the parameter SerializedItemHandle. The deserialized XLD object is stored in the
+XLD object deﬁned by the parameter XLD.
+Parameters
+▷XLD (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . xld(-array) ; object
+XLD object.
+▷SerializedItemHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . serialized_item ; handle
+Handle of the serialized item.
+Result
+If the parameters are valid, the operator deserialize_xld returns the value 2 (H_MSG_TRUE). If necessary,
+an exception is raised.
+Execution Information
+HALCON 26.05.0.0
+
+
+----- [page 1016] -----
+968
+CHAPTER 11 FILE
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+read_image, fread_serialized_item, receive_serialized_item, serialize_xld
+Possible Successors
+clip_contours_xld, split_contours_xld
+See also
+serialize_xld
+Module
+Foundation
+read_contour_xld_arc_info ( :
+Contours :
+FileName :
+)
+Read XLD contours to a ﬁle in ARC/INFO generate format.
+read_contour_xld_arc_info reads the lines stored in ARC/INFO generate format in the ﬁle FileName,
+and returns them as XLD contours in Contours. To ﬁnd the ﬁle FileName, all directories contained in the
+HALCON system variable ’image_dir’ (usually this is the content of the environment variable HALCONIMAGES)
+are searched (see read_image). The returned contours are in world coordinates. They can be transformed to
+the image coordinate system with the operator affine_trans_contour_xld. The necessary transformation
+matrix can be generated by using read_world_file to read the transformation matrix from image to world
+coordinates, and inverting this matrix by calling hom_mat2d_invert.
+Parameters
+▷Contours (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . xld_cont(-array) ; object
+Read XLD contours.
+▷FileName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .ﬁlename.read ; string
+Name of the ARC/INFO ﬁle.
+Example
+* Read the transformation and invert it
+read_world_file ('image.tfw', WorldTransformation)
+hom_mat2d_invert (WorldTransformation, ImageTransformation)
+* Read the image
+read_image (Image, 'image.tif')
+* Read the line data
+read_contour_xld_arc_info (LinesWorld, 'lines.gen')
+* Transform the line data to image coordinates
+affine_trans_contour_xld (LinesWorld, Lines, ImageTransformation)
+Result
+If the parameters are correct and the ﬁle could be read, the operator read_contour_xld_arc_info returns
+the value 2 (H_MSG_TRUE). Otherwise an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Successors
+hom_mat2d_invert, affine_trans_contour_xld
+See also
+read_world_file, write_contour_xld_arc_info, read_polygon_xld_arc_info
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 1017] -----
+11.7. XLD
+969
+Module
+Foundation
+read_contour_xld_dxf ( :
+Contours :
+FileName,
+GenParamName,
+GenParamValue :
+DxfStatus )
+Read XLD contours from a DXF ﬁle.
+read_contour_xld_dxf reads the contents of the DXF ﬁle FileName (DXF version AC1009, AutoCAD
+Release 12) and converts them to the XLD contours Contours. If no absolute path is given in FileName the
+DXF ﬁle is searched in the current directory of the HALCON process.
+The output parameter DxfStatus contains information about the number of contours that were read and, if
+necessary, warnings that parts of the DXF ﬁle could not be interpreted.
+The operator read_contour_xld_dxf supports the following DXF entities:
+• POLYLINE
+– 2D curves made up of line segments
+– Closed 2D curves made up of line segments
+• LWPOLYLINE
+• LINE
+• POINT
+• CIRCLE
+• ARC
+• ELLIPSE
+• SPLINE
+• BLOCK
+• INSERT
+The x and y coordinates of the DXF entities are stored in the column and row coordinates, respectively, of the XLD
+contours Contours. The z coordinates of the DXF entities are ignored.
+If the ﬁle has been created with the operator write_contour_xld_dxf, all attributes and global attributes that
+were originally deﬁned for the XLD contours are read. This means that read_contour_xld_dxf supports all
+the extended data written by the operator write_contour_xld_dxf. The reading of these attributes can be
+switched off by setting the generic parameter ’read_attributes’ to ’false’. Generic parameters are set by specifying
+the parameter name(s) in GenParamName and the corresponding value(s) in GenParamValue.
+DXF entities of the type CIRCLE, ARC, ELLIPSE, and SPLINE are approximated by XLD contours.
+The
+accuracy of this approximation can be controlled with the two generic parameters ’min_num_points’ and
+’max_approx_error’. The parameter ’min_num_points’ deﬁnes the minimum number of sampling points that are
+used for the approximation. Note that the parameter ’min_num_points’ always refers to the full circle or ellipse,
+respectively, even for ARCs or elliptical arcs, i.e., if ’min_num_points’ is set to 50 and a DXF entity of the type
+ARC is read that represents a semi-circle, this semi-circle is approximated by at least 25 sampling points. The
+parameter ’max_approx_error’ deﬁnes the maximum deviation of the XLD contour from the ideal circle or ellipse,
+respectively (unit: pixel). For the determination of the accuracy of the approximation both criteria are evaluated.
+Then, the criterion that leads to the more accurate approximation is used.
+Internally, the following default values are used for the generic parameters:
+• ’read_attributes’ = ’true’
+• ’min_num_points’ = 20
+• ’max_approx_error’ = 0.25
+To achieve a more accurate approximation, either the value for ’min_num_points’ must be increased or the value
+for ’max_approx_error’ must be decreased.
+HALCON 26.05.0.0
+
+
+----- [page 1018] -----
+970
+CHAPTER 11 FILE
+Parameters
+▷Contours (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . xld_cont(-array) ; object
+Read XLD contours.
+▷FileName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .ﬁlename.read ; string
+Name of the DXF ﬁle.
+File extension: .dxf
+▷GenParamName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .attribute.name(-array) ; string
+Names of the generic parameters that can be adjusted for the DXF input.
+Default: []
+List of values: GenParamName ∈{’read_attributes’, ’min_num_points’, ’max_approx_error’}
+▷GenParamValue (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . attribute.value(-array) ; real / integer / string
+Values of the generic parameters that can be adjusted for the DXF input.
+Default: []
+Suggested values: GenParamValue ∈{’true’, ’false’, 0.1, 0.25, 0.5, 1, 2, 5, 10, 20}
+▷DxfStatus (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string(-array) ; string
+Status information.
+Result
+If the parameters are correct and the ﬁle could be read the operator read_contour_xld_dxf returns the value
+2 (H_MSG_TRUE). Otherwise, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+write_contour_xld_dxf
+See also
+write_contour_xld_dxf, read_polygon_xld_dxf, query_contour_attribs_xld,
+query_contour_global_attribs_xld, get_contour_attrib_xld,
+get_contour_global_attrib_xld
+Module
+Foundation
+read_polygon_xld_arc_info ( :
+Polygons :
+FileName :
+)
+Read XLD polygons from a ﬁle in ARC/INFO generate format.
+read_polygon_xld_arc_info reads the lines stored in ARC/INFO generate format in the ﬁle FileName,
+and returns them as XLD polygons in Polygons. To ﬁnd the ﬁle FileName, all directories contained in the
+HALCON system variable ’image_dir’ (usually this is the content of the environment variable HALCONIMAGES)
+are searched (see read_image). The returned polygons are in world coordinates. They can be transformed to
+the image coordinate system with the operator affine_trans_polygon_xld. The necessary transformation
+matrix can be generated by using read_world_file to read the transformation matrix from image to world
+coordinates, and inverting this matrix by calling hom_mat2d_invert.
+Parameters
+▷Polygons (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . xld_poly(-array) ; object
+Read XLD polygons.
+▷FileName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .ﬁlename.read ; string
+Name of the ARC/INFO ﬁle.
+Example
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 1019] -----
+11.7. XLD
+971
+* Read the transformation and invert it
+read_world_file ('image.tfw', WorldTransformation)
+hom_mat2d_invert (WorldTransformation, ImageTransformation)
+* Read the image
+read_image (Image, 'image.tif')
+* Read the line data
+read_polygon_xld_arc_info (LinesWorld, 'lines.gen')
+* Transform the line data to image coordinates
+affine_trans_polygon_xld (LinesWorld, Lines, ImageTransformation)
+Result
+If the parameters are correct and the ﬁle could be read, the operator read_polygon_xld_arc_info returns
+the value 2 (H_MSG_TRUE). Otherwise an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Successors
+hom_mat2d_invert, affine_trans_polygon_xld
+See also
+read_world_file, write_polygon_xld_arc_info, read_contour_xld_arc_info
+Module
+Foundation
+read_polygon_xld_dxf ( :
+Polygons :
+FileName,
+GenParamName,
+GenParamValue :
+DxfStatus )
+Read XLD polygons from a DXF ﬁle.
+read_polygon_xld_dxf reads the contents of the DXF ﬁle FileName (DXF version AC1009, AutoCAD
+Release 12) and converts them to the XLD polygons Polygons. If no absolute path is given in FileName the
+DXF ﬁle is searched in the current directory of the HALCON process.
+The output parameter DxfStatus contains information about the number of polygons that were read and, if
+necessary, warnings that parts of the DXF ﬁle could not be interpreted.
+The operator read_polygon_xld_dxf supports the following DXF entities:
+• POLYLINE
+– 2D curves made up of line segments
+– Closed 2D curves made up of line segments
+• LWPOLYLINE
+• LINE
+• POINT
+• CIRCLE
+• ARC
+• ELLIPSE
+• SPLINE
+• BLOCK
+• INSERT
+HALCON 26.05.0.0
+
+
+----- [page 1020] -----
+972
+CHAPTER 11 FILE
+The x and y coordinates of the DXF entities are stored in the column and row coordinates, respectively, of the XLD
+polygons Polygons. The z coordinates of the DXF entities are ignored.
+DXF entities of the type CIRCLE, ARC, ELLIPSE, and SPLINE are approximated by XLD polygons. The
+accuracy of this approximation can be controlled with the two generic parameters ’min_num_points’ and
+’max_approx_error’ (for SPLINE only ’max_approx_error’). Generic parameters are set by specifying the pa-
+rameter name(s) in GenParamName and the corresponding value(s) in GenParamValue.
+The parameter
+’min_num_points’ deﬁnes the minimum number of sampling points that are used for the approximation. Note
+that the parameter ’min_num_points’ always refers to the full circle or ellipse, respectively, even for ARCs or
+elliptical arcs, i.e., if ’min_num_points’ is set to 50 and a DXF entity of the type ARC is read that represents a
+semi-circle, this semi-circle is approximated by at least 25 sampling points. The parameter ’max_approx_error’
+deﬁnes the maximum deviation of the XLD polygon from the ideal circle or ellipse, respectively (unit: pixel). For
+the determination of the accuracy of the approximation both criteria are evaluated. Then, the criterion that leads to
+the more accurate approximation is used.
+Internally, the following default values are used for the generic parameters:
+• ’min_num_points’ = 20
+• ’max_approx_error’ = 0.25
+To achieve a more accurate approximation, either the value for ’min_num_points’ must be increased or the value
+for ’max_approx_error’ must be decreased.
+Note that reading a DXF ﬁle with read_polygon_xld_dxf results in exactly the same geometric information
+as reading the ﬁle with read_contour_xld_dxf. However, the resulting data structure is different.
+Parameters
+▷Polygons (output_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . xld_poly(-array) ; object
+Read XLD polygons.
+▷FileName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .ﬁlename.read ; string
+Name of the DXF ﬁle.
+File extension: .dxf
+▷GenParamName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .attribute.name(-array) ; string
+Names of the generic parameters that can be adjusted for the DXF input.
+Default: []
+List of values: GenParamName ∈{’min_num_points’, ’max_approx_error’}
+▷GenParamValue (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . attribute.value(-array) ; real / integer / string
+Values of the generic parameters that can be adjusted for the DXF input.
+Default: []
+Suggested values: GenParamValue ∈{0.1, 0.25, 0.5, 1, 2, 5, 10, 20}
+▷DxfStatus (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string(-array) ; string
+Status information.
+Result
+If the parameters are correct and the ﬁle could be read the operator read_polygon_xld_dxf returns the value
+2 (H_MSG_TRUE). Otherwise, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+write_polygon_xld_dxf
+See also
+write_polygon_xld_dxf, read_contour_xld_dxf
+Module
+Foundation
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 1021] -----
+11.7. XLD
+973
+serialize_xld ( XLD : :
+:
+SerializedItemHandle )
+Serialize an XLD object.
+serialize_xld serializes an XLD object (see fwrite_serialized_item for an introduction of the basic
+principle of serialization). The XLD object is deﬁned by the parameter XLD. The serialized XLD object is returned
+by the handle SerializedItemHandle and can be deserialized by deserialize_xld.
+Parameters
+▷XLD (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . xld(-array) ; object
+XLD object.
+▷SerializedItemHandle (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .serialized_item ; handle
+Handle of the serialized item.
+Result
+If the parameters are valid, the operator serialize_xld returns the value 2 (H_MSG_TRUE). If necessary, an
+exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+gen_contour_polygon_xld, gen_parallels_xld, gen_polygons_xld
+Possible Successors
+fwrite_serialized_item, send_serialized_item, deserialize_xld
+See also
+deserialize_xld
+Module
+Foundation
+write_contour_xld_arc_info ( Contours :
+:
+FileName :
+)
+Write XLD contours to a ﬁle in ARC/INFO generate format.
+write_contour_xld_arc_info writes the XLD contours Contours to an ARC/INFO generate format
+ﬁle with name FileName. If no absolute path is given in FileName, the output ﬁle is created in the current
+directory of the HALCON process. The contours must have been transformed to the world coordinate system with
+affine_trans_contour_xld beforehand. The necessary transformation can be read from an ARC/INFO
+world ﬁle with read_world_file.
+Parameters
+▷Contours (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .xld_cont(-array) ; object
+XLD contours to be written.
+▷FileName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ﬁlename.write ; string
+Name of the ARC/INFO ﬁle.
+Example
+* Read transformation and image
+read_world_file ('image.tfw', WorldTransformation)
+read_image (Image, 'image.tif')
+* Segment image
+* ...
+* Write result
+affine_trans_contour_xld (Contours, ContoursWorld, WorldTransformation)
+write_contour_xld_arc_info (ContoursWorld, 'result.gen')
+HALCON 26.05.0.0
+
+
+----- [page 1022] -----
+974
+CHAPTER 11 FILE
+Result
+If the parameters are correct and the ﬁle could be written, the operator write_contour_xld_arc_info
+returns the value 2 (H_MSG_TRUE). Otherwise an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+affine_trans_contour_xld
+See also
+read_world_file, read_contour_xld_arc_info, write_polygon_xld_arc_info
+Module
+Foundation
+write_contour_xld_dxf ( Contours :
+:
+FileName :
+)
+Write XLD contours to a ﬁle in DXF format.
+write_contour_xld_dxf writes the XLD contours Contours to the ﬁle FileName in DXF format. If no
+absolute path is given in FileName the output ﬁle is created in the current directory of the HALCON process.
+Besides the geometry of the Contours, all attributes and global attributes that are deﬁned for the Contours are
+written to the ﬁle.
+write_contour_xld_dxf writes the ﬁle according to the DXF version AC1009 (AutoCAD Release 12).
+Each contour is stored as a POLYLINE. The attribute values are stored as extended data of each VERTEX of the
+POLYLINE. The global attribute values are stored as extended data of the POLYLINE. All attribute names are also
+stored as extended data of the POLYLINE.
+The operator read_contour_xld_dxf can be used to read the XLD contours together with their attributes.
+Other applications that are able to read DXF ﬁles only import the contour geometry, but they ignore the attribute
+information.
+Description of the format of the extended data
+Each block of extended data starts with the following DXF group:
+1001 HALCON
+The attributes are written in the following format as extended data of each VERTEX:
+DXF
+Explanation
+1000
+Meaning
+contour attributes
+1002
+Beginning of the value list
+{
+1070
+Number of attributes (here: 3)
+3
+1040
+Value of the ﬁrst attribute
+5.00434303
+1040
+Value of the second attribute
+126.8638916
+1040
+Value of the third attribute
+4.99164152
+1002
+End of the value list
+}
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 1023] -----
+11.7. XLD
+975
+The global attributes are written in the following format as extended data of each POLYLINE:
+DXF
+Explanation
+1000
+Meaning
+global contour attributes
+1002
+Beginning of the value list
+{
+1070
+Number of global attributes (here: 5)
+5
+1040
+Value of the ﬁrst global attribute
+0.77951831
+1040
+Value of the second global attribute
+0.62637949
+1040
+Value of the third global attribute
+103.94314575
+1040
+Value of the fourth global attribute
+0.21434096
+1040
+Value of the ﬁfth global attribute
+0.21921949
+1002
+End of the value list
+}
+The names of the attributes are written in the following format as extended data of each POLYLINE:
+DXF
+Explanation
+1000
+Meaning
+names of contour attributes
+1002
+Beginning of the value list
+{
+1070
+Number of attribute names (here: 3)
+3
+1000
+Name of the ﬁrst attribute
+angle
+1000
+Name of the second attribute
+response
+1000
+Name of the third attribute
+edge_direction
+1002
+End of the value list
+}
+The names of the global attributes are written in the following format as extended data of each POLYLINE:
+HALCON 26.05.0.0
+
+
+----- [page 1024] -----
+976
+CHAPTER 11 FILE
+DXF
+Explanation
+1000
+Meaning
+names of global contour attributes
+1002
+Beginning of the value list
+{
+1070
+Number of global attribute names (here: 5)
+5
+1000
+Name of the ﬁrst global attribute
+regr_norm_row
+1000
+Name of the second global attribute
+regr_norm_col
+1000
+Name of the third global attribute
+regr_dist
+1000
+Name of the fourth global attribute
+regr_mean_dist
+1000
+Name of the ﬁfth global attribute
+regr_dev_dist
+1002
+End of the value list
+}
+Parameters
+▷Contours (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .xld_cont(-array) ; object
+XLD contours to be written.
+▷FileName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ﬁlename.write ; string
+Name of the DXF ﬁle.
+File extension: .dxf
+Result
+If the parameters are correct and the ﬁle could be written the operator write_contour_xld_dxf returns the
+value 2 (H_MSG_TRUE). Otherwise, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+edges_sub_pix
+See also
+read_contour_xld_dxf, write_polygon_xld_dxf, query_contour_attribs_xld,
+query_contour_global_attribs_xld, get_contour_attrib_xld,
+get_contour_global_attrib_xld
+Module
+Foundation
+write_polygon_xld_arc_info ( Polygons :
+:
+FileName :
+)
+Write XLD polygons to a ﬁle in ARC/INFO generate format.
+write_polygon_xld_arc_info writes the XLD polygons Polygons to an ARC/INFO generate format
+ﬁle with name FileName. If no absolute path is given in FileName, the output ﬁle is created in the current
+directory of the HALCON process. The polygons must have been transformed to the world coordinate system with
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 1025] -----
+11.7. XLD
+977
+affine_trans_polygon_xld beforehand. The necessary transformation can be read from an ARC/INFO
+world ﬁle with read_world_file.
+Attention
+The XLD contours that are possibly referenced by Polygons are not stored in the ARC/INFO ﬁle, since this
+is not possible with the ARC/INFO generate ﬁle format. Therefore, when the polygons are read again using
+read_polygon_xld_arc_info, this information is lost, and no references to contours are generated for the
+polygons. Hence, operators that access the contours associated with a polygon, e.g., split_contours_xld
+will not work correctly.
+Parameters
+▷Polygons (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . xld_poly(-array) ; object
+XLD polygons to be written.
+▷FileName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ﬁlename.write ; string
+Name of the ARC/INFO ﬁle.
+Example
+* Read transformation and image
+read_world_file ('image.tfw', WorldTransformation)
+read_image (Image, 'image.tif')
+* Segment image
+* ...
+* Write result
+affine_trans_polygon_xld (Polygons, PolygonsWorld, WorldTransformation)
+write_polygon_xld_arc_info (PolygonsWorld, 'result.gen')
+Result
+If the parameters are correct and the ﬁle could be written, the operator write_polygon_xld_arc_info
+returns the value 2 (H_MSG_TRUE). Otherwise an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+affine_trans_polygon_xld
+See also
+read_world_file, read_polygon_xld_arc_info, write_contour_xld_arc_info
+Module
+Foundation
+write_polygon_xld_dxf ( Polygons :
+:
+FileName :
+)
+Write XLD polygons to a ﬁle in DXF format.
+write_polygon_xld_dxf writes the XLD polygons Polygons to the ﬁle FileName in DXF format. If no
+absolute path is given in FileName the output ﬁle is created in the current directory of the HALCON process.
+write_polygon_xld_dxf writes the ﬁle according to the DXF version AC1009 (AutoCAD Release 12).
+Each polygon is stored as a POLYLINE.
+The operator read_polygon_xld_dxf can be used to read the XLD polygon.
+Attention
+The XLD contours that are possibly referenced by Polygons are not stored in the DXF ﬁle. Therefore, when
+the polygons are read again using read_polygon_xld_dxf, this information is lost, and no references to
+HALCON 26.05.0.0
+
+
+----- [page 1026] -----
+978
+CHAPTER 11 FILE
+contours are generated for the polygons. Hence, operators that access the contours associated with a polygon, e.g.,
+split_contours_xld will not work correctly.
+Parameters
+▷Polygons (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . xld_poly(-array) ; object
+XLD polygons to be written.
+▷FileName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ﬁlename.write ; string
+Name of the DXF ﬁle.
+File extension: .dxf
+Result
+If the parameters are correct and the ﬁle could be written the operator write_polygon_xld_dxf returns the
+value 2 (H_MSG_TRUE). Otherwise, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+gen_polygons_xld
+See also
+read_polygon_xld_dxf, write_contour_xld_dxf
+Module
+Foundation
+HALCON/HDevelop Reference Manual, 2026-5-12

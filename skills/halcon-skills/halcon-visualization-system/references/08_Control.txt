@@ -1,0 +1,1230 @@
+
+
+----- [page 667] -----
+Chapter 8
+Control
+assign ( :
+:
+Input :
+Result )
+Assign a new value to a variable.
+assign assigns a new value to a variable.
+In the full text editor, an assignment is simply entered with the help of the assignment operator ’:=’, e.g.:
+u := sin(x) + cos(y)
+This is equivalent to the C syntax assignment:
+u = sin(x) + cos(y);
+If the operator window is used for entering an assignment, assign must be entered into the operator combo box
+as an operator name. This opens the parameter area, where the parameter Input represents the expression that
+has to be evaluated to one value and assigned to the variable, i.e., this is the right side of the assignment. The
+parameter Result gets the name of the variable, i.e., this is the left side of assignment.
+Attention
+In addition to the parameter type control, which is indicated in the parameter description, assign also supports
+iconic variables and vector variables. For an assignment, the parameter types of the two parameters Input and
+Result must be identical. For the assignment of iconic objects, the operator copy_obj is used internally.
+Parameters
+▷Input (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . real(-array) ; real / integer / string
+New value.
+Default: 1
+▷Result (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . real(-array) ; real / integer / string
+Variable that has to be changed.
+Example
+Tuple1 := [1,0,3,4,5,6,7,8,9]
+Val := sin(1.2) + cos(1.2)
+Tuple2 := []
+Result
+If the expression is correct assign returns 2 (H_MSG_TRUE). Otherwise, an exception is raised and an error
+code returned.
+Alternatives
+insert
+Module
+Foundation
+619
+
+
+----- [page 668] -----
+620
+CHAPTER 8 CONTROL
+assign_at ( :
+:
+Index,
+Value :
+Result )
+Assignment of one or several values to one or several tuple elements.
+assign_at assigns a single value to one or several elements of a tuple, or it assigns a number of values ele-
+mentwise to the speciﬁed elements of the output tuple. All other elements of the output tuple keep their values.
+If the passed indices are out of the current range of the output tuple, the tuple is increased and the new values are
+initialized to a default value.
+In the full text editor an assign_at operation is simply entered with the help of the assignment operator symbol
+’:=’ and the index access operator symbol ’[ ]’ following the output variable. The Index parameter can be any
+expression that evaluates to any number of positive integer values. The Value parameter must evaluate to exactly
+one value or to the same number of indices that are provided via the Index parameter, e.g.:
+Areas[Radius-1]
+:= Area
+Areas[0,4,|Rad|-1] := 0
+FileNames[0,2,4]
+:= ['f1','f2','f3']
+The operator assign_at replaces and extends the modifying version of the old insert operator.
+Parameters
+▷Index (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .integer(-array) ; integer
+Indices of the elements that have to be replaced by the new value(s).
+Default: 0
+Suggested values: Index ∈{0, 1, 2, 3, 4, 5, 6}
+Minimum increment: 1
+▷Value (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . tuple(-array) ; integer / real / string
+Value(s) that is to be assigned.
+Default: 1
+▷Result (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . tuple(-array) ; real / integer / string
+Result tuple containing the assigned values.
+Result
+If the expression is correct assign_at returns 2 (H_MSG_TRUE). Otherwise, an exception is raised and an error
+code returned.
+Alternatives
+assign, tuple_replace
+Module
+Foundation
+break ( :
+:
+:
+)
+Terminate loop execution or leave a switch block.
+break terminates the smallest enclosing for, while, or repeat..until loop. In addition, the break state-
+ment is used to leave a switch block, in particular at the end of a case branch. The program execution is
+continued at the program line following the corresponding block.
+break statements that are not enclosed by a loop or switch block are invalid.
+Example
+read_image (Image, 'monkey')
+threshold (Image, Region, 160, 180)
+connection (Region, Regions)
+Number := |Regions|
+AllRegionsValid := 1
+* check if for all regions area <=30
+for i := 1 to Number by 1
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 669] -----
+621
+select_obj (Regions, ObjectSelected, i)
+area_center (ObjectSelected, Area, Row, Column)
+if (Area > 30)
+AllRegionsValid := 0
+break
+endif
+endfor
+Result
+break (as an operator) always returns 2 (H_MSG_TRUE).
+Alternatives
+continue
+See also
+for, while, repeat, until, switch, case
+Module
+Foundation
+case ( :
+:
+Constant :
+)
+Jump label that starts a branch within a switch block.
+case deﬁnes a jump label within a switch block. It starts a branch that is executed if the value of the control
+expression of the switch statement matches the constant integer expression that is deﬁned in Constant. For
+this parameter only constant integer expressions are accepted. Variable expressions and other data types are not
+allowed.
+As in the programming languages C, C++, and C# the case statement does not open a block that is automatically
+left at the next case or default statement. In contrast, it works just like a goto label that is accessed if the label
+matches. In order to leave a case branch and continue execution after the end of the switch block, the break
+statement can be used anywhere within the switch block.
+Parameters
+▷Constant (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .integer ; integer
+Constant integer expressions that determines for which value of the switch control expression the branch is
+accessed.
+Default: 1
+Result
+case (as an operator) always returns 2 (H_MSG_TRUE).
+Alternatives
+elseif
+See also
+switch, default, endswitch, if
+Module
+Foundation
+catch ( :
+:
+:
+Exception )
+Catches exceptions that were thrown in the preceding try block.
+With the help of the operators try, catch, endtry, and throw it is possible to implement a dynamic exception
+handling in HDevelop, which is comparable to the exception handling in C++ and C#. The basic concepts of the
+exception handling in HDevelop are described at the operators try, throw, and dev_set_check as well as in
+the “HDevelop User’s Guide”.
+The operator catch ends a block of watched program lines and starts a block of program lines that have to be
+executed in an error case. If the try-catch block is executed without an exception, the catch-endtry block
+HALCON 26.05.0.0
+
+
+----- [page 670] -----
+622
+CHAPTER 8 CONTROL
+is ignored and program execution continues after the corresponding endtry operator. In contrast, in an error case
+the program execution jumps directly from the operator where the error occurred (or from the throw operator) to
+the catch operator of the surrounding try-catch block. The output control parameter Exception returns a
+tuple that contains a predeﬁned set of data describing the error in case an operator error occurred. If the exception
+was thrown by the throw operator, an arbitrary user-deﬁned tuple can be returned.
+The most important data within the Exception tuple is the error code. Therefore, this is passed as the ﬁrst item
+of the Exception tuple and can be accessed directly with Exception[0]. However, all other data has to be
+accessed through the operator dev_get_exception_data, because the order and the extent of the provided
+data may change in future versions and may vary for different programming language exports. Especially, it has
+to be taken into account that in the exported code there are some items of the error tuple that are not available and
+others that might not be determined until they are requested (like error messages).
+If the exception was thrown by an operator error, a HALCON error code (< 10000) or if the aborted operator
+belongs to an extension package, a user-deﬁned error code (> 10000) is returned as the error code. A list of all
+HALCON error codes can be found in the appendix of the “Extension Package Programmer’s Manual”. The ﬁrst
+element of a user-deﬁned Exception tuple thrown by the operator throw should be an error code ≥30000.
+Additional tuple elements can be chosen without any restrictions.
+If an operator error occurred within HDevelop or HDevEngine, the following information about the error is pro-
+vided by the Exception tuple:
+• The HALCON error code.
+• An additional HDevelop speciﬁc error code that speciﬁes whether an error was caught within the HALCON
+operator (code = 21000) or outside the operator, e.g., during the evaluation and assignment of the parameter
+expressions. In the latter case the error code speciﬁes the kind of error more precisely.
+• The HALCON error message.
+• An appropriate HDevelop-speciﬁc error message.
+• The number of the program line, where the error occurred.
+• The name of the operator that threw the exception (if the exception was thrown in a protected procedure,
+'--protected--' is returned instead of the operator name).
+• The depth of the call stack (if the error occurred in ’main’ a depth of 1 is returned).
+• The name of the procedure, where the error occurred.
+In most cases, for an automatic exception handling it is sufﬁcient to use the HALCON error code. Additional data
+is primarily passed in order to provide some information about the error condition to the developer of the HDevelop
+program for debugging reasons. Attention: in the exported code, in general, information about the error location
+will not be available.
+Attention
+The export of the operators try, catch, endtry, and throw is not supported for the language C, but only for
+the languages C++, C# and VisualBasic/.NET. Only the latter support throwing exceptions across procedures.
+Parameters
+▷Exception (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . exception-array ; integer / string
+Tuple returning the exception data.
+Result
+catch always returns 2 (H_MSG_TRUE).
+Possible Successors
+dev_get_exception_data
+See also
+try, endtry, throw, dev_get_exception_data, dev_set_check
+Module
+Foundation
+comment ( :
+:
+Comment :
+)
+Add a comment of one line to the program.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 671] -----
+623
+comment allows to add a comment of one line to the program. As parameter value, i.e., as comment, all characters
+are allowed. If the operator window is used to enter a comment and if there are newlines in the comment line
+parameter, one comment statement for every text line is inserted.
+In the full text editor a comment is marked by entering an asterisk (’*’) as ﬁrst non-whitespace character.
+This operator has no effect on the program execution.
+Parameters
+▷Comment (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+Arbitrary sequence of characters.
+Example
+* This is a program with comments
+* 'this is a string as comment'
+* here are numbers: 4711, 0.815
+stop ()
+Result
+comment is never executed.
+Module
+Foundation
+continue ( :
+:
+:
+)
+Skip the current loop execution.
+continue skips the smallest enclosing for, while or repeat..until loop execution. Program execution is
+continued at the condition line of the loop or at the next line after the continue statement in case no enclosing
+loop exists.
+Result
+continue (as operators) always returns 2 (H_MSG_TRUE).
+Alternatives
+break
+See also
+for, while, repeat, until
+Module
+Foundation
+convert_tuple_to_vector_1d ( :
+:
+InputTuple,
+SubTupleLength :
+ResultVector )
+Distribute the elements of a tuple to a vector.
+convert_tuple_to_vector_1d transforms a tuple into a vector variable. The input tuple InputTuple
+is split into sub-tuples each comprising of SubTupleLength elements. The sub-tuples are stored in the output
+vector ResultVector.
+Parameters
+▷InputTuple (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . number(-array) ; real / integer / string
+Input tuple.
+▷SubTupleLength (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .number ; integer
+Desired length of the resulting tuples in the output vector.
+Default: 1
+▷ResultVector (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .number-vector1 ; real / integer / string
+Output vector.
+HALCON 26.05.0.0
+
+
+----- [page 672] -----
+624
+CHAPTER 8 CONTROL
+Result
+If the values of the speciﬁed parameters are correct,
+convert_tuple_to_vector_1d returns 2
+(H_MSG_TRUE). Otherwise, an exception is raised and an error code returned.
+See also
+convert_vector_to_tuple
+Module
+Foundation
+convert_vector_to_tuple ( :
+:
+InputVector :
+ResultTuple )
+Concatenate the elements of a vector to a single tuple.
+convert_vector_to_tuple transforms a vector into a tuple.
+The elements of the input vector
+InputVector get concatenated and stored in the output tuple ResultTuple. If InputVector has a di-
+mension of 2 or greater its elements are collected in a depth-ﬁrst search. E.g., the input vector ’1,2,3,4’ will be
+turned into the result tuple [1,2,3,4].
+Parameters
+▷InputVector (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . number-vector ; real / integer / string
+Input vector.
+▷ResultTuple (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . real(-array) ; real / integer / string
+Output tuple.
+Result
+If the values of the speciﬁed parameters are correct, convert_vector_to_tuple returns 2 (H_MSG_TRUE).
+Otherwise, an exception is raised and an error code returned.
+See also
+convert_tuple_to_vector_1d
+Module
+Foundation
+default ( :
+:
+:
+)
+Alternative branch in a switch block.
+default opens an alternative branch in a switch block. This branch is accessed if the calculated control
+expression of the switch statement does not match any of the integer constants of the previous case statements.
+Result
+default (as an operator) always returns 2 (H_MSG_TRUE).
+Alternatives
+case, elseif, else
+See also
+switch, case, endswitch, if
+Module
+Foundation
+else ( :
+:
+:
+)
+Alternative of conditional statement.
+else continues after an if or elseif block with an alternative block. If the conditions of all corresponding
+if or elseif blocks evaluated to ’false’ (0), i.e., none of the corresponding if or elseif blocks has been
+executed, the following else block is executed.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 673] -----
+625
+Result
+else (as operator) always returns 2 (H_MSG_TRUE).
+Alternatives
+if, elseif
+See also
+until, for, while
+Module
+Foundation
+elseif ( :
+:
+Condition :
+)
+Conditional statement with alternative.
+elseif is a conditional statement that continues after an if or another elseif block with an alternative block.
+The Condition parameter must evaluate to a Boolean or integer expression.
+If Condition evaluates to ’true’ (not 0), the following block body up to the next corresponding block state-
+ment elseif, else, or endif is executed. Reaching the end of the block the execution continues after the
+corresponding endif statement.
+If Condition evaluates to ’false’ (0), the execution is continued at the next corresponding block statement
+elseif, else, or endif.
+Parameters
+▷Condition (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer ; integer
+Condition for the if statement.
+Default: 1
+Result
+If the condition is correct elseif (as operator) returns 2 (H_MSG_TRUE). Otherwise, an exception is raised and
+an error code returned.
+Alternatives
+if
+See also
+else, for, while, until
+Module
+Foundation
+endfor ( :
+:
+:
+)
+End statement of a for loop.
+endfor is the last statement of a for loop.
+Result
+endfor always returns 2 (H_MSG_TRUE).
+See also
+for
+Module
+Foundation
+endif ( :
+:
+:
+)
+End of if command.
+HALCON 26.05.0.0
+
+
+----- [page 674] -----
+626
+CHAPTER 8 CONTROL
+endif is the last statement of an if, elseif, or else block.
+Result
+endif always returns 2 (H_MSG_TRUE).
+See also
+if
+Module
+Foundation
+endswitch ( :
+:
+:
+)
+Ends a multiway branch block.
+endswitch ends a multiway branch block that has been opened by switch.
+Result
+endswitch always returns 2 (H_MSG_TRUE).
+See also
+switch
+Module
+Foundation
+endtry ( :
+:
+:
+)
+Ends a block where exceptions are handled.
+With the help of the operators try, catch, endtry, and throw it is possible to implement a dynamic exception
+handling in HDevelop, which is comparable to the exception handling in C++ and C#. The basic concepts of the
+exception handling in HDevelop are described at the operators try, throw, and dev_set_check as well as in
+the “HDevelop User’s Guide”.
+The operator endtry closes the exception handling block that was opened with the operators try and catch.
+Attention
+The export of the operators try, catch, endtry, and throw is not supported for the language C, but only for
+the languages C++, C# and VisualBasic/.NET. Only the latter support throwing exceptions across procedure.
+Result
+endtry always returns 2 (H_MSG_TRUE).
+See also
+try, catch, throw, dev_get_exception_data, dev_set_check
+Module
+Foundation
+endwhile ( :
+:
+:
+)
+End statement of a while loop.
+endwhile is the last statement of a while loop.
+Result
+endwhile always returns 2 (H_MSG_TRUE).
+See also
+while
+Module
+Foundation
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 675] -----
+627
+executable_expression ( :
+:
+Expression :
+)
+Execute a stand-alone operation.
+The HDevelop language contains a few operations that are executed stand-alone, i.e., not as an expression within
+another operator call. The operator executable_expression allows to enter such stand-alone operations
+into the operator window of HDevelop. In the full text editor however, those operations are entered verbatim.
+Currently, the following modifying vector operations are stand-alone and can only be used in an executable ex-
+pression:
+• .clear()
+• .insert()
+• .remove()
+For further details about these operations please refer to the HDevelop User’s Guide.
+Even though Expression formally is presented as a control parameter, nonetheless it is also possible to execute
+stand-alone operations with iconic vectors.
+Parameters
+▷Expression (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .number-vector ; real / integer / string
+Operation to be executed.
+Example
+read_image (Image1, 'fin1')
+read_image (Image2, 'fin2')
+ImageVector.insert(1, Image1).insert(2, Image2)
+* process vector
+ImageVector.clear()
+Result
+If the values of the speciﬁed parameters are correct, executable_expression returns 2 (H_MSG_TRUE).
+Otherwise, an exception is raised and an error code returned.
+Module
+Foundation
+exit ( :
+:
+:
+)
+Terminate HDevelop.
+exit terminates HDevelop. The operator is equivalent to the menu entry File ▷Quit. Internally and for
+exported C++ code the C-function call exit(0) is used.
+Example
+read_image (Image, 'fabrik')
+intensity (Image, Image, Mean, Deviation)
+open_file ('intensity.txt', 'output', FileHandle)
+fwrite_string (FileHandle, Mean + ' ' + Deviation)
+close_file (FileHandle)
+exit ()
+Result
+exit returns 0 (o.k.) to the calling environment of HDevelop = operating system.
+See also
+stop
+Module
+Foundation
+HALCON 26.05.0.0
+
+
+----- [page 676] -----
+628
+CHAPTER 8 CONTROL
+export_def ( :
+:
+Position,
+Declaration :
+)
+Insert arbitrary text into the export code of a procedure.
+export_def allows to deﬁne code lines or text blocks that are written verbatim into the output ﬁle of a procedure
+or program that is exported.
+The parameter Position controls the placement of the text given in Declaration. The following options are
+supported:
+’in_place’ - # The text is inserted in the procedure at the actual place, i.e., in between the neighboring program
+lines.
+’at_ﬁle_begin’ - #ˆˆ The text is exported at the very beginning of the exported ﬁle.
+’before_procedure’ - #ˆ The text is exported immediately before the procedure it is deﬁned in.
+’after_procedure’ - #$ The text is exported immediately after the procedure it is deﬁned in.
+’at_ﬁle_end’ - #$$ The text is exported at the very end of the exported ﬁle.
+In the program listing, export_def is not represented in normal operator syntax but marked by a special char-
+acter sequence. The ﬁrst character within the line is the export marker # that can be followed by a position marker
+as listed above. If entering an export deﬁnition in the full text editor, please note that there must not be any spaces
+before #.
+For better readability, the export character sequence may be followed by one space character that is not interpreted
+as part of the export text. All additional spaces are added to the export.
+For lines that are exported within the current procedure, the export gets the same indentation as the current program
+lines get. There is one exception: if the export text starts with # immediately after the export markers or the optional
+space, the export text will not be indented at all, e.g.:
+for Index := 1 to 5 by 1
+\# \#ifdef MY\_SWITCH
+\# int cnt = 100;
+* an optional code block
+\# \#endif
+endfor
+is exported to:
+proc (...)
+{
+...
+for (...)
+{
+\#ifdef MY\_SWITCH
+int cnt = 100;
+// an optional block
+\#endif
+}
+...
+}
+An export deﬁnition can be activated and deactivated as any normal operator. Deactivated export deﬁnitions are
+not exported.
+Parameters
+▷Position (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .string ; string
+Place where the export text is written.
+List of values: Position ∈{’in_place’, ’at_ﬁle_begin’, ’before_procedure’, ’after_procedure’,
+’at_ﬁle_end’}
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 677] -----
+629
+▷Declaration (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .string ; string
+Text that is exported.
+Result
+export_def is never executed.
+See also
+comment
+Module
+Foundation
+for ( :
+:
+Start,
+End,
+Step :
+Index )
+Starts a loop block that is usually executed for a ﬁxed number of iterations.
+Syntax in HDevelop: for Index := Start to End by Step
+The for statement starts a loop block that is usually executed for a ﬁxed number of iterations. The for block
+ends at the corresponding endfor statement.
+The number of iterations is deﬁned by the Start value, the End value, and the increment value Step. All
+of these parameters can be initialized with expressions or variables instead of constant values. Please note that
+these loop parameters are evaluated only once, namely, immediately before the for loop is entered. They are
+not re-evaluated after the loop cycles, i.e., any modiﬁcations of these variables within the loop body will have no
+inﬂuence on the number of iterations.
+The passed loop parameters must be either of type integer or real.
+If all input parameters are of type
+integer, the Index variable will also be of type integer. In all other cases the Index variable will be
+of type real.
+At the beginning of each iteration the loop variable Index is compared to the End parameter. If the increment
+value Step is positive, the for loop is executed as long as the Index variable is less than or equal to the End
+parameter. If the increment value Step is negative, the for loop is executed as long as the Index variable is
+greater than or equal to the End parameter.
+Attention: If the increment value Step is set to a value of type real, it may happen that the last loop cycle is
+omitted owing to rounding errors in case the Index variable is expected to match the End value exactly in the last
+cycle. Hence, on some systems the following loop is not executed—as expected—for four times (with the Index
+variable set to 1.3, 1.4, 1.5, and 1.6), but only three times because after three additions the index variable is slightly
+greater than 1.6 due to rounding errors.
+I:=[]
+for Index := 1.3 to 1.6 by 0.1
+I := [I,Index]
+endfor
+After the execution of the loop body, i.e., upon reaching the corresponding endfor statement or a continue
+statement, the increment value (as initialized at the beginning of the for loop) is added to the current value of
+the loop counter Index. Then, the loop condition is re-evaluated as described above. Depending on the result
+the loop is either executed again or ﬁnished in which case execution continues with the ﬁrst statement after the
+corresponding endfor statement.
+A break statement within the loop—that is not covered by a more internal block—leaves the loop immediately
+and execution continues after the corresponding endfor statement. In contrast, the continue statement is used
+to ignore the rest of the loop body in the current cycle and continue execution with adapting the Index variable
+and re-evaluating the loop condition.
+Attention: It is recommended to avoid modifying the Index variable of the for loop within its body.
+If the for loop is stopped, e.g., by a stop statement or by pressing the Stop button, and if the PC is placed
+manually by the user, the for loop is continued at the current iteration as long as the PC remains within the for
+body or is set to the endfor statement. If the PC is set on the for statement (or before it) and executed again,
+the loop is reinitialized and restarts at the beginning.
+HALCON 26.05.0.0
+
+
+----- [page 678] -----
+630
+CHAPTER 8 CONTROL
+Parameters
+▷Start (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . number ; integer / real
+Start value of the loop variable.
+Default: 1
+▷End (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .number ; integer / real
+End value of the loop variable.
+Default: 5
+▷Step (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . number ; integer / real
+Increment value of the loop variable.
+Default: 1
+▷Index (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .number ; integer / real
+Loop variable.
+Example
+read_image (Image, 'fabrik')
+threshold (Image, Region, 128, 255)
+connection (Region, ConnectedRegions)
+select_shape (ConnectedRegions, SelectedRegions, 'area', 'and', 150, 99999)
+area_center (SelectedRegions, Area, Row, Column)
+dev_close_window ()
+dev_open_window (0, 0, 512, 512, 'black', WindowHandle)
+dev_display (Image)
+dev_display (SelectedRegions)
+dev_set_color ('white')
+for Index := 0 to |Area| - 1 by 1
+set_tposition (WindowHandle, Row[Index], Column[Index])
+write_string (WindowHandle, 'Area=' + Area[Index])
+endfor
+Result
+If the values of the speciﬁed parameters are correct, for (as an operator) returns 2 (H_MSG_TRUE). Otherwise,
+an exception is raised and an error code is returned.
+Alternatives
+while, until
+See also
+repeat, break, continue, endfor
+Module
+Foundation
+global ( :
+:
+Declaration :
+)
+Declare a global variable.
+The global statement can be used to declare a global variable. By declaring a variable as global the variable
+becomes visible to all other procedures that also declare the same variable explicitly as global.
+If a variable is not explicitly declared as global inside a procedure, the variable is local within that procedure even
+if there is a global variable with the same name.
+The parameter Declaration contains the variable declaration that consists of the optional keyword ’def’, the
+type ’object’ or ’tuple’, the optional keyword ’vector’ (followed by the desired dimension in round brackets), and
+the variable name.
+Setting the type to ’object’ an iconic variable is declared, by setting it to ’tuple’ a control variable is declared.
+The keyword ’def’ allows to mark one declaration explicitly as the place where the variable is deﬁned. In most
+cases this will not be necessary because in HDevelop the variable instance is created as soon as it is declared
+somewhere. However, if several procedures are exported to a programming language and if the procedures are
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 679] -----
+631
+not exported into one output ﬁle that contains all procedures together but into separate output ﬁles it will become
+necessary to mark one of the global variable declarations as the place where the variable is deﬁned. A set of
+procedure export ﬁles that are linked to one library or application must contain exactly one deﬁnition of each
+global variable in order to avoid both undeﬁned symbols and multiple deﬁnitions.
+In the program listing, global variable declarations are displayed and must be entered without parenthesis in order
+to emphasize that the line is a declaration and not an executable operator. The syntax is as follows:
+global [def] {object|tuple} [vector(<Dimension>)] <Variable Name>
+Parameters
+▷Declaration (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .string ; string
+Global variable declaration: optional keyword ’def’, type, and variable name
+Suggested values: Declaration ∈{’object’, ’tuple’, ’def object’, ’def tuple’, ’object vector(1)’, ’tuple
+vector(1)’, ’def object vector(1)’, ’def tuple vector(1)’}
+Result
+global is never executed.
+Module
+Foundation
+if ( :
+:
+Condition :
+)
+Conditional statement.
+if is a conditional statement that starts an if block. The Condition parameter must evaluate to a Boolean or
+integer expression.
+If Condition evaluates to ’true’ (not 0), the following block body up to the next corresponding block state-
+ment elseif, else, or endif is executed. Reaching the end of the block the execution continues after the
+corresponding endif statement.
+If Condition evaluates to ’false’ (0), the execution is continued at the next corresponding block statement
+elseif, else, or endif.
+Parameters
+▷Condition (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer ; integer
+Condition for the if statement.
+Default: 1
+Result
+If the condition is correct if (as operator) returns 2 (H_MSG_TRUE). Otherwise, an exception is raised and an
+error code returned.
+Alternatives
+elseif, else
+See also
+for, while, until
+Module
+Foundation
+import ( :
+:
+ProcedureSource :
+)
+Import one or more external procedures.
+The import statement can be used to import additional external procedures from within a HDevelop program.
+The imported procedures become only available for the procedure that contains the import statement but not for
+other procedures.
+import statements may occur in any line of a procedure. The imported procedures become only available below
+the import statement and may be overruled by later import statements.
+HALCON 26.05.0.0
+
+
+----- [page 680] -----
+632
+CHAPTER 8 CONTROL
+proc()
+* unresolved procedure call
+import ./the\_one\_dir
+proc()
+* resolves to ./the\_one\_dir/proc.hdvp
+import ./the\_other\_dir
+proc()
+* resolves to ./the\_other\_dir/proc.hdvp
+The parameter ProcedureSource points to the source of the external procedures. It can either be the path of
+a directory that contains the procedures and/or the procedure libraries to be used or directly the ﬁle name of a
+procedure library. In both cases, the path may either be absolute or relative. In the latter case, HDevelop interprets
+the path as being relative to the ﬁle location of the procedure that contains the import statement. Thus, the
+location of this procedure can be included with ’.’. The path has to be in quotes if it contains one or more spaces,
+otherwise the program line will become invalid.
+Contrary to system, user-deﬁned, and session directories HDevelop looks only in the directory speciﬁed by an
+import statement for external procedures but not recursively in its subdirectories.
+Note, that an import statement is never executed and, therefore, ProcedureSource has to be evaluated
+already at the procedure’s loading time. Therefore, ProcedureSource has to be a constant expression, and, in
+particular, it is not possible to pass a string variable to ProcedureSource.
+However, ProcedureSource may also contain environment variables, which HDevelop resolves accordingly.
+Environment variables, regardless of the platform actually used, must always be denoted in Windows syntax, i.e.,
+%VARIABLE%.
+import neither tests whether the path ProcedureSource exists nor whether it points to a procedure library
+or a directory that contains procedures at all. Therefore, import statements with nonexistent or pointless paths
+nonetheless stay valid program lines, in any case.
+Import paths are listed separately in HDevelop’s procedure settings. Of course, these paths can’t be modiﬁed or
+deactivated from within the procedure settings. Furthermore, procedures that are available only via an import
+statement are marked with a special icon.
+In the program listing, import statements are displayed and must be entered without parenthesis in order to empha-
+size that the line is a declaration and not an executable operator.
+Parameters
+▷ProcedureSource (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+File location of the external procedures to be loaded: either a directory or a procedure library
+Result
+import is never executed.
+Module
+Foundation
+insert ( :
+:
+Input,
+Value,
+Index :
+Result )
+Assignment of a value to a tuple element.
+insert is obsolete and is only provided for reasons of backward compatibility. The modifying version of
+the insert operator was replaced by the operator assign_at. This operator uses the same notation in
+the full text editor, so that it is used automatically. The non-modifying version of the insert operator is
+replaced by the new operator tuple_replace.
+insert assigns a single value to a speciﬁc element of a tuple.
+In the full text editor an insert operation is simply entered with the help of the assignment operator sign ’:=’ and
+the index access operator sign ’[ ]’ for the result variable, e.g.:
+Areas[Radius-1] := Area
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 681] -----
+633
+If the operator window is used for entering the insert operator, insert must be entered into the operator combo
+box as the operator name. This opens the parameter area, where the parameter Value represents the expression
+that has to be evaluated to one value and assigned to the element at position Index within the tuple Input. The
+parameter Result gets the name of the variable where the result has to be stored.
+If the input tuple that is passed via the parameter Input and the output tuple that is passed in Result are
+identical (and only in that case), the insert operator is listed and can be written in the full text editor in the
+above assignment notation. In this case, the input tuple is modiﬁed and the correct operator notation for above
+assignment would be:
+insert (Areas, Area, Radius-1, Areas)
+If the Input tuple and the Result tuple differ, the input tuple will not be modiﬁed. In this case, within the
+program listing only the operator notation can be used:
+insert (Areas, Area, Radius-1, Result)
+This is the same as:
+Result := Areas
+Result[Radius-1] := Area
+Please note that the operator insert will not increase the tuple if the tuple already stores a value at the passed
+index. Instead of that the element at the position Index will be replaced. Hence, for the Value parameter exactly
+one single value (or an expression that evaluates to one single value) must be passed.
+If the passed Index parameter is beyond the current tuple size, the tuple will be increased to the required size.
+The tuple elements that were inserted between the hitherto last element and the new element are undeﬁned.
+Parameters
+▷Input (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . real(-array) ; real / integer / string
+Tuple, where the new value has to be inserted.
+Default: []
+▷Value (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . real ; real / integer / string
+Value that has to be inserted.
+Default: 1
+Value range: 0 ≤Value ≤1000000
+▷Index (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .integer ; integer
+Index position for new value.
+Default: 0
+Suggested values: Index ∈{0, 1, 2, 3, 4, 5, 6}
+Minimum increment: 1
+▷Result (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . real(-array) ; real / integer / string
+Result tuple with inserted values.
+Result
+If the expression is correct insert returns 2 (H_MSG_TRUE). Otherwise, an exception is raised and an error
+code returned.
+Alternatives
+assign
+Module
+Foundation
+par_join ( :
+:
+ThreadID : )
+Wait for subthreads that were started with the par_start qualiﬁer.
+The par_join operator is used to wait in the calling procedure for all procedures or operators that have been
+started in separate subthreads by adding the par_start qualiﬁer to the according program line. The subthreads
+to wait for are identiﬁed by their thread ids that are passed to the parameter ThreadID.
+HALCON 26.05.0.0
+
+
+----- [page 682] -----
+634
+CHAPTER 8 CONTROL
+Attention: par_start is not an operator but a qualiﬁer that is added at the begin of the program line that has to
+be executed in parallel to the calling procedure. The syntax is par_start <ThreadID> :
+followed by the
+actual procedure or operator call.
+Parameters
+▷ThreadID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . thread_id(-array) ; integer
+Ids of all subthreads to wait for.
+Example
+* start two procedures in separate sub threads
+par_start <ThreadID1> : producer_proc()
+par_start <ThreadID2> : consumer_proc()
+* wait until both procedures have finished
+par_join ([ThreadID1, ThreadID2])
+Result
+If the values of the speciﬁed parameters are correct, par_join returns 2 (H_MSG_TRUE). Otherwise, an excep-
+tion is raised and an error code returned.
+Module
+Foundation
+repeat ( :
+:
+:
+)
+Start statement of a repeat..until loop.
+repeat is the ﬁrst statement of an repeat..until loop.
+Result
+repeat always returns 2 (H_MSG_TRUE).
+Alternatives
+for, while
+See also
+until, break, continue
+Module
+Foundation
+return ( :
+:
+:
+)
+Terminate procedure call.
+return terminates the current procedure call and returns to the calling procedure. Program execution is continued
+at the next active program line after the procedure call in the calling procedure. If the current procedure is the main
+procedure, program execution is ﬁnished and the program counter jumps to the end of the program. Note that
+every procedure except the main procedure has to contain at least one reachable return operator line in order to
+be able to return from a call to the procedure.
+Result
+return always returns 2 (H_MSG_TRUE).
+Module
+Foundation
+stop ( :
+:
+:
+)
+Stop program execution.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 683] -----
+635
+The stop operator stops the continuous program execution of the HDevelop program. If this happens, the PC
+remains on the stop statement (instead of being placed at the next executable program line) to show the reason
+for the program interruption directly even if numerous comments or other non-executable program lines follow.
+The operator is equivalent to the Stop action (F9) in the menu bar. Unless parallel execution is used (via the
+par_start qualiﬁer), the program can easily be continued with the Run action (F5). See also “Parallel Execu-
+tion” in the HDevelop User’s Guide.
+It is possible to redeﬁne the behavior by setting a time parameter in the preferences dialog. In this case, the
+execution will not stop but continue after waiting for the speciﬁed period of time. Within this period of time, the
+program can be interrupted with F9 or continued with one of the run commands. This is marked by an icon in the
+ﬁrst column of the program window.
+Attention
+This operator is not supported for code export.
+Trying to continue a program that uses parallel execution after calling stop may cause non-deterministic thread
+behavior or errors.
+Example
+read_image (Image, 'fabrik')
+regiongrowing (Image, Regions, 3, 3, 6, 100)
+count_obj (Regions, Number)
+dev_update_window ('off')
+for i := 1 to Number by 1
+select_obj (Regions, RegionSelected, i)
+dev_clear_window ()
+dev_display (RegionSelected)
+stop ()
+endfor
+Result
+If the program stops at a stop statement, the return state of the previous operator is kept. If the program is
+continued with the stop operator, stop always returns 2 (H_MSG_TRUE).
+See also
+exit
+Module
+Foundation
+switch ( :
+:
+ControlExpression :
+)
+Starts a multiway branch block.
+switch starts a block that allows to control the program ﬂow via a multiway branch.
+The parameter
+ControlExpression must result in an integer value. This value determines to what case label the execution
+jumps. Every case statement includes one integer constant. If the integer constant of a case statement is equal
+to the calculated value of the parameter ControlExpression, the program execution continues there. In addi-
+tion, an optional default statement can be deﬁned as the last jump label within a switch block. The program
+execution jumps to this default label, if no case constant matches the calculated ControlExpression
+value.
+As in the programming languages C, C++, and C#, the case statement is a jump label and—in contrast to
+elseif—not the begin of an enclosed block that is automatically left at the next case or default statement.
+In order to leave the switch block after the execution of the code lines of a case branch, as in C or C++ a
+break statement must be inserted at the end of the case branch. break statements can be used anywhere
+within a switch block. This causes the program execution to continue after the closing endswitch statement.
+Without a break statement at the end of a branch the program execution “falls through” to the statements of the
+following case or default branch.
+If the same statements have to be executed in different cases, i.e., for multiple control values, several case state-
+ments with different constant expressions can be listed one below the other.
+HALCON 26.05.0.0
+
+
+----- [page 684] -----
+636
+CHAPTER 8 CONTROL
+Parameters
+▷ControlExpression (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer ; integer
+Integer expression that determines at which case label the program execution is continued.
+Example
+TestStr := ''
+for Index := 1 to 8 by 1
+TestStr := TestStr + '<'
+switch (Index)
+case 1:
+TestStr := TestStr + '1'
+break
+case 2:
+TestStr := TestStr + '2'
+* intentionally fall through to 3
+case 3:
+TestStr := TestStr + '3'
+* intentionally fall through to 4
+case 4:
+TestStr := TestStr + '4'
+break
+case 5:
+case 6:
+* common case branch for 5 and 5
+TestStr := TestStr + '56'
+break
+case 7:
+* continue for loop
+TestStr := TestStr + '7'
+continue
+default:
+TestStr := TestStr + 'd'
+break
+endswitch
+TestStr := TestStr + '>'
+endfor
+Result
+If the condition is correct, switch (as an operator) returns 2 (H_MSG_TRUE). Otherwise, an exception is raised
+and an error code is returned.
+Alternatives
+if, elseif, else
+See also
+case, default, endswitch, if
+Module
+Foundation
+throw ( :
+:
+Exception :
+)
+Throws a user-deﬁned exception or rethrows a caught exception.
+With the help of the operators try, catch, endtry, and throw it is possible to implement a dynamic exception
+handling in HDevelop, which is comparable to the exception handling in C++ and C#. The basic concepts of the
+exception handling in HDevelop are also described at the operators try, and dev_set_check as well as in the
+“HDevelop User’s Guide”.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 685] -----
+637
+The operator throw provides an opportunity to throw an exception from an arbitrary place in the program. This
+exception can be caught by the catch operator of a surrounding try-catch block. By this means the developer
+is able to deﬁne his own speciﬁc error or exception states, for which the normal program execution is aborted in
+order to continue with a speciﬁc cross-procedure exception handling, e.g., for freeing resources or restarting from
+a deﬁned state.
+In such a user-deﬁned exception a nearly arbitrary tuple can be thrown as the Exception parameter, merely the
+ﬁrst element of the tuple should be set to a user-deﬁned error code ≥30000. If different user-deﬁned exception
+states are possible, they can be distinguished using different error codes (≥30000) in the ﬁrst element or by using
+additional elements.
+In addition, with the help of the operator throw it is possible to rethrow an exception that was caught with the
+operator catch. This may be sensible, for instance, if within an inner try-catch-endtry block (e.g., within
+an external procedure) only speciﬁc exceptions can be handled in an adequate way and all other exceptions must
+be passed to the caller, where they can be caught and handled by an outer try-catch-endtry block.
+For rethrowing a caught exception, it is possible to pass the Exception tuple that was caught by the catch
+operator directly to the Exception parameter of the throw operator. Furthermore, it is possible to append
+arbitrary (but no iconic) user data to the Exception tuple, that can be accessed after catching the exception as
+’user_data’ with the operator dev_get_exception_data:
+try
+...
+catch(Exception)
+...
+UserData := ...
+throw([Exception, UserData])
+endtry
+Attention
+The export of the operators try, catch, endtry, and throw is not supported for the language C, but only for
+the languages C++, C# and VisualBasic/.NET. Only the latter support throwing exceptions across procedures.
+Parameters
+▷Exception (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . exception-array ; integer / string
+Tuple returning the exception data or user deﬁned error codes.
+Result
+If the values of the speciﬁed parameters are correct, throw (as operator) returns 2 (H_MSG_TRUE). Otherwise,
+an exception is raised and an error code returned.
+See also
+try, catch, endtry, dev_get_exception_data, dev_set_check
+Module
+Foundation
+try ( :
+:
+:
+)
+Starts a program block where exceptions are detected and caught.
+With the help of the operators try, catch, endtry, and throw it is possible to implement a dynamic exception
+handling in HDevelop, which is comparable to the exception handling in C++ and C#. By the operators try,
+catch, and endtry two code blocks are formed: the ﬁrst one (try .. catch) contains the watched program
+lines that perform the normal program logic. The second block (catch .. endtry) contains the code that has is
+executed if an exception occurs.
+The operator try enables the exception handling for the following program lines, i.e., the following code block
+up to the corresponding catch operator is watched for exceptions. If during the execution of the subsequent
+program lines an error or another exceptional state occurs, or if an exception is thrown explicitly by the operator
+throw, the try block is left immediately (or—depending on a user preference—after displaying an error message
+box) and the program execution continues at the corresponding catch operator. If the exception is thrown within
+HALCON 26.05.0.0
+
+
+----- [page 686] -----
+638
+CHAPTER 8 CONTROL
+a procedure that was called from the try block (directly or via other procedure calls), the procedure call and
+all intermediate procedure calls that are on the call stack above the try block are immediately aborted (or, if
+applicable, also after displaying an error message box).
+Whether an error message box is displayed before the exception is thrown or not, is controlled by the HDe-
+velop preference ’Suppress error message dialogs within try-catch blocks’ that can be
+reached via Edit->Preferences->General Options->Experienced User. This message box also
+offers the opportunity to stop the program execution before the exception is thrown in order to edit the possibly
+erroneous operator call.
+The program block that is watched for exceptions ends with the corresponding catch operator. If within the
+watched try block no exception occurred, the following catch block is ignored and the program execution
+continues after the corresponding endtry operator.
+try-catch-endtry blocks can be nested arbitrarily into each other, within a procedure or over different proce-
+dure calls, as long as any inner try-catch-endtry block lies completely either within an outer try-catch or
+a catch-endtry block. If an exception is thrown within an inner try-catch block, the exception handling is
+caught in the corresponding catch-endtry block. Hence, the exception is not visible for the outer try-catch
+blocks unless the exception is rethrown explicitly by calling a throw operator from the catch block.
+If within a HALCON operator an error occurs, an exception tuple is created and passed to the catch operator
+that is responsible for catching the exception. The tuple collects information about the error such as the error code
+and the error text. After catching an exception, this information can be accessed with the help of the operator
+dev_get_exception_data. For more information about the passed exception data, how to access them, and
+considerations about the code export, see the description of that operator. The reference of the operator throw
+describes how to throw user-deﬁned exception tuples.
+HDevelop offers the opportunity to disable the handling of HALCON errors. This can be achieved by calling
+the operator dev_set_check(’~give_error’) or by unchecking the check box Give Error on the dialog
+Edit->Preferences->Runtime Settings. If the error handling is switched off, in case of an HALCON
+error no exception is thrown but the program execution is continued as normal at the next operator. In contrast
+to that, the operator throw will always throw an exception independently of the ’give_error’ setting. The same
+applies if an error occurred during the evaluation of an parameter expression.
+Attention
+The export of the operators try, catch, endtry, and throw is not supported for the language C, but only for
+the languages C++, C# and VisualBasic/.NET. Only the latter support throwing exceptions across procedures.
+Example
+try
+read_image (Image, 'may_be_not_available')
+catch (Exception)
+if (Exception[0] == 5200)
+dev_get_exception_data (Exception, 'error_message', ErrMsg)
+set_tposition (3600, 24, 12)
+write_string (3600, ErrMsg)
+return ()
+else
+* rethrow the exception
+throw ([Exception,'unknown exception in myproc'])
+endif
+endtry
+Result
+try always returns 2 (H_MSG_TRUE).
+Alternatives
+dev_set_check
+See also
+catch, endtry, throw, dev_get_exception_data, dev_set_check
+Module
+Foundation
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 687] -----
+639
+until ( :
+:
+Condition :
+)
+Continue to execute the body as long as the condition is not true.
+until ends a repeat..until loop. The repeat..until loop is executed as long as the Condition param-
+eter evaluates to ’false’ (0). The body of the loop is executed at least once, because the condition will be checked
+at the end of the body.
+Parameters
+▷Condition (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer ; integer
+Condition for loop.
+Result
+If the values of the speciﬁed parameters are correct, until (as operator) returns 2 (H_MSG_TRUE). Otherwise,
+an exception is raised and an error code returned.
+Alternatives
+for, while
+See also
+repeat, if, elseif, else, break, continue
+Module
+Foundation
+while ( :
+:
+Condition :
+)
+Starts a loop block that is executed as long as the condition is true.
+while executes the loop body up to the corresponding endwhile statement as long as the Condition param-
+eter evaluates to ’true’ (or a number not equal 0).
+If the condition evaluates to ’false’ (0) the program is continued after the corresponding endwhile statement.
+Parameters
+▷Condition (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer ; integer
+Condition for loop.
+Example
+dev_update_window ('off')
+dev_close_window ()
+dev_open_window (0, 0, 512, 512, 'black', WindowID)
+read_image (Image, 'particle')
+dev_display (Image)
+stop ()
+threshold (Image, Large, 110, 255)
+dilation_circle (Large, LargeDilation, 7.5)
+dev_display (Image)
+dev_set_draw ('margin')
+dev_set_line_width (3)
+dev_set_color ('green')
+dev_display (LargeDilation)
+dev_set_draw ('fill')
+stop ()
+complement (LargeDilation, NotLarge)
+reduce_domain (Image, NotLarge, ParticlesRed)
+mean_image (ParticlesRed, Mean, 31, 31)
+dyn_threshold (ParticlesRed, Mean, SmallRaw, 3, 'light')
+opening_circle (SmallRaw, Small, 2.5)
+connection (Small, SmallConnection)
+dev_display (Image)
+HALCON 26.05.0.0
+
+
+----- [page 688] -----
+640
+CHAPTER 8 CONTROL
+dev_set_colored (12)
+dev_display (SmallConnection)
+stop ()
+dev_set_color ('green')
+dev_display (Image)
+dev_display (SmallConnection)
+Button := 1
+while (Button == 1)
+dev_set_color ('green')
+get_mbutton (WindowID, Row, Column, Button)
+dev_display (Image)
+dev_display (SmallConnection)
+dev_set_color ('red')
+select_region_point (SmallConnection, SmallSingle, Row, Column)
+dev_display (SmallSingle)
+NumSingle := |SmallSingle|
+if (NumSingle == 1)
+intensity (SmallSingle, Image, MeanGray, DeviationGray)
+area_center (SmallSingle, Area, Row, Column)
+dev_set_color ('yellow')
+set_tposition (WindowID, Row, Column)
+write_string (WindowID, 'Area='+Area+', Int='+MeanGray)
+endif
+endwhile
+dev_set_line_width (1)
+dev_update_window ('on')
+Result
+If the values of the speciﬁed parameters are correct, while (as operator) returns 2 (H_MSG_TRUE). Otherwise,
+an exception is raised and an error code returned.
+Alternatives
+for, until
+See also
+repeat, break, continue, if, elseif, else
+Module
+Foundation
+HALCON/HDevelop Reference Manual, 2026-5-12

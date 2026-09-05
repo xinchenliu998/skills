@@ -1,0 +1,2165 @@
+
+
+----- [page 941] -----
+Chapter 10
+Develop
+dev_clear_obj ( Objects :
+:
+:
+)
+Delete an iconic object from the HALCON database.
+dev_clear_obj deletes iconic objects, which are no longer needed, from the HALCON database.
+Attention
+Never use clear_obj to clear objects in HDevelop. The operator dev_clear_obj has to be used instead.
+Parameters
+▷Objects (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . object(-array) ; object
+Objects to be deleted.
+Result
+dev_clear_obj returns always 2 (H_MSG_TRUE).
+See also
+clear_obj, dev_set_check, reset_obj_db
+Module
+Foundation
+dev_clear_window ( :
+:
+:
+)
+Clear the contents of the active graphics window.
+dev_clear_window clears the contents of the active graphics window including the history of the displayed
+iconic objects. The output parameters that have been set for this window via the context menu, the visualization
+parameters dialog, or the appropriate operators (e.g., with dev_set_color, dev_set_draw, etc.) remain
+unmodiﬁed.
+The operator is equivalent to pressing the Clear button of the active graphics window.
+A graphics window can be activated by calling dev_set_window or by pressing the Activate button in the
+tool bar of the selected graphics window.
+Attention
+Using the code export feature of HDevelop, the code that is generated for this operator may have a different
+behavior than the related HALCON operator. For a detailed description of the code export of HDevelop graphics
+operators into the different programming languages see in the “HDevelop User’s Guide” the chapter Code
+Export ▷General Aspects of Code Generation ▷Graphics Windows.
+Example
+read_image (Image, 'fabrik')
+regiongrowing (Image, Regions, 3, 3, 6, 100)
+893
+
+
+----- [page 942] -----
+894
+CHAPTER 10 DEVELOP
+Number := |Regions|
+dev_update_window ('off')
+for i := 1 to Number by 1
+select_obj (Regions, RegionSelected, i)
+dev_clear_window ()
+dev_display (RegionSelected)
+* stop ()
+endfor
+Result
+dev_clear_window returns always 2 (H_MSG_TRUE).
+Possible Predecessors
+dev_set_window, dev_open_window, dev_display
+Possible Successors
+dev_display
+See also
+clear_window
+Module
+Foundation
+dev_close_inspect_ctrl ( :
+:
+Variable :
+)
+Close inspect window(s) of one or more control variables.
+dev_close_inspect_ctrl is the counterpart operator to dev_inspect_ctrl. It closes the variable in-
+spect window or windows corresponding to the variables speciﬁed in Variable. The parameter Variable can
+contain an expression (e.g., tuple) with several variable names. First, the operator dev_close_inspect_ctrl
+tries to ﬁnd an inspect window with an exact match of the listed variables. If it is found, it will be closed. If no
+exact match is found, the operator tries to remove for every listed variable one column from the ﬁrst matching
+inspect window. By removing the last column of an inspect window the window is closed.
+As an alternative, the inspect windows can be closed by pressing the Close-button in the title bar.
+Attention
+This operator only works for single ﬂoating inspect windows, i.e., inspect windows that are neither docked nor
+tabbed.
+This operator is not supported for code export.
+Parameters
+▷Variable (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . real(-array) ; real / integer / string
+Name of the variable which inspect window has to be closed.
+Example
+Var := 1
+dev_inspect_ctrl (Var)
+Var := [1,2,3,9,5,6,7,8]
+Var[3] := 4
+stop ()
+dev_close_inspect_ctrl (Var)
+Result
+dev_close_inspect_ctrl returns always 2 (H_MSG_TRUE).
+Possible Predecessors
+dev_inspect_ctrl
+Module
+Foundation
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 943] -----
+895
+dev_close_tool ( :
+:
+ToolId :
+)
+Close the speciﬁed ﬂoating tool window.
+dev_close_tool closes the tool with the ToolId. Instead of using the ToolId, given during opening the
+tool, you can use the name that has to be used in dev_open_tool. In that case a arbitrary tool, which ﬁts the
+parameter ToolId, is used.
+Attention
+This operator only works for single ﬂoating tools, i.e., tools that are neither docked nor tabbed.
+This operator is not supported for code export.
+Parameters
+▷ToolId (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . dev_tool ; string
+Tool identiﬁer.
+Example
+dev_open_tool ('matching_assistant', 0, 0, 'default','default', ToolId)
+dev_close_tool (ToolId)
+Result
+If the values of the speciﬁed parameters are correct, dev_open_tool returns 2 (H_MSG_TRUE). Otherwise, an
+exception is raised and an error code returned.
+Possible Predecessors
+dev_set_tool_geometry, dev_open_tool
+Possible Successors
+dev_open_tool
+See also
+dev_show_tool
+Module
+Foundation
+dev_close_window ( :
+:
+:
+)
+Close the active ﬂoating graphics window.
+dev_close_window closes the active ﬂoating graphics window.
+The operator is equivalent to pressing the Close button in the title bar of the active window or selecting the
+appropriate menu entry from the Visualization menu.
+A graphics window can be activated by calling dev_set_window or by pressing the Activate button in the
+tool bar of the selected graphics window.
+Attention
+This operator only works for single ﬂoating graphics windows, i.e., graphics windows that are neither docked nor
+tabbed.
+Using the code export feature of HDevelop, the code that is generated for this operator may have a different
+behavior than the related HALCON operator. For a detailed description of the code export of HDevelop graphics
+operators into the different programming languages see in the “HDevelop User’s Guide” the chapter Code
+Export ▷General Aspects of Code Generation ▷Graphics Windows.
+Example
+* close all windows
+for i := 1 to 10 by 1
+dev_close_window ()
+endfor
+HALCON 26.05.0.0
+
+
+----- [page 944] -----
+896
+CHAPTER 10 DEVELOP
+read_image (For5, 'for5')
+get_image_size (For5, Width, Height)
+dev_open_window (0, 0, Width, Height, 'black', WindowHandle)
+dev_display (For5)
+Result
+dev_close_window returns always 2 (H_MSG_TRUE).
+Possible Predecessors
+dev_set_window, dev_open_window
+Possible Successors
+dev_open_window, dev_get_window
+See also
+close_window
+Module
+Foundation
+dev_disp_text ( :
+:
+String,
+CoordSystem,
+Row,
+Column,
+Color,
+GenParamName,
+GenParamValue :
+)
+Display text in the current graphics window.
+dev_disp_text displays text in the current graphics window at the position (Row,Column).
+If only a single position is deﬁned, one text line is displayed for each element of String. Also, ’\n’ will be
+interpreted as a newline character, i.e., a line break is performed.
+If multiple positions are deﬁned, only a single string or one string for each position is allowed in String. In this
+case, line breaks have to be forced with ’\n’.
+Newlines (’\n’) at the end of String are ignored.
+The position of the text may be speciﬁed in window coordinates (CoordSystem = ’window’) or in image coor-
+dinates (CoordSystem = ’image’), which is useful when using zoomed images.
+In addition to supplying (Row,Column) coordinates, it is also possible to pass predeﬁned values to Row and
+Column to display the text at a ﬁxed position in the window (only if CoordSystem = ’window’).:
+’top’, ’left’
+’top’, ’center’
+’top’, ’right’
+’center’, ’left’
+’center’, ’center’
+’center’, ’right’
+’bottom’, ’left’
+’bottom’, ’center’
+’bottom’, ’right’
+The parameter Color also accepts tuples of values. In that case, the speciﬁed colors are used cyclically for every
+new text position or for every new line of text if a single position is used.
+Generic Parameters
+dev_disp_text may display the String within a box (default). This behavior and the look of the box are
+deﬁned with the generic parameters in GenParamName and GenParamValue.
+’box’ If ’box’ is set to ’true’, the text is written within a box. The look of the box and its optional shadow can be
+conﬁgured with the generic parameters below.
+List of values: ’true’ and ’false’
+Default: ’true’
+’box_color’ Sets the color of the box.
+List of values: a string containing the color name (e.g., ’white’, ’red’, or ’#aa00bba0’)
+Default: ’#fce9d4’ (which is a light orange)
+’shadow’ If ’shadow’ is set to ’true’, an additional shadow is displayed beneath the box (if ’box’ is ’true’).
+List of values: ’true’ and ’false’
+Default: ’true’ if ’box_color’ is set to a color without alpha value, ’false’ otherwise
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 945] -----
+897
+’shadow_color’ Sets the color of the shadow if ’shadow’ is ’true’.
+List of values: a string containing the color name (e.g., ’black’, ’red’, or ’#aa00bba0’)
+Default: ’#f28d26’ (which is a darker orange) if ’box_color’ is not set, ’white’ otherwise
+’border_radius’ Controls the roundness of the box’s corners. For sharp corners set it to 0, for smoother corners
+to higher values.
+List of values: positive real numbers or 0
+Default: 2
+’box_padding’ Controls to which amount in pixels the box is extended around the text.
+List of values: positive real number
+Default: 0
+’shadow_sigma’ Controls to which amount the shadow beneath the box is blurred. Set it to 0 for a sharp shadow.
+List of values: positive real number or 0
+Default: 1.5
+’shadow_dx’ and ’shadow_dy’ Controls the offset of the shadow in column (’shadow_dx’) and row
+(’shadow_dy’) direction in pixels.
+List of values: any real number
+Default: 2
+’backdrop_blur_sigma’ Controls to which amount the background of the box is blurred. s only an effect if
+’box’ is ’true’ and ’box_color’ is not opaque (i.e. alpha is not 255). It is recommended to use ’back-
+drop_blur_sigma’ with ’shadow’ set to ’false’.
+List of values: positive real number or 0
+Default: 0
+’rotate_phi’ Angle in degrees to rotate the displayed text.
+List of values: any real number
+Default: 0
+’rotate_col’ Column coordinate of the rotation center if ’rotate_phi’ is different to zero. Choose either a column
+coordinate by setting a real number or determine the rotation center on the left edge (’text_left’), the right
+edge (’text_right’), or in the center (’text_center’) of the text box.
+List of values: any real number or ’text_left’, ’text_center’, ’text_right’
+Default: ’text_center’
+’rotate_row’ Row coordinate of the rotation center if ’rotate_phi’ is different to zero. Choose either a row coor-
+dinate by setting a real number or determine the rotation center on the top edge (’text_top’), the bottom edge
+(’text_bottom’), or in the center (’text_center’) of the text box.
+List of values: any real number or ’text_top’, ’text_center’, ’text_bottom’
+Default: ’text_center’
+’border_color’ Sets the color of the border of the text box.
+List of values: a string containing the color name (e.g., ’black’, ’red’, or ’#aa00bba0’)
+Default: ’#ffffff’
+’border_width’ Controls the width of the text box border.
+List of values: positive real numbers or 0
+Default: 0
+Attention
+Using the code export feature of HDevelop, the code that is generated for this operator may have a different
+behavior than the related HALCON operator. For a detailed description of the code export of HDevelop graphics
+operators into the different programming languages see in the “HDevelop User’s Guide” the chapter Code
+Export ▷General Aspects of Code Generation ▷Graphics Windows.
+HALCON 26.05.0.0
+
+
+----- [page 946] -----
+898
+CHAPTER 10 DEVELOP
+Parameters
+▷String (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .string(-array) ; string
+A tuple of strings containing the text message to be displayed. Each value of the tuple will be displayed in a
+single line.
+Default: ’hello’
+▷CoordSystem (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .string ; string
+If set to ’window’, the text position is given with respect to the window coordinate system. If set to ’image’,
+image coordinates are used (this may be useful in zoomed images).
+Default: ’window’
+List of values: CoordSystem ∈{’window’, ’image’}
+▷Row (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . point.y(-array) ; integer / real / string
+The vertical text alignment or the row coordinate of the desired text position.
+Default: 12
+List of values: Row ∈{12, ’bottom’, ’center’, ’top’}
+▷Column (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . point.x(-array) ; integer / real / string
+The horizontal text alignment or the column coordinate of the desired text position.
+Default: 12
+List of values: Column ∈{12, ’center’, ’left’, ’right’}
+▷Color (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string(-array) ; string
+A tuple of strings deﬁning the colors of the texts.
+Default: ’black’
+List of values: Color ∈{’black’, ’blue’, ’yellow’, ’red’, ’green’, ’cyan’, ’magenta’, ’forest green’, ’lime
+green’, ’coral’, ’slate blue’}
+▷GenParamName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .attribute.name(-array) ; string
+Generic parameter names.
+Default: []
+List of values: GenParamName ∈{’backdrop_blur_sigma’, ’box’, ’shadow’, ’box_color’, ’shadow_color’,
+’border_radius’, ’box_padding’, ’shadow_sigma’, ’shadow_dx’, ’shadow_dy’, ’rotate_phi’, ’rotate_col’,
+’rotate_row’, ’border_color’, ’border_width’}
+▷GenParamValue (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . attribute.value(-array) ; string / integer / real
+Generic parameter values.
+Default: []
+List of values: GenParamValue ∈{’true’, ’false’, ’white’, ’red’, ’forest green’, ’black’, ’blue’, 5.0}
+Example
+dev_open_window (0, 0, 512, 512, 'black', WindowHandle)
+dev_disp_text ('Display some text in a box', 'window', 12, 12, \
+'black', [], [])
+Result
+If the values of the speciﬁed parameters are correct, dev_disp_text returns 2 (H_MSG_TRUE). Otherwise, an
+exception is raised and an error code returned.
+Possible Predecessors
+dev_open_window, set_font, get_string_extents
+Alternatives
+disp_text, write_string
+See also
+get_string_extents, set_font
+Module
+Foundation
+dev_display ( Object :
+:
+:
+)
+Displays image objects in the current graphics window.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 947] -----
+899
+dev_display displays an iconic object (image, region, or XLD) in the active graphics window. This is equiva-
+lent to a double click on an icon variable inside the variable window.
+Attention
+Using the code export feature of HDevelop, the code that is generated for this operator may have a different
+behavior than the related HALCON operator. For a detailed description of the code export of HDevelop graphics
+operators into the different programming languages see in the “HDevelop User’s Guide” the chapter Code
+Export ▷General Aspects of Code Generation ▷Graphics Windows.
+Parameters
+▷Object (input_object) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .object(-array) ; object
+Image objects to be displayed.
+Example
+read_image (Image, 'fabrik')
+regiongrowing (Image, Regions, 3, 3, 6, 100)
+dev_clear_window ()
+dev_display (Image)
+dev_set_colored (12)
+dev_set_draw ('margin')
+dev_display (Regions)
+Result
+If the values of the speciﬁed parameters are correct, dev_display returns 2 (H_MSG_TRUE). Otherwise, an
+exception is raised and an error code returned.
+Alternatives
+disp_obj, disp_image, disp_region, disp_xld
+See also
+dev_set_color, dev_set_colored, dev_set_draw, dev_set_line_width
+Module
+Foundation
+dev_error_var ( :
+:
+ErrorVar,
+Mode :
+)
+Deﬁne or undeﬁne an error variable.
+dev_error_var deﬁnes an error variable, i.e., a variable which contains the result state of the last operator
+call. ErrorVar will be 2 (H_MSG_TRUE) if no error had occurred. The parameter Mode speciﬁes whether the
+error variable should be used (1) or not (0). If an error variable is active it will be updated each time an operator
+execution is ﬁnished. Thus a value is only valid until the next call of an operator. The value can be saved by
+assigning it to another variable (see example) or by calling dev_error_var(ErrorVar,0).
+Parameters
+▷ErrorVar (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .integer ; integer
+Name of the variable which shall contain the error status.
+Default: ’ErrorVar’
+▷Mode (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer ; integer
+Switch the error variable on or off.
+Default: 1
+List of values: Mode ∈{0, 1}
+Example
+dev_close_window ()
+dev_open_window (0, 0, 512, 512, 'black', WindowHandle)
+dev_error_var (Error, 1)
+dev_set_check ('~give_error')
+HALCON 26.05.0.0
+
+
+----- [page 948] -----
+900
+CHAPTER 10 DEVELOP
+FileName := 'wrong_name'
+read_image (Image, FileName)
+ReadError := Error
+if (ReadError != H_MSG_TRUE)
+write_string (WindowHandle, 'wrong file name: '+FileName)
+endif
+Result
+If the values of the speciﬁed parameters are correct, dev_error_var returns 2 (H_MSG_TRUE). Otherwise, an
+exception is raised and an error code returned.
+Possible Predecessors
+dev_set_check
+Possible Successors
+dev_set_check, if, elseif, else, assign
+See also
+dev_set_check, set_check
+Module
+Foundation
+dev_get_exception_data ( :
+:
+Exception,
+Name :
+Value )
+Access the elements of an exception tuple.
+The operator dev_get_exception_data enables to access speciﬁc items of an exception tuple that
+was caught by the operator catch.
+Except the error code that is always passed as the ﬁrst element of
+the exception tuple all other data of the exception tuple has to be accessed exclusively via the operator
+dev_get_exception_data. This is due to the fact that the order and the extent of the provided data may
+change in future versions and may vary for the different code exports.
+If an operator error occurred within HDevelop or HDevEngine, the caught exception tuple contains the data items
+listed below. This tuple has to be passed to the parameter Exception. The name of the requested data slot
+has to be passed to the parameter Name. The requested data is returned in the parameter Value. By pass-
+ing a tuple of slot names to Name it is possible to request several exception data items in a single call of
+dev_get_exception_data. In that case a corresponding data tuple is returned in Value. For requested
+items that are not available an empty string (”) is returned.
+Note that the operator dev_get_exception_data is meant to be used within HDevelop or HDevEngine.
+Some information is not available when the operator is exported.
+Supported data slots:
+’error_code’: HALCON or user deﬁned error code. A list of HALCON error codes (codes < 10000) can be found
+in the appendix of the “Extension Package Programmer’s Manual”.
+’add_error_code’: Additional HDevelop speciﬁc error code. These error codes specify whether an error was
+caught within the HALCON operator (code = 21000) or outside the operator, e.g., during the evaluation
+and assignment of the parameter expressions. In the latter case the error code speciﬁes the error type more
+precisely. The relevant error codes are listed in the “HDevelop User’s Guide”.
+’error_message’: HALCON error message.
+’add_error_message’: Additional error message that describes the HDevelop speciﬁc error more precisely.
+’program_line’: Number of the program line, where the error occurred.
+’operator’: Name of the operator that threw the exception (if the exception was thrown in a protected procedure,
+'--protected--' is returned instead of the operator name).
+’call_stack_depth’: Depth of the call stack (if the error occurred in ’main’ a depth of 1 is returned).
+’procedure’: Name of the procedure where the error occurred.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 949] -----
+901
+’user_data’: User deﬁned exception tuple. If an operator exception was caught and rethrown, this is the tuple
+that was appended to the caught exception tuple in the call of throw. In case of a completely user deﬁned
+exception all tuple items except the ﬁrst element containing the error code (≥30000) are returned. If no user
+data was passed with the exception tuple, an empty tuple is returned. Note, that the user data tuple cannot be
+requested together with any other exception data in one dev_get_exception_data call.
+Parameters
+▷Exception (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . exception-array ; integer / string
+Tuple containing the exception data or user deﬁned error codes.
+▷Name (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . attribute.name(-array) ; string
+Name(s) of the requested exception data.
+Default: ’error_code’
+List of values: Name ∈{’error_code’, ’add_error_code’, ’error_message’, ’add_error_message’, ’operator’,
+’procedure’, ’program_line’, ’call_stack_depth’, ’user_data’}
+▷Value (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . attribute.value-array ; integer / string
+Requested exception data.
+Result
+If the values of the speciﬁed parameters are correct, dev_get_exception_data (as operator) returns 2
+(H_MSG_TRUE). Otherwise, an exception is raised and an error code returned.
+Possible Predecessors
+catch
+See also
+try, catch, endtry, throw, dev_set_check
+Module
+Foundation
+dev_get_preferences ( :
+:
+PreferenceNames :
+PreferenceValues )
+Query HDevelop preferences within a program.
+dev_get_preferences allows to query selected preferences of HDevelop within a program. Until now, the
+following preferences are supported:
+’graphics_window_context_menu’: Returns whether a right click into the graphics window opens a context menu
+or not. By default the context menu is enabled.
+’graphics_window_mouse_wheel’: Returns whether the mouse wheel can be used to zoom the contents of the
+graphics window or not. By default the moue wheel is enabled.
+’graphics_window_tool_tip’: Returns whether pressing the Ctrl key over the graphics window shows a tool tip
+with the current pixel position and the gray values under the mouse cursor or not. By default the tool tip is
+enabled.
+’suppress_handled_exceptions_dlg’: Returns whether the error dialog is suppressed that is by default opened for
+exceptions that are thrown during program execution and that are enclosed by a try-catch block and can
+therefore be handled by an exception handler. This option is persistently stored in the HDevelop.ini ﬁle and
+can be conﬁgured via the Preferences dialog / General Options / Experienced User.
+Attention
+This operator is not supported for code export.
+Parameters
+▷PreferenceNames (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . attribute.name-array ; string
+Selection of the preferences.
+Default: ’graphics_window_context_menu’
+List of values: PreferenceNames ∈{’graphics_window_context_menu’,
+’graphics_window_mouse_wheel’, ’graphics_window_tool_tip’, ’suppress_handled_exception_dlg’}
+▷PreferenceValues (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . attribute.value-array ; string
+Values of the selected preferences.
+HALCON 26.05.0.0
+
+
+----- [page 950] -----
+902
+CHAPTER 10 DEVELOP
+See also
+dev_set_preferences
+Module
+Foundation
+dev_get_system ( :
+:
+SystemQueries :
+SystemInformations )
+Query the HDevelop system within a program.
+The operator dev_get_system returns information concerning the HDevelop system parameters.
+Read-Only Parameters
+The following system parameters can be queried:
+’call_stack’: Returns the call stack, that is the procedure names and lines of the calls. See also “Thread View /
+Call Stack” in the HDevelop User’s Guide.
+Attention: This option only works when executing without JIT compilation.
+’engine_environment’: Returns ’HDevelop’ if it is called within HDevelop, else ’HDevEngine’.
+’jit_enabled’: Returns ’true’ if the JIT Compiler is enabled, ’false’ otherwise. Not all procedures can be JIT
+compiled.
+Attention
+This operator is not supported for code export.
+Parameters
+▷SystemQueries (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .attribute.name-array ; string
+Desired system parameters.
+Default: ’engine_environment’
+List of values: SystemQueries ∈{’call_stack’, ’engine_environment’, ’jit_enabled’}
+▷SystemInformations (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . attribute.value-array ; string
+Current value of the system parameters.
+Module
+Foundation
+dev_get_window ( :
+:
+:
+WindowHandle )
+Return the handle of the active graphics window.
+dev_get_window returns the window handle of the active graphics window. If currently no graphics window is
+open, the return value is -1.
+Attention
+Using the code export feature of HDevelop, the code that is generated for this operator may have a different
+behavior than the related HALCON operator. For a detailed description of the code export of HDevelop graphics
+operators into the different programming languages see in the “HDevelop User’s Guide” the chapter Code
+Export ▷General Aspects of Code Generation ▷Graphics Windows.
+Parameters
+▷WindowHandle (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . window ; handle
+Window handle.
+Example
+read_image (Image,'mreut')
+threshold (Image, Region, 100, 200)
+dev_open_window (1, 1, 200, 200, 'black', WindowID1)
+dev_open_window (1, 220, 200, 200, 'black', WindowID2)
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 951] -----
+903
+dev_get_window (CurrentWindowID)
+dev_set_window (WindowID1)
+dev_set_color ('blue')
+dev_display (Image)
+dev_display (Region)
+dev_set_window(CurrentWindowID)
+Result
+If the values of the speciﬁed parameters are correct, dev_get_window returns 2 (H_MSG_TRUE). Otherwise,
+an exception is raised and an error code returned.
+Possible Predecessors
+dev_close_window
+Possible Successors
+dev_set_window
+Module
+Foundation
+dev_inspect_ctrl ( :
+:
+Variable :
+)
+Open a window to inspect one or more control variables.
+dev_inspect_ctrl opens an inspection window to display the contents of one or more control variables.
+The standard inspection window displays the variable values with some optional statistics in a table. The win-
+dow title is generated from the given parameter names. For some semantic types a special representation exists,
+e.g., functions are displayed as function plot by default. For more information, see the chapter “Inspecting
+Variables” in the “HDevelop User’s Guide”.
+You can pass a tuple of variables in Variable to open an inspection window for multiple variables. It is also
+possible to override the default inspection mode by including a string literal as the ﬁrst element of the tuple:
+’tuple’: Show the values in the default inspection window even if the semantic type of the variable has a special
+representation.
+’plot’: Plot the values of numeric variables against their tuple index.
+’plot_xy’: Plot the values of numeric variables as X-Y pairs. The number of variables must be even, with each
+pair of variables having the same length.
+Note that no expressions are evaluated inside the call of dev_inspect_ctrl, but only the contained parameter
+names are parsed. Therefore, operations like, e.g., accessing a speciﬁc tuple range or arithmetic tuple operations
+need to be done beforehand.
+Normally, the window contents will be updated whenever the variables change. However, the update behavior can
+be inﬂuenced by the operator dev_update_var and the Update Variable preference.
+The window can be closed by pressing the Close button or by calling dev_close_inspect_ctrl.
+Attention
+This operator is not supported for code export.
+Parameters
+▷Variable (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer(-array) ; integer / real / string
+Name of the variable to be checked.
+Example
+read_image (Image, 'fabrik')
+regiongrowing (Image, Regions, 3, 3, 6, 100)
+area_center (Regions, Area, Row, Column)
+dev_inspect_ctrl (Area)
+dev_inspect_ctrl (['plot_xy', Row, Column])
+HALCON 26.05.0.0
+
+
+----- [page 952] -----
+904
+CHAPTER 10 DEVELOP
+Result
+If the values of the speciﬁed parameters are correct, dev_inspect_ctrl returns 2 (H_MSG_TRUE). Otherwise,
+an exception is raised and an error code returned.
+See also
+dev_update_var
+Module
+Foundation
+dev_open_dialog ( :
+:
+DialogName :
+)
+Open a modal HDevelop dialog.
+dev_open_dialog opens a modal HDevelop dialog type DialogName. DialogName contains the name of
+the dialog which should be opened.
+The following dialogs, are supported:
+DialogName
+Dialog
+’about_dialog’
+About dialog
+’duplicate_procedure_dialog’
+Duplicate Procedure dialog
+’export_dialog’
+Export dialog
+’open_graphics_windows_dialog’
+Open Graphics Window dialog
+’insert_visualization_code_dialog’
+Insert Visualization Code dialog
+’read_image_dialog’
+Read Image dialog
+’print_dialog’
+Print dialog
+’properties_dialog’
+Properties dialog
+’save_window_dialog’
+Save Graphic Window dialog
+Attention
+This operator is not supported for code export.
+Parameters
+▷DialogName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+Name of the dialog to be opened.
+Example
+dev_open_dialog ('print_dialog')
+Result
+If the values of the speciﬁed parameters are correct, dev_open_tool returns 2 (H_MSG_TRUE). Otherwise, an
+exception is raised and an error code returned.
+Module
+Foundation
+dev_open_file_dialog ( :
+:
+Filter,
+Mode,
+Path :
+Selection )
+Opens a ﬁle selection dialog.
+dev_open_file_dialog opens a ﬁle selection dialog for reading one ﬁle (Mode = ’read’), reading one or
+more ﬁles (Mode = ’read_multi’), writing (Mode = ’write’) a ﬁle or choosing (Mode = ’dir’) a directory. If Mode
+is set to ’default’ and Filter is set to an HALCON operator the type is set to the value the operator would use.
+The Filter can be used to select the types of the ﬁles which shall be selected for reading or writing. The Filter
+can be set to an HALCON operator, for example read_image, which should read or write the selected ﬁle. In
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 953] -----
+905
+that case, the ﬁlter is set appropriate to the ﬁles used by the HALCON operator. To select images of type JPEG and
+TIFF the ﬁlter could be set to ’Images (*.jpg *.tif *.tiff)’ or ’JPEG Files (*.jpg);;TIFF-Files (*.tif *.tiff)’. In the
+ﬁrst case, by selecting the entry ’Images’ all supported images ﬁles are displayed together. In the second case it is
+possible to choose between JPEG Files or TIFF Files. The Filter is not case sensitive, therefore the same results
+are supplied by ’JPEG Files (*.jpg)’ and ’JPEG Files (*.JPG)’. The ’All Files (*)’ is always added. To combine
+more than one ﬁlter you have to separate them by ’;;’.
+Examples:
+The ﬁlter ’Images (*.jpg *.tiff *.tif)’ lists all ﬁles with the extensions jpg, tiff and tif.
+The ﬁlter ’JPEG Files (*.jpg)’ lists all ﬁles with the extension jpg.
+Combination of 3 ﬁlters: ’Images (*.jpg *.tiff *.tif);;JPEG Files (*.jpg);;TIFF Files (*.tiff *.tif)’
+The Path can be used to set the working directory. If Path is set to ’default’ the working directory is set to the
+last one used for this type of Mode.
+After a successful execution the Selection contains the selected ﬁles or ﬁle.
+Attention
+This operator is not supported for code export.
+Parameters
+▷Filter (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+Type of ﬁle or ﬁles to select.
+▷Mode (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+Mode of the ﬁle selection dialog.
+Default: ’default’
+List of values: Mode ∈{’default’, ’read’, ’read_multi’, ’write’, ’dir’}
+▷Path (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+Working directory.
+Default: ’default’
+▷Selection (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string(-array) ; string
+Selected ﬁle names.
+Default: ’default’
+Example
+dev_open_file_dialog ('read_image', 'default','c:/',Selection)
+read_image(ToolId, Selection)
+Result
+If the values of the speciﬁed parameters are correct, dev_open_file_dialog returns 2 (H_MSG_TRUE).
+Otherwise, an exception is raised and an error code returned.
+Alternatives
+dev_open_dialog
+See also
+dev_open_dialog
+Module
+Foundation
+dev_open_tool ( :
+:
+ToolName,
+Row,
+Column,
+Width,
+Height,
+GenParamName,
+GenParamValue :
+ToolId )
+Open a HDevelop tool, a non-modal dialog, or assistant.
+dev_open_tool opens a HDevelop tool, a non-modal dialog, or assistant. The parameter ToolName contains
+the name of the tool to be opened. This operator returns the ToolId of the newly created tool, which can be used
+by operators like dev_set_tool_geometry, dev_show_tool, dev_close_tool to address a speciﬁc
+tool. The opened tool automatically becomes active.
+The tool is closed by pressing the Close button of the window frame, or by calling dev_close_tool.
+HALCON 26.05.0.0
+
+
+----- [page 954] -----
+906
+CHAPTER 10 DEVELOP
+The parameters GenParamName and GenParamValue are optional. For certain ToolName they can be used
+to specify which page is displayed and more, see below. If they are set to [] the tool opens with default settings.
+Following the supported tools are listed, whereby they are sorted thematically.
+Concerning the Main Windows supported values for ToolName:
+• ’graphics_window’: Graphics Window
+• ’operator_window’: Operator Window
+• ’program_window’: Program Window
+• ’variable_window’: Variable Window
+Concerning the Assistants supported ToolName:
+• ’calibration_assistant’: Camera Calibration Assistant
+Supported values for GenParamName:
+– ’page’: Page to be displayed. Supported values for GenParamValue:
+* ’setup’: Setup
+* ’calibration’: Calibration
+* ’result’: Results
+* ’code_generation’: Code Generation
+Example:
+dev_open_tool(’calibration_assistant’, ..., ’page’, ’result’,
+...) opens the calibration assistant and shows the tab card Results.
+• ’image_acquisition_assistant’: Image Acquisition Assistant
+Supported values for GenParamName:
+– ’page’: Page to be displayed. Supported values for GenParamValue:
+* ’source’: Source
+* ’connection’: Connection
+* ’parameters’: Parameters
+* ’code_generation’: Code Generation
+Example:
+dev_open_tool(’image_acquisition’, ...,’page’, ’source’, ...)
+opens the image acquisition assistant and shows the tab card Source.
+• ’matching_assistant’: Matching Assistant
+Supported values for GenParamName:
+– ’page’: Page to be displayed. Supported values for GenParamValue:
+* ’model_creation’: Model Creation
+* ’model_parameter’: Model Parameter
+* ’model_use’: Model Use
+* ’inspect’: Inspect
+* ’code_generation’ & Code Generation
+Example:
+dev_open_tool(’matching_assistant’, ...,’page’, ’inspect’,
+...) opens the matching assistant and shows the tab card Inspect.
+• ’measure1d_assistant’: Measure Assistant
+Supported values for GenParamName:
+– ’page’: Page to be displayed. Supported values for GenParamValue:
+* ’input’: Input
+* ’edges’: Edges
+* ’fuzzy’: Fuzzy
+* ’result’: Results
+* ’code_generation’& Code Generation
+Example:
+dev_open_tool(’measure1d_assistant’, ..., ’page’, ’edges’,
+...) opens the measure assistant and shows the tab card Edges.
+• ’ocr_assistant’: OCR Assistant
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 955] -----
+907
+Concerning the Tools supported values for ToolName:
+• ’call_stack’: Call Stack
+• ’canvas’: Canvas Window
+• ’feature_histogram’: Feature Histogram
+• ’feature_inspection’: Feature Inspection
+• ’gray_histogram’: Gray Histogram
+• ’line_proﬁle’: Line Proﬁle
+• ’zoom_window’: Zoom Window
+• ’ocr_training_ﬁle_browser’: OCR Training File Browser
+Concerning the Dialogs supported values for ToolName:
+• ’browse_examples_dialog’: Browse Examples Dialog
+• ’create_procedure_dialog’: Create Procedure Dialog
+• ’edit_procedure_interface_dialog’: Edit Procedure Interface Dialog
+• ’ﬁnd_replace_dialog’: Find Replace Dialog
+• ’output_console’: Output Console
+• ’quick_navigation’: Quick Navigation
+Supported values for GenParamName:
+– ’page’: Page to be displayed. Supported values for GenParamValue:
+* ’invalid_lines’: Invalid Lines
+* ’ﬁnd_results’: Find Results
+* ’breakpoints’: Breakpoints
+* ’bookmarks’: Bookmarks
+Example:
+dev_open_tool(’quick_navigation’, ..., ’page’, ’breakpoints’,
+...) opens the quick navigation window and shows the tab card Breakpoints.
+• ’breakpoints_dialog’: Quick Navigation / Breakpoints
+• ’bookmarks_dialog’: Quick Navigation / Bookmarks
+• ’invalid_lines_dialog’: Quick Navigation / Invalid Lines
+• ’visualization_parameters_dialog’: Visualization Parameters Dialog
+• ’help’: Help Browser
+Supported values for GenParamName:
+– ’page’: Page to be displayed. Supported values for GenParamValue:
+* ’contents’: Contents
+* ’operator’: Operator
+* ’search’: Search
+* ’index’: Index
+* ’bookmarks’: Bookmarks
+Example: dev_open_tool(’help’, ..., ’page’, ’search’, ...) opens the help tool
+and selects the tab card Search.
+– ’operator’: Operator whose HTML page should be displayed.
+Supported values for GenParamValue: Operator names (written in snake case).
+Example:
+dev_open_tool(’help’, ...,[’page’,’operator’],
+[’search’,’read_image’], ...)
+opens the help tool, selects the tab card Search and
+displays the description of the operator read_image.
+– ’manual’: Manual whose HTML page should be displayed.
+Supported values for GenParamValue: Manual names (including their path, both written in snake
+case).
+Example:
+dev_open_tool(’help’, ’default’, ’default’, ’default’,
+’default’, ’manual’, ’hdevelop_users_guide/hdevelop_users_guide_0000’,
+ToolId) opens the manual “HDevelop User’s Guide”.
+HALCON 26.05.0.0
+
+
+----- [page 956] -----
+908
+CHAPTER 10 DEVELOP
+• ’preferences’: Preferences Dialog
+Supported values for GenParamName:
+– ’page’: Page to be displayed. Supported values for GenParamValue are listed in groups of menu
+items.
+For the menu User Interface supported values for GenParamValue:
+* ’user_interface/program_window’: Program Window
+* ’user_interface/fonts’: Fonts
+* ’user_interface/language’: Language
+* ’user_interface/themes’: Themes
+For the menu Procedures supported values for GenParamValue:
+* ’procedures/directories’: Directories
+* ’procedures/external_procedures’: External Procedures
+* ’procedures/manage_procedure_libraries’: Manage Procedure Libraries
+* ’procedures/manage_passwords’: Manage Passwords
+* ’procedures/procedure_use’: Procedure Use
+* ’procedures/unresolved_procedure_calls’: Unresolved Procedure Calls
+For the menu General Options supported values for GenParamValue:
+* ’general_options/general_options’: General Options
+* ’general_options/experienced_user’: Experienced User
+For the menu Visualization Settings, supported values for GenParamValue:
+* ’visualization_settings/pen’: Pen
+* ’visualization_settings/lut’: LUT
+* ’visualization_settings/paint’: Paint
+For the menu Runtime Settings supported values for GenParamValue:
+* ’runtime_settings/runtime_settings’: Runtime Settings
+* ’runtime_settings/override_operator_behavior’: Override Operator Behavior
+For the menu Telemetry Settings supported values for GenParamValue:
+* ’telemetry_settings’: Telemetry Settings
+Example:
+dev_open_tool(’preferences’, ..., ’page’,
+’user_interface/language’, ...)
+shows the page language from the group User
+Interface.
+• ’halcon_news’: HALCON News website - an empty ToolId is returned because this simply opens the news
+page.
+The parameters Row and Column can be used to open the tool at a speciﬁc position. Note that the offset val-
+ues speciﬁed under Edit ▷Preferences ▷General Options ▷General Options ▷Window open
+offset are added to the row and the column index, respectively. For more information, see the chapter “Menu
+Edit” in the “HDevelop User’s Guide”. In order to apply the standard behavior, that is in general opening
+the tool at the last position, ’default’ can be passed.
+The parameters Width and Height can be used to open the tool with a speciﬁc size. In order to apply the
+standard behavior, that is in general opening the tool with the last size, ’default’ can be passed. If Width and
+Height are less than the minimum size of the tool the minimum size is used.
+Attention
+This operator is not supported for code export.
+Parameters
+▷ToolName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .string ; string
+Name of the tool to be opened and additional parameters.
+List of values: ToolName ∈{’graphics_window’, ’operator_window’, ’program_window’,
+’variable_window’, ’calibration_assistant’, ’image_acquisition_assistant’, ’matching_assistant’,
+’measure1d_assistant’, ’ocr_assistant’, ’call_stack’, ’canvas’, ’feature_histogram’, ’feature_inspection’,
+’gray_histogram’, ’line_proﬁle’, ’zoom_window’, ’ocr_training_ﬁle_browser’, ’browse_examples_dialog’,
+’create_procedure_dialog’, ’edit_procedure_interface_dialog’, ’ﬁnd_replace_dialog’, ’output_console’,
+’quick_navigation’, ’breakpoints_dialog’, ’bookmarks_dialog’, ’invalid_lines_dialog’,
+’visualization_parameters_dialog’, ’help’, ’preferences’, ’halcon_news’}
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 957] -----
+909
+▷Row (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .rectangle.origin.y ; integer / string
+Row index of upper left corner.
+Default: ’default’
+Minimum increment: 1
+Recommended increment: 1
+▷Column (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .rectangle.origin.x ; integer / string
+Column index of upper left corner.
+Default: ’default’
+Minimum increment: 1
+Recommended increment: 1
+▷Width (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . rectangle.extent.x ; integer / string
+Width of the tool.
+Default: ’default’
+Minimum increment: 1
+Recommended increment: 1
+Restriction: Width > 0
+▷Height (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . rectangle.extent.y ; integer / string
+Height of the tool.
+Default: ’default’
+Minimum increment: 1
+Recommended increment: 1
+Restriction: Height > 0
+▷GenParamName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .attribute.name(-array) ; string
+Names of the generic parameters.
+Default: []
+▷GenParamValue (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . attribute.value(-array) ; string
+Values of the generic parameters.
+Default: []
+▷ToolId (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .dev_tool ; string
+Tool identiﬁer.
+Example
+dev_open_tool ('zoom_window',0, 0, Width, Height, [], [], ToolId)
+dev_close_tool (ToolId)
+Result
+If the values of the speciﬁed parameters are correct, dev_open_tool returns 2 (H_MSG_TRUE). Otherwise, an
+exception is raised and an error code returned.
+Possible Successors
+dev_set_tool_geometry, dev_show_tool, dev_close_tool
+Module
+Foundation
+dev_open_window ( :
+:
+Row,
+Column,
+Width,
+Height,
+Background :
+WindowHandle )
+Open a new graphics window.
+dev_open_window opens a new graphics window, which can be used to display iconic objects like images,
+regions, and lines as well as to perform textual output. This window automatically becomes active, which means
+that all output (dev_display and automatic display of operator results) is redirected to this window. This is
+shown by the lucent lamp on the Active button.
+Each graphics window is identiﬁed by its WindowHandle. This logical number is displayed in the title bar of
+the graphics window and is required as input parameter for some operators like disp_image, disp_region,
+draw_circle, get_mbutton, write_string, and set_rgb.
+HALCON 26.05.0.0
+
+
+----- [page 958] -----
+910
+CHAPTER 10 DEVELOP
+The graphics window is closed by pressing the Close button of the window frame, via the Visualization
+menu, or by calling dev_close_window.
+Graphics Window Position
+By default, the graphics window opens within the canvas window.
+If this is not desired, select Restore
+Default Layout use ▷Docked Graphics Window from the Window menu in HDevelop. See also
+“Canvas Window” in the “HDevelop User’s Guide”.
+The parameters Row and Column are used to pass the position of the window. Its reference point (0, 0) on the
+canvas is visualized by a cross.
+For ﬂoating windows, the reference point is by default the upper left corner of the HDevelop main window. You
+can change this reference point, so that, for example, the graphics window position aligns with the upper left corner
+of the screen. To do so, open the HDevelop preferences and choose the desired Origin of coordinates
+under General options.
+Moreover, you can adapt the window position via the setting Window open offset. These offset values
+are added to the row and the column index, respectively. See also “Menu Window open offset” in the
+“HDevelop User’s Guide”.
+Graphics Window Visualization
+The background of the created graphics window is set to the color speciﬁed in Background. This param-
+eter is not available for the operator open_window.
+There, the same behavior can be achieved by calling
+set_window_attr(::’background_color’,Background:) in advance.
+As a default, the visible image part in the graphics window (viewport) is set in a way that images are displayed
+without clipping and ﬁtted completely into the window. The image part is adapted to the window’s size according
+to this rule for the ﬁrst image that is displayed after a program reset or the loading of a new program or if the
+current image has a different image size than the image that was displayed before. The size of the window is not
+adapted automatically, hence, if the aspect ratio of the image differs from that of the window, the image is distorted
+to ﬁt into the window. This can be changed via the Window Size menu.
+The visible image part can be changed interactively by spinning the mouse wheel, using the Move or Zoom mode,
+via the Image Size menu, with the help of the Zoom tab card on the Visualization Parameters dialog,
+or with the operator dev_set_part.
+The display parameters of the graphics window can be speciﬁed via its context menu, the Visualization menu,
+the Visualization Parameters dialog, or the appropriate HDevelop operators like dev_set_color,
+dev_set_line_width, dev_set_draw. Depending on the Apply Immediately preference, the pa-
+rameter changes are applied to the lastly displayed object or apply from now on for all following objects. In
+contrast to the standard HALCON window operators, the new settings are also used for all new graphics windows.
+Graphics Window History
+Each graphics window manages a history that contains the
+• objects and
+• display parameters
+that have been displayed or changed since the most recent clear action or display of a full image. This history is
+used if a redraw of the window is triggered, e.g., after a change of the window’s size, in order to reconstruct the
+complete window contents. Other iconic output that was displayed using HALCON operators like disp_image
+or disp_region, text (write_string), or geometric objects (disp_line, disp_circle, etc.) are not
+part of the history, and can therefore not be redrawn. Only the object classes image, region, and XLD that are
+displayed with the HDevelop operator dev_display or by HDevelop actions like double clicking on an icon are
+part of the history.
+Pressing the Clear button clears the graphics window contents and the history of the window. This can also be
+achieved by using the operator dev_clear_window. This will not affect the current display parameters.
+Further Information
+Additional information about the underlying HALCON window can be found at open_window. For more infor-
+mation about the graphics window, please have a look at the “HDevelop User’s Guide”.
+Attention
+Using the code export feature of HDevelop, the code that is generated for this operator may have a different
+behavior than the related HALCON operator. For a detailed description of the code export of HDevelop graphics
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 959] -----
+911
+operators into the different programming languages, in the “HDevelop User’s Guide”, see the chapter
+Code Export ▷General Aspects of Code Generation ▷Graphics Windows.
+Parameters
+▷Row (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .rectangle.origin.y ; integer
+Row index of upper left corner.
+Default: 0
+Value range: 0 ≤Row
+Minimum increment: 1
+Recommended increment: 1
+▷Column (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .rectangle.origin.x ; integer
+Column index of upper left corner.
+Default: 0
+Value range: 0 ≤Column
+Minimum increment: 1
+Recommended increment: 1
+▷Width (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . rectangle.extent.x ; integer
+Width of the window.
+Default: 512
+Minimum increment: 1
+Recommended increment: 1
+Restriction: Width > 0 || Width == -1
+▷Height (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . rectangle.extent.y ; integer
+Height of the window.
+Default: 512
+Minimum increment: 1
+Recommended increment: 1
+Restriction: Height > 0 || Height == -1
+▷Background (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer ; integer / string
+Color of the background of the new window.
+Default: ’black’
+▷WindowHandle (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . window ; handle
+Window handle.
+Example
+dev_close_window ()
+read_image (For5, 'for5')
+get_image_size (For5, Width, Height)
+dev_open_window (0, 0, Width, Height, 'black', WindowHandle)
+dev_display (For5)
+dev_set_lut ('rainbow')
+dev_display (For5)
+stop ()
+dev_set_lut ('default')
+dev_display (For5)
+stop ()
+dev_set_part (100, 100, 300, 300)
+dev_display (For5)
+Result
+If the values of the speciﬁed parameters are correct, dev_open_window returns 2 (H_MSG_TRUE). Otherwise,
+an exception is raised and an error code returned.
+Possible Successors
+dev_display, dev_set_lut, dev_set_color, dev_set_draw, dev_set_part
+Alternatives
+open_window
+HALCON 26.05.0.0
+
+
+----- [page 960] -----
+912
+CHAPTER 10 DEVELOP
+See also
+query_color
+Module
+Foundation
+dev_set_check ( :
+:
+Mode :
+)
+Specify the error handling in HDevelop.
+dev_set_check speciﬁes how HDevelop has to react in case of an error, i.e., if the return state of an operator is
+not 2 (H_MSG_TRUE).
+If Mode has the value ’give_error’—which is the system default—an erroneous operator call will throw an excep-
+tion, that can be caught within the HDevelop program by the catch statement. However, if there is no surrounding
+try-catch block in the HDevelop program and the program is executed within HDevelop, the program execu-
+tion stops at the erroneous operator and an error message box is opened to display the error text. In addition, the
+appropriate operator call is entered into the Operator Window, so that the user can easily edit and possibly correct
+the parameters of the erroneous operator call. If the procedure was called from HDevEngine and the exception is
+not caught within the HDevelop program, an HDevEngineException object is thrown and the procedure is
+left.
+If Mode is set to ’~give_error’, the error will be ignored and the program continues with the next operator.
+dev_set_check(’~give_error’) is intended to be used in connection with dev_error_var, which
+allows to check the result state that is returned by the operator calls.
+Attention
+Using the code export feature of HDevelop, the code that is generated for this operator may have a different
+behavior than the related HALCON operator. For a detailed description of the code export of HDevelop graphics
+operators into the different programming languages see in the “HDevelop User’s Guide” the chapter Code
+Export ▷General Aspects of Code Generation ▷Graphics Windows.
+Parameters
+▷Mode (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+Mode of error handling.
+Default: ’give_error’
+Example
+dev_close_window ()
+dev_open_window (0, 0, 512, 512, 'black', WindowHandle)
+dev_error_var (Error, 1)
+dev_set_check ('~give_error')
+FileName := 'wrong_name'
+read_image (Image, FileName)
+ReadError := Error
+if (ReadError != H_MSG_TRUE)
+write_string (WindowHandle, 'wrong file name: '+FileName)
+endif
+* Now the program will stop with an exception
+dev_set_check ('give_error')
+read_image (Image, FileName)
+Result
+If the values of the speciﬁed parameters are correct, dev_set_check returns 2 (H_MSG_TRUE). Otherwise, an
+exception is raised and an error code returned.
+Possible Successors
+dev_error_var
+See also
+set_check, try, catch, endtry
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 961] -----
+913
+Module
+Foundation
+dev_set_color ( :
+:
+ColorName :
+)
+Set one or more output colors.
+dev_set_color deﬁnes the color(s) that are used to display regions, XLDs, and other geometrical objects
+in the graphics windows. The available colors can be queried with the operator query_color. In addition,
+the ColorName may be speciﬁed as hexadecimal RGB triplet or RGBA quadruplet in the form ’#rrggbb’ and
+’#rrggbbaa’. ’rr’, ’gg’, ’bb’, and ’aa’ are hexadecimal numbers between ’00’ and ’ff’, respectively. ’aa’ denotes
+the alpha value of a color and can be used to display transparent regions.
+For more information see the description of the operator set_color. However, in contrast to that operator the
+color setting is also used for all new graphics windows that are opened afterwards.
+These color settings remain valid until dev_set_color or dev_set_colored is called or until the color
+settings are modiﬁed interactively.
+HALCON 26.05.0.0
+
+
+----- [page 962] -----
+914
+CHAPTER 10 DEVELOP
+Color name
+75% alpha
+50% alpha
+25% alpha
+'black'
+'#000000c0'
+'#00000080'
+'#00000040'
+'white'
+'#ffffffc0'
+'#ffffff80'
+'#ffffff40'
+'red'
+'#ff0000c0'
+'#ff000080'
+'#ff000040'
+'green'
+'#00ff00c0'
+'#00ff0080'
+'#00ff0040'
+'blue'
+'#0000ffc0'
+'#0000ff80'
+'#0000ff40'
+'dim gray'
+'#696969c0'
+'#69696980'
+'#69696940'
+'gray'
+'#bebebec0'
+'#bebebe80'
+'#bebebe40'
+'light gray'
+'#d3d3d3c0'
+'#d3d3d380'
+'#d3d3d340'
+'cyan'
+'#00ffffc0'
+'#00ffff80'
+'#00ffff40'
+'magenta'
+'#ff00ffc0'
+'#ff00ff80'
+'#ff00ff40'
+'yellow'
+'#ffff00c0'
+'#ffff0080'
+'#ffff0040'
+'medium slate blue'
+'#7b68eec0'
+'#7b68ee80'
+'#7b68ee40'
+'coral'
+'#ff7f50c0'
+'#ff7f5080'
+'#ff7f5040'
+'slate blue'
+'#6a5acdc0'
+'#6a5acd80'
+'#6a5acd40'
+'spring green'
+'#00ff7fc0'
+'#00ff7f80'
+'#00ff7f40'
+'orange red'
+'#ff4500c0'
+'#ff450080'
+'#ff450040'
+'dark olive green'
+'#556b2fc0'
+'#556b2f80'
+'#556b2f40'
+'pink'
+'#ffc0cbc0'
+'#ffc0cb80'
+'#ffc0cb40'
+'cadet blue'
+'#5f9ea0c0'
+'#5f9ea080'
+'#5f9ea040'
+'goldenrod'
+'#daa520c0'
+'#daa52080'
+'#daa52040'
+'orange'
+'#ffa500c0'
+'#ffa50080'
+'#ffa50040'
+'gold'
+'#ffd700c0'
+'#ffd70080'
+'#ffd70040'
+'forest green'
+'#228b22c0'
+'#228b2280'
+'#228b2240'
+'cornflower blue'
+'#6495edc0'
+'#6495ed80'
+'#6495ed40'
+'navy'
+'#000080c0'
+'#00008080'
+'#00008040'
+'turquoise'
+'#40e0d0c0'
+'#40e0d080'
+'#40e0d040'
+'dark slate blue'
+'#483d8bc0'
+'#483d8b80'
+'#483d8b40'
+'light blue'
+'#add8e6c0'
+'#add8e680'
+'#add8e640'
+'indian red'
+'#cd5c5cc0'
+'#cd5c5c80'
+'#cd5c5c40'
+'violet red'
+'#d02090c0'
+'#d0209080'
+'#d0209040'
+'light steel blue'
+'#b0c4dec0'
+'#b0c4de80'
+'#b0c4de40'
+'medium blue'
+'#0000cdc0'
+'#0000cd80'
+'#0000cd40'
+'khaki'
+'#f0e68cc0'
+'#f0e68c80'
+'#f0e68c40'
+'violet'
+'#ee82eec0'
+'#ee82ee80'
+'#ee82ee40'
+'firebrick'
+'#b22222c0'
+'#b2222280'
+'#b2222240'
+'midnight blue'
+'#191970c0'
+'#19197080'
+'#19197040'
+Examples of possible color strings
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 963] -----
+915
+Attention
+Using the code export feature of HDevelop, the code that is generated for this operator may have a different
+behavior than the related HALCON operator. For a detailed description of the code export of HDevelop graphics
+operators into the different programming languages see in the “HDevelop User’s Guide” the chapter Code
+Export ▷General Aspects of Code Generation ▷Graphics Windows.
+Parameters
+▷ColorName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string(-array) ; string
+Output color names.
+Default: ’white’
+Suggested values: ColorName ∈{’white’, ’black’, ’gray’, ’red’, ’green’, ’blue’, ’#003075’, ’#e53019’,
+’#ffb529’}
+Example
+read_image(Image,'mreut')
+dev_set_draw('fill')
+dev_set_color('red')
+threshold(Image,Region,180,255)
+dev_set_color('green')
+threshold(Image,Region,0,179)
+Result
+If the values of the speciﬁed parameters are correct, dev_set_color returns 2 (H_MSG_TRUE). Otherwise, an
+exception is raised and an error code returned.
+Possible Predecessors
+dev_open_window, query_color, query_all_colors
+Possible Successors
+dev_display
+Alternatives
+dev_set_colored
+See also
+dev_set_draw, dev_set_line_width, set_color
+Module
+Foundation
+dev_set_colored ( :
+:
+NumColors :
+)
+Set multiple output colors.
+dev_set_colored allows to display tuples of regions, XLDs, and other geometrical objects in the graphics
+windows in different colors using a set of NumColors predeﬁned colors. Valid values for NumColors can be
+queried with the operator query_colored.
+For more information see the description of the operator set_colored. However, in contrast to that operator
+the color setting is also used for all new graphics windows that are opened afterwards.
+These color settings remain valid until dev_set_color or dev_set_colored is called or until the color
+setting are modiﬁed interactively.
+Attention
+Using the code export feature of HDevelop, the code that is generated for this operator may have a different
+behavior than the related HALCON operator. For a detailed description of the code export of HDevelop graphics
+operators into the different programming languages see in the “HDevelop User’s Guide” the chapter Code
+Export ▷General Aspects of Code Generation ▷Graphics Windows.
+HALCON 26.05.0.0
+
+
+----- [page 964] -----
+916
+CHAPTER 10 DEVELOP
+Parameters
+▷NumColors (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer ; integer
+Number of output colors.
+Default: 6
+List of values: NumColors ∈{3, 6, 12}
+Example
+read_image(Image,'monkey')
+threshold(Image,Region,128,255)
+dev_set_colored(6)
+connection(Region,Regions)
+Result
+If the values of the speciﬁed parameters are correct, dev_set_colored returns 2 (H_MSG_TRUE). Otherwise,
+an exception is raised and an error code returned.
+Possible Predecessors
+dev_open_window
+Possible Successors
+dev_display
+Alternatives
+dev_set_color
+See also
+dev_set_draw, dev_set_line_width, set_colored
+Module
+Foundation
+dev_set_contour_style ( :
+:
+Style :
+)
+Deﬁne the contour display ﬁll style.
+dev_set_contour_style deﬁnes the ﬁll style of contour displays. The following values are supported for
+Style:
+• ’stroke’: Only the line of the contour gets displayed.
+• ’ﬁll’: The area enclosed by the contour is ﬁlled.
+• ’stroke_and_ﬁll’: The line of the contour gets displayed and the enclosed area ﬁlled. especially makes a
+difference for larger line widths, see set_line_width.
+For all styles the current drawing color is used.
+Attention
+Using the code export feature of HDevelop, the code that is generated for this operator may have a different
+behavior than the related HALCON operator. For a detailed description of the code export of HDevelop graphics
+operators into the different programming languages see in the “HDevelop User’s Guide” the chapter Code
+Export ▷General Aspects of Code Generation ▷Graphics Windows.
+Parameters
+▷Style (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+Fill style for contour display.
+Default: ’stroke’
+List of values: Style ∈{’stroke’, ’ﬁll’, ’stroke_and_ﬁll’}
+Result
+If the values of the speciﬁed parameters are correct, dev_set_contour_style returns 2 (H_MSG_TRUE).
+Otherwise, an exception is raised and an error code returned.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 965] -----
+917
+Possible Successors
+dev_display
+See also
+set_contour_style
+Module
+Foundation
+dev_set_draw ( :
+:
+DrawMode :
+)
+Deﬁne the region ﬁll mode.
+dev_set_draw deﬁnes the ﬁll mode for regions. If DrawMode is set to ’ﬁll’, regions are displayed ﬁlled, if set
+to ’margin’, only contours are displayed. In the ’margin’ mode, the appearance of the contours can be affected by
+dev_set_line_width and set_line_style.
+For more information see the description of the operator set_draw. However, in contrast to that operator the
+draw mode is also used for all new graphics windows that are opened afterwards.
+Attention
+Using the code export feature of HDevelop, the code that is generated for this operator may have a different
+behavior than the related HALCON operator. For a detailed description of the code export of HDevelop graphics
+operators into the different programming languages see in the “HDevelop User’s Guide” the chapter Code
+Export ▷General Aspects of Code Generation ▷Graphics Windows.
+Parameters
+▷DrawMode (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .string ; string
+Fill mode for region output.
+Default: ’ﬁll’
+List of values: DrawMode ∈{’ﬁll’, ’margin’}
+Example
+read_image(Image,'monkey')
+threshold(Image,Region,128,255)
+dev_clear_window ()
+dev_set_color('red')
+dev_set_draw('fill')
+dev_display(Region)
+dev_set_color('white')
+dev_set_draw('margin')
+dev_display(Region)
+Result
+If the values of the speciﬁed parameters are correct, dev_set_draw returns 2 (H_MSG_TRUE). Otherwise, an
+exception is raised and an error code returned.
+Possible Successors
+dev_set_line_width, dev_display
+See also
+set_draw
+Module
+Foundation
+dev_set_line_width ( :
+:
+LineWidth :
+)
+Deﬁne the line width for region contour output.
+HALCON 26.05.0.0
+
+
+----- [page 966] -----
+918
+CHAPTER 10 DEVELOP
+dev_set_line_width deﬁnes the line width (in pixel) that is used to display region contours (in ’margin’
+mode), XLDs, and other geometric output (e.g., disp_region, disp_line, etc.).
+For more information see the description of the operator set_line_width. However, in contrast to that operator
+the new line width is also used for all new graphics windows that are opened afterwards.
+Attention
+Using the code export feature of HDevelop, the code that is generated for this operator may have a different
+behavior than the related HALCON operator. For a detailed description of the code export of HDevelop graphics
+operators into the different programming languages see in the “HDevelop User’s Guide” the chapter Code
+Export ▷General Aspects of Code Generation ▷Graphics Windows.
+Parameters
+▷LineWidth (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer ; integer
+Line width for region output in contour mode.
+Default: 1
+Restriction: LineWidth >= 1
+Example
+read_image(Image,'monkey')
+threshold(Image,Region,128,255)
+dev_set_draw('margin')
+dev_set_line_width(5)
+dev_clear_window ()
+dev_display(Region)
+Result
+If the values of the speciﬁed parameters are correct, dev_set_line_width returns 2 (H_MSG_TRUE). Other-
+wise, an exception is raised and an error code returned.
+Possible Successors
+dev_display
+See also
+set_line_width, query_line_width
+Module
+Foundation
+dev_set_lut ( :
+:
+LutName :
+)
+Set “look-up-table” (lut).
+dev_set_lut sets the look-up-table of the active graphics window. A look-up-table deﬁnes the transformation
+of a “gray value” from an one-channel-image into a gray value or color on the screen. query_lut lists the names
+of all look-up-tables.
+For more information see the description of the operator set_lut. However, in contrast to that operator the new
+look-up-table is also used for all new graphics windows that are opened afterwards.
+Attention
+Using the code export feature of HDevelop, the code that is generated for this operator may have a different
+behavior than the related HALCON operator. For a detailed description of the code export of HDevelop graphics
+operators into the different programming languages see in the “HDevelop User’s Guide” the chapter Code
+Export ▷General Aspects of Code Generation ▷Graphics Windows.
+Parameters
+▷LutName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ﬁlename.read(-array) ; string / real / integer
+Name of look-up-table, values of look-up-table (RGB) or ﬁle name.
+Default: ’default’
+Suggested values: LutName ∈{’default’, ’linear’, ’inverse’, ’sqr’, ’inv_sqr’, ’cube’, ’inv_cube’, ’sqrt’,
+’inv_sqrt’, ’cubic_root’, ’inv_cubic_root’, ’color1’, ’color2’, ’color3’, ’color4’, ’three’, ’six’, ’twelve’,
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 967] -----
+919
+’twenty_four’, ’rainbow’, ’temperature’, ’cyclic_gray’, ’cyclic_temperature’, ’hsi’, ’change1’, ’change2’,
+’change3’, ’jet’, ’inverse_jet’, ’batlow’, ’inverse_batlow’}
+File extension: .lut
+Example
+read_image(Image,'mreut')
+dev_set_lut('inverse')
+* For true color only:
+dev_display(Image)
+Result
+If the values of the speciﬁed parameters are correct, dev_set_lut returns 2 (H_MSG_TRUE). Otherwise, an
+exception is raised and an error code returned.
+Possible Successors
+dev_display
+See also
+set_lut
+Module
+Foundation
+dev_set_paint ( :
+:
+Mode :
+)
+Deﬁne the gray value output mode.
+dev_set_paint deﬁnes the output mode that is used for displaying image objects in the graphics window.
+For a detailed description of all possible options see set_paint. However, in contrast to that operator the display
+mode is also used for all new graphics windows that are opened afterwards.
+Attention
+Using the code export feature of HDevelop, the code that is generated for this operator may have a different
+behavior than the related HALCON operator. For a detailed description of the code export of HDevelop graphics
+operators into the different programming languages see in the “HDevelop User’s Guide” the chapter Code
+Export ▷General Aspects of Code Generation ▷Graphics Windows.
+Parameters
+▷Mode (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .string-array ; string / integer
+Grayvalue output name. Additional parameters possible.
+Default: ’default’
+Suggested values: Mode ∈{’default’, ’3d_plot’}
+Example
+read_image(Image,'fabrik')
+dev_set_paint('3d_plot')
+dev_display(Image)
+Result
+If the values of the speciﬁed parameters are correct, dev_set_paint returns 2 (H_MSG_TRUE). Otherwise, an
+exception is raised and an error code returned.
+Possible Predecessors
+dev_open_window
+Possible Successors
+dev_set_color, dev_display
+See also
+set_paint
+Module
+Foundation
+HALCON 26.05.0.0
+
+
+----- [page 968] -----
+920
+CHAPTER 10 DEVELOP
+dev_set_part ( :
+:
+Row1,
+Column1,
+Row2,
+Column2 :
+)
+Modify the displayed image part.
+dev_set_part is used to set the part of the image that is displayed in the graphics window. The parameters
+Row1 and Column1 specify the upper left corner, Row2 and Column2 the lower right corner of the image part
+to display.
+For more information see the description of the operator set_part. In addition, if Row1 is larger than Row2 or
+Column1 larger than Column2, the zooming in the particular dimension will be reset to show the complete height
+and/or width of the image. Please note that this is not possible with the operator set_part outside HDevelop.
+In addition, note that the part is automatically reset, if a new program is loaded, a program reset is performed, or a
+new image with a different image size is displayed.
+Attention
+Using the code export feature of HDevelop, the code that is generated for this operator may have a different
+behavior than the related HALCON operator. For a detailed description of the code export of HDevelop graphics
+operators into the different programming languages see in the “HDevelop User’s Guide” the chapter Code
+Export ▷General Aspects of Code Generation ▷Graphics Windows.
+Parameters
+▷Row1 (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . rectangle.origin.y ; integer
+Row of the upper left corner of the chosen image part.
+Default: 0
+▷Column1 (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . rectangle.origin.x ; integer
+Column of the upper left corner of the chosen image part.
+Default: 0
+▷Row2 (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . rectangle.corner.y ; integer
+Row of the lower right corner of the chosen image part.
+Default: 128
+▷Column2 (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . rectangle.corner.x ; integer
+Column of the lower right corner of the chosen image part.
+Default: 128
+Example
+read_image (Image, 'fabrik')
+for i := 1 to 240 by 10
+dev_set_part (i, i, 511-i, 511-i)
+dev_display (Image)
+endfor
+dev_set_part (1, 1, -1, -1)
+dev_display (Image)
+Result
+If the values of the speciﬁed parameters are correct, dev_set_part returns 2 (H_MSG_TRUE). Otherwise, an
+exception is raised and an error code returned.
+Possible Successors
+dev_display
+See also
+set_part
+Module
+Foundation
+dev_set_preferences ( :
+:
+PreferenceNames,
+PreferenceValues :
+)
+Set HDevelop preferences within a program.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 969] -----
+921
+dev_set_preferences allows to set selected preferences of HDevelop within a program. The following
+preferences are supported:
+’graphics_window_context_menu’: Controls whether a right click into the graphics window opens a context menu
+or not. By default the context menu is enabled. Disabling the context menu may be sensible if the right mouse
+button is used for controlling some kind of navigation in the graphics window, e.g., for moving or zooming
+3D objects.
+List of values: ’false’, ’true’.
+Default: ’true’.
+’graphics_window_mouse_wheel’: Controls whether the mouse wheel can be used to zoom the contents of the
+graphics window or not. By default the mouse wheel is enabled. Disabling the mouse wheel may be sensible
+if 3D objects are displayed and if the zooming into the objects is realized interactively with the help of 3D
+display operators.
+List of values: ’false’, ’true’.
+Default: ’true’.
+’graphics_window_tool_tip’: Controls whether pressing the Ctrl key over the graphics window shows a tool tip
+with the current pixel position and the gray values under the mouse cursor or not. By default the tool tip is
+enabled. Disabling the tool tip may be sensible if the state of the Ctrl key shall be evaluated for program
+based user interactions, e.g., for manipulating the view on 3D objects.
+List of values: ’false’, ’true’.
+Default: ’true’.
+’suppress_handled_exceptions_dlg’: Controls whether the error dialog should be suppressed that is by default
+opened for exceptions that are thrown during program execution and that are enclosed by a try-catch
+block and can therefore be handled by an exception handler. This option is persistently stored into the
+HDevelop.ini ﬁle and can also be conﬁgured via the Preferences dialog / General Options / Experienced
+User. If an exception is thrown by a program line that is not enclosed by a try-catch block, an error
+message dialog is always opened.
+List of values: ’false’, ’true’.
+Default: ’false’ (Any changes are persistently saved).
+Attention
+This operator is not supported for code export.
+Parameters
+▷PreferenceNames (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . attribute.name-array ; string
+Selection of the preferences.
+Default: ’graphics_window_context_menu’
+List of values: PreferenceNames ∈{’graphics_window_context_menu’,
+’graphics_window_mouse_wheel’, ’graphics_window_tool_tip’, ’suppress_handled_exception_dlg’}
+▷PreferenceValues (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .attribute.value-array ; string
+New values for the selected preferences.
+Default: ’false’
+List of values: PreferenceValues ∈{’true’, ’false’}
+See also
+dev_get_preferences
+Module
+Foundation
+dev_set_shape ( :
+:
+Shape :
+)
+Deﬁne the region output shape.
+dev_set_shape deﬁnes the shape that is used for displaying regions. The available shapes can be queried with
+query_shape.
+These shapes are supported:
+HALCON 26.05.0.0
+
+
+----- [page 970] -----
+922
+CHAPTER 10 DEVELOP
+’original’: The
+shape
+is
+displayed
+unchanged.
+Nevertheless
+modiﬁcations
+via
+parameters
+like
+dev_set_line_width can take place. This is also true for all other modes.
+’outer_circle’: Each region is displayed by the smallest surrounding circle. (See smallest_circle.)
+’inner_circle’: Each region is displayed by the largest included circle. (See inner_circle.)
+’ellipse’: Each region is displayed by an ellipse with the same moments and orientation (See elliptic_axis.)
+’rectangle1’: Each region is displayed by the smallest surrounding rectangle parallel to the coordinate axes. (See
+smallest_rectangle1.)
+’rectangle2’: Each region is displayed by the smallest surrounding rectangle. (See smallest_rectangle2.)
+’convex’: Each region is displayed by its convex hull (See shape_trans.)
+’icon’: Each region is displayed by the icon set with set_icon in the center of gravity.
+For more information see the description of the operator set_shape. However, in contrast to that operator the
+selected shape is also used for all new graphics windows that are opened afterwards.
+Attention
+Using the code export feature of HDevelop, the code that is generated for this operator may have a different
+behavior than the related HALCON operator. For a detailed description of the code export of HDevelop graphics
+operators into the different programming languages see in the “HDevelop User’s Guide” the chapter Code
+Export ▷General Aspects of Code Generation ▷Graphics Windows.
+Parameters
+▷Shape (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+Region output mode.
+Default: ’original’
+List of values: Shape ∈{’original’, ’convex’, ’outer_circle’, ’inner_circle’, ’rectangle1’, ’rectangle2’,
+’ellipse’, ’icon’}
+Example
+read_image(Image,'monkey')
+threshold(Image,Region,128,255)
+connection(Region,Regions)
+dev_set_shape('rectangle1')
+dev_set_draw('margin')
+dev_set_line_width(5)
+dev_clear_window()
+dev_display(Regions)
+Result
+If the values of the speciﬁed parameters are correct, dev_set_shape returns 2 (H_MSG_TRUE). Otherwise, an
+exception is raised and an error code returned.
+Possible Successors
+dev_display, dev_set_color
+See also
+set_shape, dev_set_line_width
+Module
+Foundation
+dev_set_system ( :
+:
+SystemParameter,
+Value :
+)
+Change HDevelop system parameter within a program.
+The operator dev_set_system sets HDevelop system parameters.
+Available options for SystemParameter:
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 971] -----
+923
+’jit_enabled’: Determines whether the JIT Compiler is enabled (’true’) or not (’false’).
+Note, not all procedures can be JIT compiled.
+List of values: ’true’, ’false’
+Default: ’false’
+’all’: Reset all system parameters to their default value. To do so, set Value to ’default’.
+List of values: ’default’
+Attention
+This operator is not supported for code export.
+Parameters
+▷SystemParameter (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . attribute.name ; string
+Name of the system parameter to be changed.
+Default: ’jit_enabled’
+List of values: SystemParameter ∈{’jit_enabled’, ’all’}
+▷Value (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . attribute.value ; integer / string
+New value of the system parameter.
+Default: ’false’
+List of values: Value ∈{’false’, ’true’, ’default’}
+Module
+Foundation
+dev_set_tool_geometry ( :
+:
+ToolId,
+Row,
+Column,
+Width,
+Height :
+)
+Sets the position and size of the speciﬁed tool.
+dev_set_tool_geometry sets the position and dimension of the tool with the id ToolId.
+Instead of using the ToolId, given during opening the tool, you can use the name that has to be used in
+dev_open_tool. In that case a arbitrary tool, which ﬁts the parameter ToolId, is used.
+The parameters Row and Column can be used to modify the position of the tool. Note that the offset values speci-
+ﬁed under Edit ▷Preferences ▷General Options ▷General Options ▷Window open offset
+are added to the row and the column index, respectively. For more information, see the chapter “Menu Edit” in
+the “HDevelop User’s Guide”. In order to unmodify the position ’default’ can be passed.
+The parameters Width and Height can be used to modify the size of the tools. In order to unmodify the size
+’default’ can be passed. If Width and Height are less than the minimum size of the tool the minimum size is
+used.
+Attention
+This operator is not supported for code export.
+Parameters
+▷ToolId (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . dev_tool ; string
+Tool identiﬁer.
+▷Row (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .rectangle.origin.y ; integer / string
+Row index of upper left corner.
+Default: ’default’
+Minimum increment: 1
+Recommended increment: 1
+▷Column (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .rectangle.origin.x ; integer / string
+Column index of upper left corner.
+Default: ’default’
+Minimum increment: 1
+Recommended increment: 1
+HALCON 26.05.0.0
+
+
+----- [page 972] -----
+924
+CHAPTER 10 DEVELOP
+▷Width (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . rectangle.extent.x ; integer / string
+Width of the tool.
+Default: ’default’
+Minimum increment: 1
+Recommended increment: 1
+Restriction: Width > 0
+▷Height (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . rectangle.extent.y ; integer
+Height of the tool.
+Default: ’default’
+Minimum increment: 1
+Recommended increment: 1
+Restriction: Height > 0
+Example
+dev_open_tool ('zoom_window', 0, 0, Width, 'default', ToolId)
+dev_close_tool (ToolId)
+Result
+If the values of the speciﬁed parameters are correct, dev_open_tool returns 2 (H_MSG_TRUE). Otherwise, an
+exception is raised and an error code returned.
+Possible Predecessors
+dev_open_tool
+Possible Successors
+dev_show_tool, dev_close_tool
+Alternatives
+dev_show_tool
+See also
+dev_show_tool
+Module
+Foundation
+dev_set_window ( :
+:
+WindowHandle :
+)
+Activate a graphics window.
+dev_set_window activates the graphics window with the passed window handle. This is equivalent to pressing
+the Active button in the tool bar of the graphics window.
+Attention
+Using the code export feature of HDevelop, the code that is generated for this operator may have a different
+behavior than the related HALCON operator. For a detailed description of the code export of HDevelop graphics
+operators into the different programming languages see in the “HDevelop User’s Guide” the chapter Code
+Export ▷General Aspects of Code Generation ▷Graphics Windows.
+Parameters
+▷WindowHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . window ; handle
+Window handle.
+Example
+dev_open_window (1, 1, 200, 200, 'black', WindowID1)
+dev_open_window (1, 220, 200, 200, 'black', WindowID2)
+read_image(Image,'monkey')
+dev_set_window(WindowID1)
+dev_display(Image)
+dev_set_window(WindowID2)
+dev_display(Image)
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 973] -----
+925
+Result
+If the values of the speciﬁed parameters are correct, dev_set_window returns 2 (H_MSG_TRUE). Otherwise,
+an exception is raised and an error code returned.
+Possible Predecessors
+dev_open_window
+Possible Successors
+dev_display
+Module
+Foundation
+dev_set_window_extents ( :
+:
+Row,
+Column,
+Width,
+Height :
+)
+Change position and size of the active ﬂoating graphics window.
+dev_set_window_extents changes the position and/or the size of the currently active ﬂoating graphics win-
+dow.
+The parameters Row and Column specify the new position (upper left corner) of the window. Note that the
+offset values speciﬁed under Edit ▷Preferences ▷General Options ▷General Options ▷Window
+open offset are added to the row and the column index, respectively. For more information, see the chapter
+“Menu Edit” in the “HDevelop User’s Guide”. Negative coordinates of the position are ignored, i.e., in
+this direction the window will not be moved.
+The parameters Width and Height specify the new size of the window. This is the size of the inner part that
+actually displays the iconic objects. If one of the two values is negative, this dimension will remain unchanged.
+Attention
+This operator only works for single ﬂoating graphics windows, i.e., graphics windows that are neither docked nor
+tabbed.
+Never use set_window_extents to change the size and position of an HDevelop graphics window. The
+operator dev_set_window_extents has to be used instead.
+Using the code export feature of HDevelop, the code that is generated for this operator may have a different
+behavior than the related HALCON operator. For a detailed description of the code export of HDevelop graphics
+operators into the different programming languages see in the “HDevelop User’s Guide” the chapter Code
+Export ▷General Aspects of Code Generation ▷Graphics Windows.
+Parameters
+▷Row (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .rectangle.origin.y ; integer
+Row index of upper left corner.
+Default: 0
+Minimum increment: 1
+Recommended increment: 1
+Restriction: Row >= 0 || Row == -1
+▷Column (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .rectangle.origin.x ; integer
+Column index of upper left corner.
+Default: 0
+Minimum increment: 1
+Recommended increment: 1
+Restriction: Column >= 0 || Column == -1
+▷Width (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . rectangle.extent.x ; integer
+Width of the window.
+Default: 256
+Minimum increment: 1
+Recommended increment: 1
+Restriction: Width > 0 || Width == -1
+HALCON 26.05.0.0
+
+
+----- [page 974] -----
+926
+CHAPTER 10 DEVELOP
+▷Height (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . rectangle.extent.y ; integer
+Height of the window.
+Default: 256
+Minimum increment: 1
+Recommended increment: 1
+Restriction: Height > 0 || Height == -1
+Example
+dev_close_window ()
+read_image (For5, 'for5')
+get_image_size (For5, Width, Height)
+dev_open_window (0, 0, Width, Height, 'black', WindowHandle)
+dev_display (For5)
+stop ()
+dev_set_window_extents (-1,-1,Width/2,Height/2)
+dev_display (For5)
+stop ()
+dev_set_window_extents (200,200,-1,-1)
+Result
+If the values of the speciﬁed parameters are correct, dev_set_window_extents returns 2 (H_MSG_TRUE).
+Otherwise, an exception is raised and an error code returned.
+Possible Successors
+dev_display, dev_set_lut, dev_set_color, dev_set_draw, dev_set_part
+See also
+set_window_extents
+Module
+Foundation
+dev_show_tool ( :
+:
+ToolId,
+Action :
+)
+Shows the speciﬁed tool.
+dev_show_tool executes the action Action on the tool ToolId
+Instead of using the ToolId, given during opening the tool, you can use the name that has to be used in
+dev_open_tool. In that case an arbitrary tool, which ﬁts the parameter ToolId, is used.
+Action
+’show’: Activates the tool.
+’normal’: Shows the tool, brings it to the front and activates it.
+’minimize’: Minimizes the tool.
+’maximize’: Maximizes the tool.
+’hide’: Hides the tool.
+Attention
+This operator is not supported for code export.
+Parameters
+▷ToolId (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . dev_tool ; string
+Tool identiﬁer.
+▷Action (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+Action to execute.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 975] -----
+927
+Example
+dev_open_tool ('matching_assistant', 0, 0, 'default','default', ToolId)
+dev_show_tool (ToolId, 'minimize')
+Result
+If the values of the speciﬁed parameters are correct, dev_show_tool returns 2 (H_MSG_TRUE). Otherwise, an
+exception is raised and an error code returned.
+Possible Predecessors
+dev_set_tool_geometry, dev_open_tool
+See also
+dev_set_tool_geometry
+Module
+Foundation
+dev_update_pc ( :
+:
+DisplayMode :
+)
+Switches the update of the PC during program execution on or off.
+dev_update_pc speciﬁes the behavior of the PC during program execution. If DisplayMode is set to ’on’,
+which is the default, within the selected procedure the PC is always displayed left to the currently executed operator.
+In addition the program text is scrolled—if necessary—so that the current operator is visible.
+If the mode is ’off’ the PC is not visible during program execution and the program text will not be scrolled
+automatically. When the program stops the PC becomes visible again and the listing is scrolled to the current PC
+position.
+For measuring the execution time of a sequence of operators all update options should be switched off in order
+to reduce the inﬂuence of the runtime of GUI updates in HDevelop. For this the operators dev_update_pc,
+dev_update_time, dev_update_var, and dev_update_window or the procedures dev_update_on
+and dev_update_off can be used.
+This option can also be controlled via the Preferences dialog: Edit ▷Preferences ▷Runtime
+Settings ▷Update Program Counter.
+Attention
+This operator is not supported for code export.
+Parameters
+▷DisplayMode (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .string ; string
+Mode for runtime behavior.
+Default: ’off’
+List of values: DisplayMode ∈{’on’, ’off’}
+Result
+If the values of the speciﬁed parameters are correct, dev_update_pc returns 2 (H_MSG_TRUE). Otherwise, an
+exception is raised and an error code returned.
+See also
+dev_update_time, dev_update_window, dev_update_var
+Module
+Foundation
+dev_update_time ( :
+:
+DisplayMode :
+)
+Switch time measurement for operators on or off.
+dev_update_time controls whether the execution time of an operator is displayed.
+HALCON 26.05.0.0
+
+
+----- [page 976] -----
+928
+CHAPTER 10 DEVELOP
+For measuring the execution time of a sequence of operators all update options should be switched off in order
+to reduce the inﬂuence of the runtime of GUI updates in HDevelop. For this the operators dev_update_pc,
+dev_update_time, dev_update_var, and dev_update_window or the procedures dev_update_on
+and dev_update_off can be used.
+This option can also be controlled via the Preferences dialog: Edit ▷Preferences ▷Runtime
+Settings ▷Show Processing Time.
+Attention
+This operator is not supported for code export.
+Parameters
+▷DisplayMode (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .string ; string
+Mode for graphic output.
+Default: ’off’
+List of values: DisplayMode ∈{’on’, ’off’}
+Result
+If the values of the speciﬁed parameters are correct, dev_update_time returns 2 (H_MSG_TRUE). Otherwise,
+an exception is raised and an error code returned.
+See also
+dev_update_pc, dev_update_window, dev_update_var
+Module
+Foundation
+dev_update_var ( :
+:
+DisplayMode :
+)
+Switches the update of the variable window during program execution on or off.
+dev_update_var speciﬁes the behavior of the variable window during program execution. If DisplayMode
+is set to ’on’, which is the default, the contents of the variable window (iconic and control variables) is updated
+each time a variable is modiﬁed by the program.
+If the mode is ’off’ the values of the control variables and the icons of the iconic variables are not updated before
+the execution stops.
+For measuring the execution time of a sequence of operators all update options should be switched off in order
+to reduce the inﬂuence of the runtime of GUI updates in HDevelop. For this the operators dev_update_pc,
+dev_update_time, dev_update_var, and dev_update_window or the procedures dev_update_on
+and dev_update_off can be used.
+This option can also be controlled via the Preferences dialog: Edit ▷Preferences ▷Runtime
+Settings ▷Update Variables.
+Attention
+This operator is not supported for code export.
+Parameters
+▷DisplayMode (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .string ; string
+Mode for graphic output.
+Default: ’off’
+List of values: DisplayMode ∈{’on’, ’off’}
+Result
+If the values of the speciﬁed parameters are correct, dev_update_var returns 2 (H_MSG_TRUE). Otherwise,
+an exception is raised and an error code returned.
+See also
+dev_update_pc, dev_update_window, dev_update_time
+Module
+Foundation
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 977] -----
+929
+dev_update_window ( :
+:
+DisplayMode :
+)
+Switches the automatic output of iconic output objects into the graphics window during program execution on or
+off.
+dev_update_window speciﬁes whether all iconic objects that are returned by an operator call have to be dis-
+played in the active graphics window (DisplayMode = ’on’—default) or not (DisplayMode = ’off’).
+This option has no inﬂuence on the object output in single step mode. After the execution of a single operator the
+iconic output objects are always displayed in the active graphics window.
+This option should be set to ’off’, if only selected objects should to be displayed in the graphics window. In this
+case the objects should be displayed by dev_display.
+For measuring the execution time of a sequence of operators all update options should be switched off in order
+to reduce the inﬂuence of the runtime of GUI updates in HDevelop. For this the operators dev_update_pc,
+dev_update_time, dev_update_var, and dev_update_window or the procedures dev_update_on
+and dev_update_off can be used.
+This option can also be controlled via the Preferences dialog: Edit ▷Preferences ▷Runtime
+Settings ▷Update Window.
+Attention
+This operator is not supported for code export.
+Parameters
+▷DisplayMode (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .string ; string
+Mode for graphic output.
+Default: ’off’
+List of values: DisplayMode ∈{’on’, ’off’}
+Result
+If the values of the speciﬁed parameters are correct, dev_update_window returns 2 (H_MSG_TRUE). Other-
+wise, an exception is raised and an error code returned.
+Possible Successors
+dev_display
+See also
+dev_update_pc, dev_update_var, dev_update_time
+Module
+Foundation
+HALCON 26.05.0.0
+
+
+----- [page 978] -----
+930
+CHAPTER 10 DEVELOP
+HALCON/HDevelop Reference Manual, 2026-5-12

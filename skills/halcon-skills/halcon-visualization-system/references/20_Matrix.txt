@@ -1,0 +1,6678 @@
+
+
+----- [page 2113] -----
+Chapter 20
+Matrix
+20.1
+Access
+get_diagonal_matrix ( :
+:
+MatrixID,
+Diagonal :
+VectorID )
+Get the diagonal elements of a matrix.
+The operator get_diagonal_matrix generates a new matrix Vector and copies the diagonal elements of
+the Matrix to this new matrix. The Matrix is deﬁned by the matrix handle MatrixID. The matrix Vector
+has one column and n rows, where n = number of diagonal elements. The operator returns the matrix handle
+VectorID of the matrix Vector. Access to the elements of the matrix is possible e.g., with the operator
+get_full_matrix.
+If Diagonal = 0, the output of the Vector is the main diagonal of the Matrix.
+Example:
+Diagonal = 0
+Matrix =
+
+
+3.0
+1.0
+−2.0
+−5.0
+7.0
+2.0
+−9.0
+−4.0
+1.0
+
+
+→Vector =
+
+
+3.0
+7.0
+1.0
+
+
+If Diagonal is positive, the output Vector is the Diagonal-th super-diagonal of the Matrix.
+Example:
+Diagonal = 2
+Matrix =
+
+
+3.0
+1.0
+−2.0
+1.0
+−5.0
+7.0
+2.0
+6.0
+−9.0
+−4.0
+1.0
+−1.0
+
+
+→
+Vector =
+ −2.0
+6.0
+
+If Diagonal is negative, the Diagonal-th sub-diagonal of the Matrix is copied.
+Example:
+Diagonal = -1
+2065
+
+
+----- [page 2114] -----
+2066
+CHAPTER 20 MATRIX
+Matrix =
+
+
+3.0
+1.0
+−2.0
+1.0
+−5.0
+7.0
+2.0
+6.0
+−9.0
+−4.0
+1.0
+−1.0
+
+
+→
+Vector =
+ −5.0
+−4.0
+
+Parameters
+▷MatrixID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input matrix.
+▷Diagonal (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .integer ; integer
+Number of the desired diagonal.
+Default: 0
+Suggested values: Diagonal ∈{-20, -10, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 10, 20}
+▷VectorID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle containing the diagonal elements.
+Result
+If the parameters are valid, the operator get_diagonal_matrix returns the value 2 (H_MSG_TRUE). If nec-
+essary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+create_matrix
+Possible Successors
+get_full_matrix, get_value_matrix
+See also
+set_diagonal_matrix
+Module
+Foundation
+get_full_matrix ( :
+:
+MatrixID : Values )
+Return all values of a matrix.
+The operator get_full_matrix returns the values of all elements of the Matrix given by the matrix handle
+MatrixID. The output parameter Values is a tuple of ﬂoating point numbers and contains all values in a row-
+major order, i.e., line by line.
+Example:
+Matrix =
+
+
+3.0
+1.0
+−2.0
+−5.0
+7.0
+2.0
+−9.0
+−4.0
+1.0
+
+
+→
+Values = [3.0, 1.0, −2.0, −5.0, 7.0, 2.0, −9.0, −4.0, 1.0]
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2115] -----
+20.1. ACCESS
+2067
+Parameters
+▷MatrixID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input matrix.
+▷Values (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . real(-array) ; real
+Values of the matrix elements.
+Result
+If the parameters are valid, the operator get_full_matrix returns the value 2 (H_MSG_TRUE). If necessary,
+an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+create_matrix
+Possible Successors
+clear_matrix
+See also
+set_full_matrix
+Module
+Foundation
+get_sub_matrix ( :
+:
+MatrixID,
+Row,
+Column,
+RowsSub,
+ColumnsSub :
+MatrixSubID )
+Get a sub-matrix of a matrix.
+The operator get_sub_matrix generates a new matrix MatrixSub and copies to this matrix a part of the
+input Matrix deﬁned by the matrix handle MatrixID. The part of the Matrix is determined by the upper
+left corner (Row,Column) and the sub-matrix dimensions (RowsSub, ColumnsSub). The operator returns the
+matrix handle MatrixSubID of the matrix MatrixSub. Access to the elements of the matrix is possible e.g.,
+with the operator get_full_matrix.
+Example:
+Row = 0, Column = 1, RowsSub = 3, ColumnsSub = 2
+Matrix =
+
+
+3.0
+1.0
+−2.0
+1.0
+−5.0
+7.0
+2.0
+6.0
+−9.0
+−4.0
+1.0
+−1.0
+
+
+→
+MatrixSub =
+
+
+1.0
+−2.0
+7.0
+2.0
+−4.0
+1.0
+
+
+Attention
+The conditions 0 ≤Row < size of Matrix in row direction, Row + RowsSub ≤size of Matrix in the row
+direction, 0 ≤Column < size of Matrix in the column direction, and Column + ColumnsSub ≤size of
+matrix Matrix in the column direction must be satisﬁed.
+HALCON 26.05.0.0
+
+
+----- [page 2116] -----
+2068
+CHAPTER 20 MATRIX
+Parameters
+▷MatrixID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input matrix.
+▷Row (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer ; integer
+Upper row position of the sub-matrix in the input matrix.
+Default: 0
+Suggested values: Row ∈{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 50, 100}
+Restriction: Row >= 0
+▷Column (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer ; integer
+Left column position of the sub-matrix in the input matrix.
+Default: 0
+Suggested values: Column ∈{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 50, 100}
+Restriction: Column >= 0
+▷RowsSub (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer ; integer
+Number of rows of the sub-matrix.
+Default: 1
+Suggested values: RowsSub ∈{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 50, 100}
+Restriction: RowsSub >= 1
+▷ColumnsSub (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer ; integer
+Number of columns of the sub-matrix.
+Default: 1
+Suggested values: ColumnsSub ∈{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 50, 100}
+Restriction: ColumnsSub >= 1
+▷MatrixSubID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the sub-matrix.
+Result
+If the parameters are valid, the operator get_sub_matrix returns the value 2 (H_MSG_TRUE). If necessary, an
+exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+create_matrix
+Possible Successors
+get_full_matrix, get_value_matrix
+See also
+set_sub_matrix
+Module
+Foundation
+get_value_matrix ( :
+:
+MatrixID,
+Row,
+Column :
+Value )
+Return one ore more elements of a matrix.
+The operator get_value_matrix returns the values of one ore more elements of the Matrix as a tuple of
+ﬂoating point numbers. The Matrix is given by the matrix handle MatrixID. The row coordinates of the
+elements of the Matrix are determined by the tuple Row, the column coordinates by the tuple Column.
+Example:
+Row = [0,2,1], Column = [1,0,3]
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2117] -----
+20.1. ACCESS
+2069
+Matrix =
+
+
+3.0
+1.0
+−2.0
+1.0
+−5.0
+7.0
+2.0
+6.0
+−9.0
+−4.0
+1.0
+−1.0
+
+
+→
+Value = [1.0, −9.0, 6.0]
+Parameters
+▷MatrixID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input matrix.
+▷Row (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer(-array) ; integer
+Row numbers of matrix elements to be returned.
+Default: 0
+Suggested values: Row ∈{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 50, 100}
+Restriction: Row >= 0
+▷Column (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer(-array) ; integer
+Column numbers of matrix elements to be returned.
+Default: 0
+Suggested values: Column ∈{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 50, 100}
+Restriction: Column >= 0
+▷Value (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . real(-array) ; real
+Values of indicated matrix elements.
+Result
+If the parameters are valid, the operator get_value_matrix returns the value 2 (H_MSG_TRUE). If necessary,
+an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+create_matrix
+Possible Successors
+clear_matrix
+See also
+set_value_matrix
+Module
+Foundation
+set_diagonal_matrix ( :
+:
+MatrixID,
+VectorID,
+Diagonal :
+)
+Set the diagonal elements of a matrix.
+The operator set_diagonal_matrix overwrites the diagonal elements of the Matrix with the elements of
+the matrix Vector. The matrices are deﬁned by their matrix handles MatrixID and VectorID. The matrix
+Vector must have one column and one row, n columns and one row or one column and n rows. n is the number
+of elements to be set in the Matrix (see below). If the matrix Vector has one column and one row, i.e., the
+matrix has one value, each element of the diagonal of the Matrix is overwritten by this value. Otherwise, the
+diagonal is overwritten by the elements of the matrix Vector.
+If Diagonal = 0, the main diagonal of the Matrix is overwritten. The number n = min(number of rows of
+Matrix, number of columns of Matrix).
+HALCON 26.05.0.0
+
+
+----- [page 2118] -----
+2070
+CHAPTER 20 MATRIX
+Example 1:
+Matrix =
+
+
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+
+
+Vector =
+ 3.0
+7.0
+1.0 
+Diagonal = 0
+→
+Matrix =
+
+
+3.0
+0.0
+0.0
+0.0
+0.0
+7.0
+0.0
+0.0
+0.0
+0.0
+1.0
+0.0
+
+
+Example 2:
+Matrix =
+
+
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+
+
+Vector =
+ 3.0 
+Diagonal = 0
+→
+Matrix =
+
+
+3.0
+0.0
+0.0
+0.0
+0.0
+3.0
+0.0
+0.0
+0.0
+0.0
+3.0
+0.0
+
+
+If Diagonal is positive, the Diagonal-th super-diagonal of Matrix is overwritten. For the example 1 the num-
+ber n = min(number of rows of Matrix, parameter Diagonal). For the example 2 the number n = min(number
+of rows of Matrix, number of columns of Matrix).
+Example 1:
+Matrix =
+
+
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+
+
+Vector =
+ −2.0
+6.0 
+Diagonal = 2
+→
+Matrix =
+
+
+0.0
+0.0
+−2.0
+0.0
+0.0
+0.0
+0.0
+6.0
+0.0
+0.0
+0.0
+0.0
+
+
+Example 2:
+Matrix =
+
+
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+
+
+Vector =
+ −2.0 
+Diagonal = 2
+→
+Matrix =
+
+
+0.0
+0.0
+−2.0
+0.0
+0.0
+0.0
+0.0
+−2.0
+0.0
+0.0
+0.0
+0.0
+
+
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2119] -----
+20.1. ACCESS
+2071
+If Diagonal is negative, the Diagonal-th sub-diagonal of Matrix is overwritten. For the example 1 the
+number n = min(number of columns of Matrix, parameter Diagonal). For the example 2 the number n =
+min(number of rows of Matrix, number of columns of Matrix).
+Example 1:
+Matrix =
+
+
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+
+
+Vector =
+ −5.0
+−4.0 
+Diagonal = −1
+→
+Matrix =
+
+
+0.0
+0.0
+0.0
+0.0
+−5.0
+0.0
+0.0
+0.0
+0.0
+−4.0
+0.0
+0.0
+
+
+Example 2:
+Matrix =
+
+
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+
+
+Vector =
+ −5.0 
+Diagonal = −1
+→
+Matrix =
+
+
+0.0
+0.0
+0.0
+0.0
+−5.0
+0.0
+0.0
+0.0
+0.0
+−5.0
+0.0
+0.0
+
+
+Parameters
+▷MatrixID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input matrix.
+▷VectorID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle containing the diagonal elements to be set.
+▷Diagonal (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .integer ; integer
+Position of the diagonal.
+Default: 0
+Suggested values: Diagonal ∈{-20, -10, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 10, 20}
+Result
+If the parameters are valid, the operator set_diagonal_matrix returns the value 2 (H_MSG_TRUE). If nec-
+essary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+This operator modiﬁes the state of the following input parameter:
+• MatrixID
+HALCON 26.05.0.0
+
+
+----- [page 2120] -----
+2072
+CHAPTER 20 MATRIX
+During execution of this operator, access to the value of this parameter must be synchronized if it is used across
+multiple threads.
+Possible Predecessors
+create_matrix
+Possible Successors
+get_full_matrix, get_value_matrix
+See also
+get_diagonal_matrix
+Module
+Foundation
+set_full_matrix ( :
+:
+MatrixID,
+Values :
+)
+Set all values of a matrix.
+The operator set_full_matrix sets all elements of the input Matrix deﬁned by the matrix handle
+MatrixID. The values of the parameter Values can be a tuple of ﬂoating point or integer numbers. Integer
+numbers are converted to ﬂoating point numbers automatically. The parameter Values must contain all values in
+a row-major order, i.e., stored line by line. In addition, the number of elements in Values must be 1 or identical
+to the number of all elements of the matrix.
+Note: The same result can be reached with the operator create_matrix. The advantage by using the operator
+set_full_matrix is to recycle a matrix that is no longer needed. Thus, the runtime of the operation takes
+fewer time.
+Example 1:
+Matrix =
+
+
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+
+
+Values = [3, 1, −2, −5, 7, 2, −9, −4, 1]
+→
+Matrix =
+
+
+3.0
+1.0
+−2.0
+−5.0
+7.0
+2.0
+−9.0
+−4.0
+1.0
+
+
+Example 2:
+Matrix =
+
+
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+0.0
+
+
+Values = [7]
+→
+Matrix =
+
+
+7.0
+7.0
+7.0
+7.0
+7.0
+7.0
+7.0
+7.0
+7.0
+
+
+Parameters
+▷MatrixID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input matrix.
+▷Values (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . number(-array) ; real / integer
+Values to be set.
+Result
+If the parameters are valid, the operator set_full_matrix returns the value 2 (H_MSG_TRUE). If necessary,
+an exception is raised.
+Execution Information
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2121] -----
+20.1. ACCESS
+2073
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+This operator modiﬁes the state of the following input parameter:
+• MatrixID
+During execution of this operator, access to the value of this parameter must be synchronized if it is used across
+multiple threads.
+Possible Predecessors
+create_matrix
+Possible Successors
+clear_matrix
+See also
+get_full_matrix
+Module
+Foundation
+set_sub_matrix ( :
+:
+MatrixID,
+MatrixSubID,
+Row,
+Column :
+)
+Set a sub-matrix of a matrix.
+The operator set_sub_matrix overwrites a part of the Matrix with the matrix MatrixSub. The input
+matrices are deﬁned by the matrix handles MatrixID and MatrixSubID. The parameters Row and Column
+determine the position of the upper left corner of the sub-matrix MatrixSub in Matrix.
+Example:
+Row = 0, Column = 1
+Matrix =
+
+
+3.0
+0.0
+9.0
+1.0
+−5.0
+3.0
+1.0
+6.0
+−9.0
+0.0
+1.0
+−1.0
+
+
+MatrixSub =
+
+
+1.0
+−2.0
+7.0
+2.0
+−4.0
+1.0
+
+
+→
+Matrix =
+
+
+3.0
+1.0
+−2.0
+1.0
+−5.0
+7.0
+2.0
+6.0
+−9.0
+−4.0
+1.0
+−1.0
+
+
+Attention
+The conditions 0 ≤Row < size of matrix Matrix in the row direction, Row + size of matrix MatrixSub in
+the row direction ≤size of matrix Matrix in the row direction, 0 ≤Column < size of Matrix in the column
+direction, and Column + size of matrix MatrixSub in the columns direction ≤size of Matrix in the column
+direction must be satisﬁed.
+Parameters
+▷MatrixID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input matrix.
+▷MatrixSubID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input sub-matrix.
+▷Row (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer ; integer
+Upper row position of the sub-matrix in the matrix.
+Default: 0
+Suggested values: Row ∈{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 50, 100}
+Restriction: Row >= 0
+HALCON 26.05.0.0
+
+
+----- [page 2122] -----
+2074
+CHAPTER 20 MATRIX
+▷Column (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer ; integer
+Left column position of the sub-matrix in the matrix.
+Default: 0
+Suggested values: Column ∈{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 50, 100}
+Restriction: Column >= 0
+Result
+If the parameters are valid, the operator set_sub_matrix returns the value 2 (H_MSG_TRUE). If necessary, an
+exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+This operator modiﬁes the state of the following input parameter:
+• MatrixID
+During execution of this operator, access to the value of this parameter must be synchronized if it is used across
+multiple threads.
+Possible Predecessors
+create_matrix
+Possible Successors
+get_full_matrix, get_value_matrix
+See also
+get_sub_matrix
+Module
+Foundation
+set_value_matrix ( :
+:
+MatrixID,
+Row,
+Column,
+Value :
+)
+Set one or more elements of a matrix.
+The operator set_value_matrix sets the values of the elements of the input Matrix at the positions
+(Row,Column) to the values speciﬁed by Value. The values can be a tuple of ﬂoating point or integer num-
+bers. Integer numbers are converted to ﬂoating point numbers automatically. The number of values of Value
+must match the number of elements of Row and Column. In addition, the conditions 0 ≤Row < size of Matrix
+in the row direction and 0 ≤Column < size of Matrix in the column direction must be satisﬁed. The Matrix
+is deﬁned by the matrix handle MatrixID.
+Example:
+Row = [0,2,1], Column = [1,0,3], Value = [1,-9,6]
+Matrix =
+
+
+3.0
+0.0
+−2.0
+1.0
+−5.0
+7.0
+2.0
+−2.0
+8.0
+−4.0
+1.0
+−1.0
+
+
+→
+Matrix =
+
+
+3.0
+1.0
+−2.0
+1.0
+−5.0
+7.0
+2.0
+6.0
+−9.0
+−4.0
+1.0
+−1.0
+
+
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2123] -----
+20.2. ARITHMETIC
+2075
+Parameters
+▷MatrixID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input matrix.
+▷Row (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer(-array) ; integer
+Row numbers of the matrix elements to be modiﬁed.
+Default: 0
+Suggested values: Row ∈{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 50, 100}
+Restriction: Row >= 0
+▷Column (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer(-array) ; integer
+Column numbers of the matrix elements to be modiﬁed.
+Default: 0
+Suggested values: Column ∈{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 50, 100}
+Restriction: Column >= 0
+▷Value (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . number(-array) ; real / integer
+Values to be set in the indicated matrix elements.
+Default: 0
+Suggested values: Value ∈{0, 1, -1}
+Result
+If the parameters are valid, the operator set_value_matrix returns the value 2 (H_MSG_TRUE). If necessary,
+an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+This operator modiﬁes the state of the following input parameter:
+• MatrixID
+During execution of this operator, access to the value of this parameter must be synchronized if it is used across
+multiple threads.
+Possible Predecessors
+create_matrix
+Possible Successors
+clear_matrix
+See also
+get_value_matrix
+Module
+Foundation
+20.2
+Arithmetic
+abs_matrix ( :
+:
+MatrixID : MatrixAbsID )
+Compute the absolute values of the elements of a matrix.
+The operator abs_matrix computes the absolute values of all elements of the input Matrix given by the matrix
+handle MatrixID. A new matrix MatrixAbs is generated with the result. The operator returns the matrix handle
+MatrixAbsID of the matrix MatrixAbs. Access to the elements of the matrix is possible e.g., with the operator
+get_full_matrix. The formula for the calculation of the result is:
+MatrixAbsij
+=
+| Matrixij |.
+Example:
+HALCON 26.05.0.0
+
+
+----- [page 2124] -----
+2076
+CHAPTER 20 MATRIX
+Matrix =
+
+
+3.0
+1.0
+−2.0
+−5.0
+7.0
+2.0
+−9.0
+−4.0
+1.0
+
+
+→
+MatrixAbs =
+
+
+3.0
+1.0
+2.0
+5.0
+7.0
+2.0
+9.0
+4.0
+1.0
+
+
+Parameters
+▷MatrixID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input matrix.
+▷MatrixAbsID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle with the absolute values of the input matrix.
+Result
+If the parameters are valid, the operator abs_matrix returns the value 2 (H_MSG_TRUE). If necessary, an
+exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+create_matrix
+Possible Successors
+get_full_matrix, get_value_matrix
+Alternatives
+abs_matrix_mod
+Module
+Foundation
+abs_matrix_mod ( :
+:
+MatrixID : )
+Compute the absolute values of the elements of a matrix.
+The operator abs_matrix_mod computes the absolute values of all elements of the input Matrix given by the
+matrix handle MatrixID. The input matrix is overwritten with the result. Access to the elements of the matrix is
+possible e.g., with the operator get_full_matrix. The formula for the calculation of the result is:
+Matrixij
+=
+| Matrixij |.
+Example:
+Matrix =
+
+
+3.0
+1.0
+−2.0
+−5.0
+7.0
+2.0
+−9.0
+−4.0
+1.0
+
+
+→
+Matrix =
+
+
+3.0
+1.0
+2.0
+5.0
+7.0
+2.0
+9.0
+4.0
+1.0
+
+
+Parameters
+▷MatrixID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input matrix.
+Result
+If the parameters are valid, the operator abs_matrix_mod returns the value 2 (H_MSG_TRUE). If necessary, an
+exception is raised.
+Execution Information
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2125] -----
+20.2. ARITHMETIC
+2077
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+This operator modiﬁes the state of the following input parameter:
+• MatrixID
+During execution of this operator, access to the value of this parameter must be synchronized if it is used across
+multiple threads.
+Possible Predecessors
+create_matrix
+Possible Successors
+get_full_matrix, get_value_matrix
+Alternatives
+abs_matrix
+Module
+Foundation
+add_matrix ( :
+:
+MatrixAID,
+MatrixBID : MatrixSumID )
+Add two matrices.
+The operator add_matrix computes the sum of the input matrices MatrixA and MatrixB given by the
+matrix handles MatrixAID and MatrixBID. Both matrices must have identical dimensions. A new matrix
+MatrixSum is generated with the result. The operator returns the matrix handle MatrixSumID of the matrix
+MatrixSum. Access to the elements of the matrix is possible e.g., with the operator get_full_matrix. The
+formula for the calculation of the result is:
+MatrixSum
+=
+MatrixA
++
+MatrixB.
+Example:
+MatrixA =
+
+
+3.0
+1.0
+−2.0
+−5.0
+7.0
+2.0
+−9.0
+−4.0
+1.0
+
+
+MatrixB =
+
+
+2.0
+8.0
+−3.0
+−4.0
+−1.0
+5.0
+2.0
+−4.0
+7.0
+
+
+→
+MatrixSum =
+
+
+5.0
+9.0
+−5.0
+−9.0
+6.0
+7.0
+−7.0
+−8.0
+8.0
+
+
+Parameters
+▷MatrixAID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .matrix ; handle
+Matrix handle of the input matrix A.
+▷MatrixBID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .matrix ; handle
+Matrix handle of the input matrix B.
+▷MatrixSumID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle with the sum of the input matrices.
+Result
+If the parameters are valid, the operator add_matrix returns the value 2 (H_MSG_TRUE). If necessary, an
+exception is raised.
+Execution Information
+HALCON 26.05.0.0
+
+
+----- [page 2126] -----
+2078
+CHAPTER 20 MATRIX
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+create_matrix
+Possible Successors
+get_full_matrix, get_value_matrix
+Alternatives
+add_matrix_mod
+See also
+sub_matrix, sub_matrix_mod
+Module
+Foundation
+add_matrix_mod ( :
+:
+MatrixAID,
+MatrixBID : )
+Add two matrices.
+The operator add_matrix_mod computes the sum of the input matrices MatrixA and MatrixB given by the
+matrix handles MatrixAID and MatrixBID. Both matrices must have identical dimensions. The input matrix
+MatrixA is overwritten with the result. Access to the elements of the matrix is possible e.g., with the operator
+get_full_matrix. The formula for the calculation of the result is:
+MatrixA
+=
+MatrixA
++
+MatrixB.
+Example:
+MatrixA =
+
+
+3.0
+1.0
+−2.0
+−5.0
+7.0
+2.0
+−9.0
+−4.0
+1.0
+
+
+MatrixB =
+
+
+2.0
+8.0
+−3.0
+−4.0
+−1.0
+5.0
+2.0
+−4.0
+7.0
+
+
+→
+MatrixA =
+
+
+5.0
+9.0
+−5.0
+−9.0
+6.0
+7.0
+−7.0
+−8.0
+8.0
+
+
+Parameters
+▷MatrixAID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .matrix ; handle
+Matrix handle of the input matrix A.
+▷MatrixBID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .matrix ; handle
+Matrix handle of the input matrix B.
+Result
+If the parameters are valid, the operator add_matrix_mod returns the value 2 (H_MSG_TRUE). If necessary, an
+exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+This operator modiﬁes the state of the following input parameter:
+• MatrixAID
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2127] -----
+20.2. ARITHMETIC
+2079
+During execution of this operator, access to the value of this parameter must be synchronized if it is used across
+multiple threads.
+Possible Predecessors
+create_matrix
+Possible Successors
+get_full_matrix, get_value_matrix
+Alternatives
+add_matrix
+See also
+sub_matrix, sub_matrix_mod
+Module
+Foundation
+div_element_matrix ( :
+:
+MatrixAID,
+MatrixBID : MatrixDivID )
+Divide matrices element-by-element.
+The operator div_element_matrix divides the two matrices MatrixA and MatrixB element-by-element.
+The matrices are given by the matrix handles MatrixAID and MatrixBID. It is required that both input matrices
+have identical dimensions. The new created output MatrixDiv contains the result. The operator returns the
+matrix handle MatrixDivID of the matrix MatrixDiv. Access to the elements of the matrix is possible e.g.,
+with the operator get_full_matrix. The formula for the calculation of the result is:
+MatrixDivij
+=
+MatrixAij
+/
+MatrixBij.
+Example:
+MatrixA =
+
+
+4.0
+8.0
+0.0
+−6.0
+7.0
+2.0
+−9.0
+4.0
+1.0
+
+
+MatrixB =
+
+
+2.0
+8.0
+−3.0
+−4.0
+−1.0
+4.0
+−2.0
+−4.0
+2.0
+
+
+→
+MatrixDiv =
+
+
+2.0
+1.0
+0.0
+1.5
+−7.0
+0.5
+4.5
+−1.0
+0.5
+
+
+Parameters
+▷MatrixAID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .matrix ; handle
+Matrix handle of the input matrix A.
+▷MatrixBID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .matrix ; handle
+Matrix handle of the input matrix B.
+▷MatrixDivID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle with the divided values of input matrices.
+Result
+If the parameters are valid, the operator div_element_matrix returns the value 2 (H_MSG_TRUE). If neces-
+sary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+HALCON 26.05.0.0
+
+
+----- [page 2128] -----
+2080
+CHAPTER 20 MATRIX
+Possible Predecessors
+create_matrix
+Possible Successors
+get_full_matrix, get_value_matrix
+Alternatives
+div_element_matrix_mod
+See also
+mult_element_matrix, mult_element_matrix_mod, scale_matrix, scale_matrix_mod
+Module
+Foundation
+div_element_matrix_mod ( :
+:
+MatrixAID,
+MatrixBID : )
+Divide matrices element-by-element.
+The operator div_element_matrix_mod divides the two matrices MatrixA and MatrixB element-by-
+element. The matrices are given by the matrix handles MatrixAID and MatrixBID. It is required that both
+input matrices have identical dimensions. The input matrix MatrixA is overwritten with the result. Access to the
+elements of the matrix is possible e.g., with the operator get_full_matrix. The formula for the calculation
+of the result is:
+MatrixAij
+=
+MatrixAij
+/
+MatrixBij.
+Example:
+MatrixA =
+
+
+4.0
+8.0
+0.0
+−6.0
+7.0
+2.0
+−9.0
+4.0
+1.0
+
+
+MatrixB =
+
+
+2.0
+8.0
+−3.0
+−4.0
+−1.0
+4.0
+−2.0
+−4.0
+2.0
+
+
+→
+MatrixA =
+
+
+2.0
+1.0
+0.0
+1.5
+−7.0
+0.5
+4.5
+−1.0
+0.5
+
+
+Parameters
+▷MatrixAID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .matrix ; handle
+Matrix handle of the input matrix A.
+▷MatrixBID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .matrix ; handle
+Matrix handle of the input matrix B.
+Result
+If the parameters are valid, the operator div_element_matrix_mod returns the value 2 (H_MSG_TRUE). If
+necessary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+This operator modiﬁes the state of the following input parameter:
+• MatrixAID
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2129] -----
+20.2. ARITHMETIC
+2081
+During execution of this operator, access to the value of this parameter must be synchronized if it is used across
+multiple threads.
+Possible Predecessors
+create_matrix
+Possible Successors
+get_full_matrix, get_value_matrix
+Alternatives
+div_element_matrix
+See also
+mult_element_matrix, mult_element_matrix_mod, scale_matrix, scale_matrix_mod
+Module
+Foundation
+invert_matrix ( :
+:
+MatrixID,
+MatrixType,
+Epsilon :
+MatrixInvID )
+Invert a matrix.
+The operator invert_matrix computes the inverse of the Matrix deﬁned by the matrix handle MatrixID.
+A new matrix MatrixInv is generated with the result and the matrix handle MatrixInvID of this matrix is
+returned. Access to the elements of the matrix is possible e.g., with the operator get_full_matrix.
+For Epsilon = 0, the inverse is computed.
+The type of the Matrix can be selected via MatrixType.
+The following values are supported:
+’general’ for general, ’symmetric’ for symmetric, ’positive_deﬁnite’
+for symmetric positive deﬁnite, ’tridiagonal’ for tridiagonal, ’upper_triangular’ for upper triangular, ’per-
+muted_upper_triangular’ for permuted upper triangular, ’lower_triangular’ for lower triangular, and ’per-
+muted_lower_triangular’ for permuted lower triangular matrices.
+Example 1:
+MatrixType = ’general’, Epsilon = 0
+Matrix =
+
+
+1.0
+3.0
+3.0
+4.0
+5.0
+6.0
+5.0
+5.0
+7.0
+
+
+→
+MatrixInv =
+
+
+−1.25
+1.50
+−0.75
+−0.50
+2.00
+−1.50
+1.25
+−2.50
+1.75
+
+
+Example 2:
+MatrixType = ’upper_triangular’, Epsilon = 0
+Matrix =
+
+
+1.0
+3.0
+3.0
+0
+2.0
+6.0
+0
+0
+10.0
+
+
+→
+MatrixInv =
+
+
+1.00
+−1.50
+0.60
+0
+0.50
+−0.30
+0
+0
+0.10
+
+
+Example 3:
+MatrixType = ’permuted_upper_triangular’, Epsilon = 0
+Matrix =
+
+
+1.0
+3.0
+3.0
+0
+0
+10.0
+0
+2.0
+6.0
+
+
+HALCON 26.05.0.0
+
+
+----- [page 2130] -----
+2082
+CHAPTER 20 MATRIX
+→
+MatrixInv =
+
+
+1.00
+−1.50
+0.60
+0
+0.50
+−0.30
+0
+0
+0.10
+
+
+For Epsilon > 0, the pseudo inverse is computed using a singular value decomposition (SVD). During the
+computation, all singular values less than the value Epsilon × the largest singular value are set to 0. For these
+values no internal division is done to prevent a division by zero. If a square matrix is computed with the SVD
+algorithm the computation takes more time. The type of the matrix must be set to MatrixType = ’general’.
+Example:
+MatrixType = ’general’, Epsilon = 2.2204e-16
+Matrix =
+
+
+3.0
+1.0
+−2.0
+5.0
+−5.0
+7.0
+2.0
+−6.0
+−9.0
+−4.0
+1.0
+4.0
+
+
+→
+MatrixInv =
+
+
+−0.0021
+−0.0482
+−0.0813
+0.1435
+0.1137
+−0.0137
+−0.0519
+−0.0015
+0.0028
+0.1518
+0.0056
+0.0526
+
+
+Note: The relative accuracy of the ﬂoating point representation of the used data type (double) is Epsilon =
+2.2204e-16.
+It should be also noted that in the examples there are differences in the meaning of the numbers of the output
+matrices: The results of the elements are per deﬁnition a certain value if the number of this value is shown as
+an integer number, e.g., 0 or 1. If the number is shown as a ﬂoating point number, e.g., 0.0 or 1.0, the value is
+computed.
+Attention
+For MatrixType = ’symmetric’, ’positive_deﬁnite’, or ’upper_triangular’ the upper triangular part of the input
+Matrix must contain the relevant information of the matrix. The strictly lower triangular part of the matrix
+is not referenced. For MatrixType = ’lower_triangular’ the lower triangular part of the input Matrix must
+contain the relevant information of the matrix. The strictly upper triangular part of the matrix is not referenced.
+For MatrixType = ’tridiagonal’, only the main diagonal, the superdiagonal, and the subdiagonal of the input
+Matrix are used. The other parts of the matrix are not referenced. If the referenced part of the input Matrix is
+not of the speciﬁed type, an exception is raised.
+Parameters
+▷MatrixID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input matrix.
+▷MatrixType (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+The type of the input matrix.
+Default: ’general’
+List of values: MatrixType ∈{’general’, ’symmetric’, ’positive_deﬁnite’, ’tridiagonal’, ’upper_triangular’,
+’permuted_upper_triangular’, ’lower_triangular’, ’permuted_lower_triangular’}
+▷Epsilon (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .real ; real
+Type of inversion.
+Default: 0.0
+Suggested values: Epsilon ∈{0.0, 2.2204e-16}
+▷MatrixInvID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle with the inverse matrix.
+Result
+If the parameters are valid, the operator invert_matrix returns the value 2 (H_MSG_TRUE). If necessary, an
+exception is raised.
+Execution Information
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2131] -----
+20.2. ARITHMETIC
+2083
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+create_matrix
+Possible Successors
+get_full_matrix, get_value_matrix
+Alternatives
+invert_matrix_mod
+See also
+transpose_matrix, transpose_matrix_mod
+References
+David Poole: “Linear Algebra: A Modern Introduction”; Thomson; Belmont; 2006.
+Gene H. Golub, Charles F. van Loan: “Matrix Computations”; The Johns Hopkins University Press; Baltimore and
+London; 1996.
+Module
+Foundation
+invert_matrix_mod ( :
+:
+MatrixID,
+MatrixType,
+Epsilon :
+)
+Invert a matrix.
+The operator invert_matrix_mod computes the inverse of the Matrix deﬁned by the matrix handle
+MatrixID. The input matrix is overwritten with the result. Access to the elements of the matrix is possible
+e.g., with the operator get_full_matrix.
+For Epsilon = 0, the inverse is computed.
+The type of the Matrix can be selected via MatrixType.
+The following values are supported:
+’general’ for general, ’symmetric’ for symmetric, ’positive_deﬁnite’
+for symmetric positive deﬁnite, ’tridiagonal’ for tridiagonal, ’upper_triangular’ for upper triangular, ’per-
+muted_upper_triangular’ for permuted upper triangular, ’lower_triangular’ for lower triangular, and ’per-
+muted_lower_triangular’ for permuted lower triangular matrices.
+Example 1:
+MatrixType = ’general’, Epsilon = 0
+Matrix =
+
+
+1.0
+3.0
+3.0
+4.0
+5.0
+6.0
+5.0
+5.0
+7.0
+
+
+→
+Matrix =
+
+
+−1.25
+1.50
+−0.75
+−0.50
+2.00
+−1.50
+1.25
+−2.50
+1.75
+
+
+Example 2:
+MatrixType = ’upper_triangular’, Epsilon = 0
+Matrix =
+
+
+1.0
+3.0
+3.0
+0
+2.0
+6.0
+0
+0
+10.0
+
+
+→
+Matrix =
+
+
+1.00
+−1.50
+0.60
+0
+0.50
+−0.30
+0
+0
+0.10
+
+
+HALCON 26.05.0.0
+
+
+----- [page 2132] -----
+2084
+CHAPTER 20 MATRIX
+Example 3:
+MatrixType = ’permuted_upper_triangular’, Epsilon = 0
+Matrix =
+
+
+1.0
+3.0
+3.0
+0
+0
+10.0
+0
+2.0
+6.0
+
+
+→
+Matrix =
+
+
+1.00
+−1.50
+0.60
+0
+0.50
+−0.30
+0
+0
+0.10
+
+
+For Epsilon > 0, the pseudo inverse is computed using a singular value decomposition (SVD). During the
+computation, all singular values less than the value Epsilon × the largest singular value are set to 0. For these
+values no internal division is done to prevent a division by zero. If a square matrix is computed with the SVD
+algorithm the computation takes more time. The type of the matrix must be set to MatrixType = ’general’.
+Example:
+MatrixType = ’general’, Epsilon = 2.2204e-16
+Matrix =
+
+
+3.0
+1.0
+−2.0
+5.0
+−5.0
+7.0
+2.0
+−6.0
+−9.0
+−4.0
+1.0
+4.0
+
+
+→
+Matrix =
+
+
+−0.0021
+−0.0482
+−0.0813
+0.1435
+0.1137
+−0.0137
+−0.0519
+−0.0015
+0.0028
+0.1518
+0.0056
+0.0526
+
+
+Note: The relative accuracy of the ﬂoating point representation of the used data type (double) is Epsilon =
+2.2204e-16.
+It should be also noted that in the examples there are differences in the meaning of the numbers of the output
+matrices: The results of the elements are per deﬁnition a certain value if the number of this value is shown as
+an integer number, e.g., 0 or 1. If the number is shown as a ﬂoating point number, e.g., 0.0 or 1.0, the value is
+computed.
+Attention
+For MatrixType = ’symmetric’, ’positive_deﬁnite’, or ’upper_triangular’ the upper triangular part of the input
+Matrix must contain the relevant information of the matrix. The strictly lower triangular part of the matrix
+is not referenced. For MatrixType = ’lower_triangular’ the lower triangular part of the input Matrix must
+contain the relevant information of the matrix. The strictly upper triangular part of the matrix is not referenced.
+For MatrixType = ’tridiagonal’, only the main diagonal, the superdiagonal, and the subdiagonal of the input
+Matrix are used. The other parts of the matrix are not referenced. If the referenced part of the input Matrix is
+not of the speciﬁed type, an exception is raised.
+invert_matrix_mod modiﬁes the content of an already existing matrix.
+Parameters
+▷MatrixID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input matrix.
+▷MatrixType (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+The type of the input matrix.
+Default: ’general’
+List of values: MatrixType ∈{’general’, ’symmetric’, ’positive_deﬁnite’, ’tridiagonal’, ’upper_triangular’,
+’permuted_upper_triangular’, ’lower_triangular’, ’permuted_lower_triangular’}
+▷Epsilon (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .real ; real
+Type of inversion.
+Default: 0.0
+Suggested values: Epsilon ∈{0.0, 2.2204e-16}
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2133] -----
+20.2. ARITHMETIC
+2085
+Result
+If the parameters are valid, the operator invert_matrix_mod returns the value 2 (H_MSG_TRUE). If neces-
+sary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+This operator modiﬁes the state of the following input parameter:
+• MatrixID
+During execution of this operator, access to the value of this parameter must be synchronized if it is used across
+multiple threads.
+Possible Predecessors
+create_matrix
+Possible Successors
+get_full_matrix, get_value_matrix
+Alternatives
+invert_matrix
+See also
+transpose_matrix, transpose_matrix_mod
+References
+David Poole: “Linear Algebra: A Modern Introduction”; Thomson; Belmont; 2006.
+Gene H. Golub, Charles F. van Loan: “Matrix Computations”; The Johns Hopkins University Press; Baltimore and
+London; 1996.
+Module
+Foundation
+mult_element_matrix ( :
+:
+MatrixAID,
+MatrixBID : MatrixMultID )
+Multiply matrices element-by-element.
+The operator mult_element_matrix multiplies the two matrices MatrixA and MatrixB element-by-
+element. The matrices are deﬁned by the matrix handles MatrixAID and MatrixBID. It is required that both
+input matrices have identical dimensions. A new matrix MatrixMult is generated with the result. The operator
+returns the matrix handle MatrixMultID of the matrix MatrixMult. Access to the elements of the matrix is
+possible e.g., with the operator get_full_matrix. The formula for the calculation of the result is:
+MatrixMultij
+=
+MatrixAij
+·
+MatrixBij.
+Example:
+MatrixA =
+
+
+4.0
+8.0
+0.0
+−6.0
+7.0
+2.0
+−9.0
+4.0
+1.0
+
+
+MatrixB =
+
+
+2.0
+8.0
+−3.0
+−4.0
+−1.0
+4.0
+−2.0
+−4.0
+2.0
+
+
+→
+MatrixMult =
+
+
+8.0
+64.0
+0.0
+24.0
+−7.0
+8.0
+18.0
+−16.0
+2.0
+
+
+HALCON 26.05.0.0
+
+
+----- [page 2134] -----
+2086
+CHAPTER 20 MATRIX
+Parameters
+▷MatrixAID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .matrix ; handle
+Matrix handle of the input matrix A.
+▷MatrixBID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .matrix ; handle
+Matrix handle of the input matrix B.
+▷MatrixMultID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .matrix ; handle
+Matrix handle with the multiplied values of the input matrices.
+Result
+If the parameters are valid, the operator mult_element_matrix returns the value 2 (H_MSG_TRUE). If nec-
+essary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+create_matrix
+Possible Successors
+get_full_matrix, get_value_matrix
+Alternatives
+mult_element_matrix_mod
+See also
+div_element_matrix, div_element_matrix_mod, scale_matrix, scale_matrix_mod
+Module
+Foundation
+mult_element_matrix_mod ( :
+:
+MatrixAID,
+MatrixBID : )
+Multiply matrices element-by-element.
+The operator mult_element_matrix_mod multiplies the two matrices MatrixA and MatrixB element-by-
+element. The matrices are deﬁned by the matrix handles MatrixAID and MatrixBID. It is required that both
+input matrices have identical dimensions. The input matrix MatrixA is overwritten with the result. Access to the
+elements of the matrix is possible e.g., with the operator get_full_matrix. The formula for the calculation
+of the result is:
+MatrixAij
+=
+MatrixAij
+·
+MatrixBij.
+Example:
+MatrixA =
+
+
+4.0
+8.0
+0.0
+−6.0
+7.0
+2.0
+−9.0
+4.0
+1.0
+
+
+MatrixB =
+
+
+2.0
+8.0
+−3.0
+−4.0
+−1.0
+4.0
+−2.0
+−4.0
+2.0
+
+
+→
+MatrixA =
+
+
+8.0
+64.0
+0.0
+24.0
+−7.0
+8.0
+18.0
+−16.0
+2.0
+
+
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2135] -----
+20.2. ARITHMETIC
+2087
+Parameters
+▷MatrixAID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .matrix ; handle
+Matrix handle of the input matrix A.
+▷MatrixBID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .matrix ; handle
+Matrix handle of the input matrix B.
+Result
+If the parameters are valid, the operator mult_element_matrix_mod returns the value 2 (H_MSG_TRUE). If
+necessary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+This operator modiﬁes the state of the following input parameter:
+• MatrixAID
+During execution of this operator, access to the value of this parameter must be synchronized if it is used across
+multiple threads.
+Possible Predecessors
+create_matrix
+Possible Successors
+get_full_matrix, get_value_matrix
+Alternatives
+mult_element_matrix
+See also
+div_element_matrix, div_element_matrix_mod, scale_matrix, scale_matrix_mod
+Module
+Foundation
+mult_matrix ( :
+:
+MatrixAID,
+MatrixBID,
+MultType :
+MatrixMultID )
+Multiply two matrices.
+The operator mult_matrix computes the product of the input matrices MatrixA and MatrixB deﬁned by the
+matrix handles MatrixAID and MatrixBID. A new matrix MatrixMult is generated with the result. The
+operator returns the matrix handle MatrixMultID of the matrix MatrixMult. Access to the elements of the
+matrix is possible e.g., with the operator get_full_matrix. If desired, one or both input matrices will be
+transposed for the multiplication.
+The type of multiplication can be selected via MultType:
+’AB’: The matrices MatrixA and MatrixB will not be transposed. Therefore, the formula for the calculation
+of the result is:
+MatrixMult
+=
+MatrixA
+·
+MatrixB.
+The number of columns of the matrix MatrixA must be identical to the number of rows of the matrix
+MatrixB.
+Example:
+MatrixA =
+
+
+3.0
+−3.0
+2.0
+−5.0
+−3.0
+2.0
+
+
+MatrixB =
+ 3.0
+−3.0
+1.0
+1.0
+2.0
+−1.0
+−2.0
+−1.0
+
+HALCON 26.05.0.0
+
+
+----- [page 2136] -----
+2088
+CHAPTER 20 MATRIX
+→
+MatrixMult =
+
+
+3.0
+−6.0
+9.0
+6.0
+−4.0
+−1.0
+12.0
+7.0
+−5.0
+7.0
+−7.0
+−5.0
+
+
+’ATB’: The matrix MatrixA will be transposed. The matrix MatrixB will not be transposed. Therefore, the
+formula for the calculation of the result is:
+MatrixMult
+=
+MatrixAT
+·
+MatrixB.
+The number of rows of the matrix MatrixA must be identical to the number of rows of the matrix MatrixB.
+Example:
+MatrixA =
+
+3.0
+2.0
+−3.0
+−3.0
+−5.0
+2.0
+
+MatrixB =
+ 3.0
+−3.0
+1.0
+1.0
+2.0
+−1.0
+−2.0
+−1.0
+
+→
+MatrixMult =
+
+
+3.0
+−6.0
+9.0
+6.0
+−4.0
+−1.0
+12.0
+7.0
+−5.0
+7.0
+−7.0
+−5.0
+
+
+’ABT’: The matrix MatrixA will not be transposed. The matrix MatrixB will be transposed. Therefore, the
+formula for the calculation of the result is:
+MatrixMult
+=
+MatrixA
+·
+MatrixBT .
+The number of columns of the matrix MatrixA must be identical to the number of columns of the matrix
+MatrixB.
+Example:
+MatrixA =
+
+
+3.0
+−3.0
+2.0
+−5.0
+−3.0
+2.0
+
+
+MatrixB =
+
+
+3.0
+2.0
+−3.0
+−1.0
+1.0
+−2.0
+1.0
+−1.0
+
+
+→
+MatrixMult =
+
+
+3.0
+−6.0
+9.0
+6.0
+−4.0
+−1.0
+12.0
+7.0
+−5.0
+7.0
+−7.0
+−5.0
+
+
+’ATBT’: The matrix MatrixA and the matrix MatrixB will be transposed. Therefore, the formula for the
+calculation of the result is:
+MatrixMult
+=
+MatrixAT
+·
+MatrixBT .
+The number of rows of the matrix MatrixA must be identical to the number of columns of the matrix
+MatrixB.
+Example:
+MatrixA =
+
+3.0
+2.0
+−3.0
+−3.0
+−5.0
+2.0
+
+MatrixB =
+
+
+3.0
+2.0
+−3.0
+−1.0
+1.0
+−2.0
+1.0
+−1.0
+
+
+→
+MatrixMult =
+
+
+3.0
+−6.0
+9.0
+6.0
+−4.0
+−1.0
+12.0
+7.0
+−5.0
+7.0
+−7.0
+−5.0
+
+
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2137] -----
+20.2. ARITHMETIC
+2089
+Parameters
+▷MatrixAID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .matrix ; handle
+Matrix handle of the input matrix A.
+▷MatrixBID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .matrix ; handle
+Matrix handle of the input matrix B.
+▷MultType (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .string ; string
+Type of the input matrices.
+Default: ’AB’
+List of values: MultType ∈{’AB’, ’ATB’, ’ABT’, ’ATBT’}
+▷MatrixMultID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .matrix ; handle
+Matrix handle of the multiplied matrices.
+Result
+If the parameters are valid, the operator mult_matrix returns the value 2 (H_MSG_TRUE). If necessary, an
+exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+create_matrix
+Possible Successors
+get_full_matrix, get_value_matrix
+Alternatives
+mult_matrix_mod
+See also
+mult_element_matrix, mult_element_matrix_mod, div_element_matrix,
+div_element_matrix_mod, transpose_matrix, transpose_matrix_mod
+References
+David Poole: “Linear Algebra: A Modern Introduction”; Thomson; Belmont; 2006.
+Gene H. Golub, Charles F. van Loan: “Matrix Computations”; The Johns Hopkins University Press; Baltimore and
+London; 1996.
+Module
+Foundation
+mult_matrix_mod ( :
+:
+MatrixAID,
+MatrixBID,
+MultType :
+)
+Multiply two matrices.
+The operator mult_matrix computes the product of the input matrices MatrixA and MatrixB deﬁned by the
+matrix handles MatrixAID and MatrixBID. The input matrix MatrixA is overwritten with the result. Access
+to the elements of the matrix is possible e.g., with the operator get_full_matrix. If desired, one or both input
+matrices will be transposed for the multiplication.
+The type of multiplication can be selected via MultType:
+’AB’: The matrices MatrixA and MatrixB will not be transposed. Therefore, the formula for the calculation
+of the result is:
+MatrixA
+=
+MatrixA
+·
+MatrixB.
+The number of columns of the matrix MatrixA must be identical to the number of rows of the matrix
+MatrixB.
+HALCON 26.05.0.0
+
+
+----- [page 2138] -----
+2090
+CHAPTER 20 MATRIX
+Example:
+MatrixA =
+
+
+3.0
+−3.0
+2.0
+−5.0
+−3.0
+2.0
+
+
+MatrixB =
+
+3.0
+−3.0
+1.0
+1.0
+2.0
+−1.0
+−2.0
+−1.0
+
+→
+MatrixA =
+
+
+3.0
+−6.0
+9.0
+6.0
+−4.0
+−1.0
+12.0
+7.0
+−5.0
+7.0
+−7.0
+−5.0
+
+
+’ATB’: The matrix MatrixA will be transposed. The matrix MatrixB will not be transposed. Therefore, the
+formula for the calculation of the result is:
+MatrixA
+=
+MatrixAT
+·
+MatrixB.
+The number of rows of the matrix MatrixA must be identical to the number of rows of the matrix MatrixB.
+Example:
+MatrixA =
+
+3.0
+2.0
+−3.0
+−3.0
+−5.0
+2.0
+
+MatrixB =
+ 3.0
+−3.0
+1.0
+1.0
+2.0
+−1.0
+−2.0
+−1.0
+
+→
+MatrixA =
+
+
+3.0
+−6.0
+9.0
+6.0
+−4.0
+−1.0
+12.0
+7.0
+−5.0
+7.0
+−7.0
+−5.0
+
+
+’ABT’: The matrix MatrixA will not be transposed. The matrix MatrixB will be transposed. Therefore, the
+formula for the calculation of the result is:
+MatrixA
+=
+MatrixA
+·
+MatrixBT .
+The number of columns of the matrix MatrixA must be identical to the number of columns of the matrix
+MatrixB.
+Example:
+MatrixA =
+
+
+3.0
+−3.0
+2.0
+−5.0
+−3.0
+2.0
+
+
+MatrixB =
+
+
+3.0
+2.0
+−3.0
+−1.0
+1.0
+−2.0
+1.0
+−1.0
+
+
+→
+MatrixA =
+
+
+3.0
+−6.0
+9.0
+6.0
+−4.0
+−1.0
+12.0
+7.0
+−5.0
+7.0
+−7.0
+−5.0
+
+
+’ATBT’: The matrix MatrixA and the matrix MatrixB will be transposed. Therefore, the formula for the
+calculation of the result is:
+MatrixA
+=
+MatrixAT
+·
+MatrixBT .
+The number of rows of the matrix MatrixA must be identical to the number of columns of the matrix
+MatrixB.
+Example:
+MatrixA =
+
+3.0
+2.0
+−3.0
+−3.0
+−5.0
+2.0
+
+MatrixB =
+
+
+3.0
+2.0
+−3.0
+−1.0
+1.0
+−2.0
+1.0
+−1.0
+
+
+→
+MatrixA =
+
+
+3.0
+−6.0
+9.0
+6.0
+−4.0
+−1.0
+12.0
+7.0
+−5.0
+7.0
+−7.0
+−5.0
+
+
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2139] -----
+20.2. ARITHMETIC
+2091
+Parameters
+▷MatrixAID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .matrix ; handle
+Matrix handle of the input matrix A.
+▷MatrixBID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .matrix ; handle
+Matrix handle of the input matrix B.
+▷MultType (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .string ; string
+Type of the input matrices.
+Default: ’AB’
+List of values: MultType ∈{’AB’, ’ATB’, ’ABT’, ’ATBT’}
+Result
+If the parameters are valid, the operator mult_matrix_mod returns the value 2 (H_MSG_TRUE). If necessary,
+an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+This operator modiﬁes the state of the following input parameter:
+• MatrixAID
+During execution of this operator, access to the value of this parameter must be synchronized if it is used across
+multiple threads.
+Possible Predecessors
+create_matrix
+Possible Successors
+get_full_matrix, get_value_matrix
+Alternatives
+mult_matrix
+See also
+mult_element_matrix, mult_element_matrix_mod, div_element_matrix,
+div_element_matrix_mod, transpose_matrix, transpose_matrix_mod
+References
+David Poole: “Linear Algebra: A Modern Introduction”; Thomson; Belmont; 2006.
+Gene H. Golub, Charles F. van Loan: “Matrix Computations”; The Johns Hopkins University Press; Baltimore and
+London; 1996.
+Module
+Foundation
+pow_element_matrix ( :
+:
+MatrixID,
+MatrixExpID : MatrixPowID )
+Compute the power functions of the elements of a matrix.
+The operator pow_element_matrix computes the power of all elements of the input Matrix with the el-
+ements of the input matrix MatrixExp. The input matrices Matrix and MatrixExp are deﬁned by the
+matrix handles MatrixID and MatrixExpID. Both matrices must have identical dimensions. A new matrix
+MatrixPow is generated with the result. The operator returns the matrix handle MatrixPowID of the matrix
+MatrixPow. Access to the elements of the matrix is possible e.g., with the operator get_full_matrix. The
+formula for the calculation of the result is:
+MatrixPowij
+=
+MatrixijMatrixExpij.
+Example:
+HALCON 26.05.0.0
+
+
+----- [page 2140] -----
+2092
+CHAPTER 20 MATRIX
+Matrix =
+
+
+3.0
+1.0
+2.0
+5.0
+7.0
+2.0
+9.0
+4.0
+1.0
+
+
+MatrixExp =
+
+
+1.0
+2.0
+2.0
+2.0
+0.0
+3.0
+0.5
+3.0
+1.0
+
+
+→
+MatrixPow =
+
+
+3.0
+1.0
+4.0
+25.0
+1.0
+8.0
+3.0
+64.0
+1.0
+
+
+Parameters
+▷MatrixID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input matrix of the base.
+▷MatrixExpID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input matrix with exponents.
+▷MatrixPowID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle with the raised power of the input matrix.
+Result
+If the parameters are valid, the operator pow_element_matrix returns the value 2 (H_MSG_TRUE). If neces-
+sary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+create_matrix
+Possible Successors
+get_full_matrix, get_value_matrix
+Alternatives
+pow_element_matrix_mod, pow_scalar_element_matrix,
+pow_scalar_element_matrix_mod
+See also
+sqrt_matrix, sqrt_matrix_mod
+Module
+Foundation
+pow_element_matrix_mod ( :
+:
+MatrixID,
+MatrixExpID : )
+Compute the power functions of the elements of a matrix.
+The operator pow_element_matrix_mod computes the power of all elements of the input Matrix with
+the elements of the input matrix MatrixExp. The input matrices Matrix and MatrixExp are deﬁned by
+the matrix handles MatrixID and MatrixExpID. Both matrices must have identical dimensions. The input
+Matrix is overwritten with the result. Access to the elements of the matrix is possible e.g., with the operator
+get_full_matrix. The formula for the calculation of the result is:
+Matrixij
+=
+MatrixijMatrixExpij.
+Example:
+Matrix =
+
+
+3.0
+1.0
+2.0
+5.0
+7.0
+2.0
+9.0
+4.0
+1.0
+
+
+MatrixExp =
+
+
+1.0
+2.0
+2.0
+2.0
+0.0
+3.0
+0.5
+3.0
+1.0
+
+
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2141] -----
+20.2. ARITHMETIC
+2093
+→
+Matrix =
+
+
+3.0
+1.0
+4.0
+25.0
+1.0
+8.0
+3.0
+64.0
+1.0
+
+
+Parameters
+▷MatrixID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input matrix of the base.
+▷MatrixExpID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input matrix with exponents.
+Result
+If the parameters are valid, the operator pow_element_matrix_mod returns the value 2 (H_MSG_TRUE). If
+necessary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+This operator modiﬁes the state of the following input parameter:
+• MatrixID
+During execution of this operator, access to the value of this parameter must be synchronized if it is used across
+multiple threads.
+Possible Predecessors
+create_matrix
+Possible Successors
+get_full_matrix, get_value_matrix
+Alternatives
+pow_element_matrix, pow_scalar_element_matrix, pow_scalar_element_matrix_mod
+See also
+sqrt_matrix, sqrt_matrix_mod
+Module
+Foundation
+pow_matrix ( :
+:
+MatrixID,
+MatrixType,
+Power :
+MatrixPowID )
+Compute the power functions of a matrix.
+The operator pow_matrix computes the power of the input Matrix by a constant value. The input Matrix
+is given by the matrix handle MatrixID. The power value is given by the parameter Power. A new matrix
+MatrixPow is generated with the result. The operator returns the matrix handle MatrixPowID of the matrix
+MatrixPow. Access to the elements of the matrix is possible e.g., with the operator get_full_matrix.
+The type of the Matrix can be selected via MatrixType. The following values are supported: ’general’ for gen-
+eral, ’symmetric’ for symmetric, ’positive_deﬁnite’ for symmetric positive deﬁnite, ’upper_triangular’ for upper
+triangular, ’permuted_upper_triangular’ for permuted upper triangular, ’lower_triangular’ for lower triangular,
+and ’permuted_lower_triangular’ for permuted lower triangular matrices. The formula for the calculation of the
+result is:
+MatrixPow
+=
+MatrixPower.
+Example:
+HALCON 26.05.0.0
+
+
+----- [page 2142] -----
+2094
+CHAPTER 20 MATRIX
+Power = [2.0], MatrixType = ’general’
+Matrix =
+
+
+3.0
+1.0
+2.0
+5.0
+7.0
+2.0
+9.0
+4.0
+1.0
+
+
+→
+MatrixPow =
+
+
+32.0
+18.0
+10.0
+68.0
+62.0
+26.0
+56.0
+41.0
+27.0
+
+
+Attention
+For MatrixType = ’symmetric’, ’positive_deﬁnite’, or ’upper_triangular’ the upper triangular part of the input
+Matrix must contain the relevant information of the matrix. The strictly lower triangular part of the matrix is not
+referenced. For MatrixType = ’lower_triangular’ the lower triangular part of the input Matrix must contain
+the relevant information of the matrix. The strictly upper triangular part of the matrix is not referenced. If the
+referenced part of the input Matrix is not of the speciﬁed type, an exception is raised.
+Parameters
+▷MatrixID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input matrix.
+▷MatrixType (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+The type of the input matrix.
+Default: ’general’
+List of values: MatrixType ∈{’general’, ’symmetric’, ’positive_deﬁnite’, ’upper_triangular’,
+’permuted_upper_triangular’, ’lower_triangular’, ’permuted_lower_triangular’}
+▷Power (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . number ; real / integer
+The power.
+Default: 2.0
+Suggested values: Power ∈{0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.5, 2.0, 3.0, 5.0, 10.0}
+▷MatrixPowID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle with the raised powered matrix.
+Result
+If the parameters are valid, the operator pow_matrix returns the value 2 (H_MSG_TRUE). If necessary, an
+exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+create_matrix
+Possible Successors
+get_full_matrix, get_value_matrix
+Alternatives
+pow_matrix_mod, eigenvalues_symmetric_matrix, eigenvalues_general_matrix
+See also
+sqrt_matrix, sqrt_matrix_mod
+Module
+Foundation
+pow_matrix_mod ( :
+:
+MatrixID,
+MatrixType,
+Power :
+)
+Compute the power functions of a matrix.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2143] -----
+20.2. ARITHMETIC
+2095
+The operator pow_matrix_mod computes the power of the input Matrix by a constant value. The input
+Matrix is given by the matrix handle MatrixID. The power value is given by the parameter Power. The
+input matrix is overwritten with the result. Access to the elements of the matrix is possible e.g., with the operator
+get_full_matrix.
+The type of the Matrix can be selected via MatrixType. The following values are supported: ’general’ for gen-
+eral, ’symmetric’ for symmetric, ’positive_deﬁnite’ for symmetric positive deﬁnite, ’upper_triangular’ for upper
+triangular, ’permuted_upper_triangular’ for permuted upper triangular, ’lower_triangular’ for lower triangular,
+and ’permuted_lower_triangular’ for permuted lower triangular matrices. The formula for the calculation of the
+result is:
+Matrix
+=
+MatrixPower.
+Example:
+Power = [2.0], MatrixType = ’general’
+Matrix =
+
+
+3.0
+1.0
+2.0
+5.0
+7.0
+2.0
+9.0
+4.0
+1.0
+
+
+→
+Matrix =
+
+
+32.0
+18.0
+10.0
+68.0
+62.0
+26.0
+56.0
+41.0
+27.0
+
+
+Attention
+For MatrixType = ’symmetric’, ’positive_deﬁnite’, or ’upper_triangular’ the upper triangular part of the input
+Matrix must contain the relevant information of the matrix. The strictly lower triangular part of the matrix is not
+referenced. For MatrixType = ’lower_triangular’ the lower triangular part of the input Matrix must contain
+the relevant information of the matrix. The strictly upper triangular part of the matrix is not referenced. If the
+referenced part of the input Matrix is not of the speciﬁed type, an exception is raised.
+pow_matrix_mod modiﬁes the content of an already existing matrix.
+Parameters
+▷MatrixID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input matrix.
+▷MatrixType (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+The type of the input matrix.
+Default: ’general’
+List of values: MatrixType ∈{’general’, ’symmetric’, ’positive_deﬁnite’, ’upper_triangular’,
+’permuted_upper_triangular’, ’lower_triangular’, ’permuted_lower_triangular’}
+▷Power (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . number ; real / integer
+The power.
+Default: 2.0
+Suggested values: Power ∈{0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.5, 2.0, 3.0, 5.0, 10.0}
+Result
+If the parameters are valid, the operator pow_matrix_mod returns the value 2 (H_MSG_TRUE). If necessary, an
+exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+This operator modiﬁes the state of the following input parameter:
+• MatrixID
+HALCON 26.05.0.0
+
+
+----- [page 2144] -----
+2096
+CHAPTER 20 MATRIX
+During execution of this operator, access to the value of this parameter must be synchronized if it is used across
+multiple threads.
+Possible Predecessors
+create_matrix
+Possible Successors
+get_full_matrix, get_value_matrix
+Alternatives
+pow_matrix, eigenvalues_symmetric_matrix, eigenvalues_general_matrix
+See also
+sqrt_matrix, sqrt_matrix_mod
+Module
+Foundation
+pow_scalar_element_matrix ( :
+:
+MatrixID,
+Power :
+MatrixPowID )
+Compute the power functions of the elements of a matrix.
+The operator pow_scalar_element_matrix computes the power of all elements of the input Matrix by a
+constant value. The input Matrix is given by the matrix handle MatrixID. The power value Power is given
+by the parameter Power. A new matrix MatrixPow is generated with the result. The operator returns the matrix
+handle MatrixPowID of the matrix MatrixPow. Access to the elements of the matrix is possible e.g., with the
+operator get_full_matrix. The formula for the calculation of the result is:
+MatrixPowij
+=
+MatrixijPower.
+Example:
+Power = [2.0]
+Matrix =
+
+
+3.0
+1.0
+2.0
+5.0
+7.0
+2.0
+9.0
+4.0
+1.0
+
+
+→
+MatrixPow =
+
+
+9.0
+1.0
+4.0
+25.0
+49.0
+4.0
+81.0
+16.0
+1.0
+
+
+Parameters
+▷MatrixID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input matrix.
+▷Power (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . number ; real / integer
+The power.
+Default: 2.0
+Suggested values: Power ∈{0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.5, 2.0, 3.0, 5.0, 10.0}
+▷MatrixPowID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle with the raised power of the input matrix.
+Result
+If the parameters are valid, the operator pow_scalar_element_matrix returns the value 2 (H_MSG_TRUE).
+If necessary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2145] -----
+20.2. ARITHMETIC
+2097
+• Processed without parallelization.
+Possible Predecessors
+create_matrix
+Possible Successors
+get_full_matrix, get_value_matrix
+Alternatives
+pow_scalar_element_matrix_mod, pow_element_matrix, pow_element_matrix_mod
+See also
+sqrt_matrix, sqrt_matrix_mod
+Module
+Foundation
+pow_scalar_element_matrix_mod ( :
+:
+MatrixID,
+Power :
+)
+Compute the power functions of the elements of a matrix.
+The operator pow_scalar_element_matrix_mod computes the power of all elements of the input Matrix
+by a constant value. The input Matrix is given by the matrix handle MatrixID. The power value is given by the
+parameter Power. The input matrix is overwritten with the result. Access to the elements of the matrix is possible
+e.g., with the operator get_full_matrix. The formula for the calculation of the result is:
+Matrixij
+=
+MatrixijPower.
+Example:
+Power = [2.0]
+Matrix =
+
+
+3.0
+1.0
+2.0
+5.0
+7.0
+2.0
+9.0
+4.0
+1.0
+
+
+→
+Matrix =
+
+
+9.0
+1.0
+4.0
+25.0
+49.0
+4.0
+81.0
+16.0
+1.0
+
+
+Parameters
+▷MatrixID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input matrix.
+▷Power (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . number ; real / integer
+The power.
+Default: 2.0
+Suggested values: Power ∈{0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.5, 2.0, 3.0, 5.0, 10.0}
+Result
+If the parameters are valid, the operator pow_scalar_element_matrix_mod returns the value 2
+(H_MSG_TRUE). If necessary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+This operator modiﬁes the state of the following input parameter:
+HALCON 26.05.0.0
+
+
+----- [page 2146] -----
+2098
+CHAPTER 20 MATRIX
+• MatrixID
+During execution of this operator, access to the value of this parameter must be synchronized if it is used across
+multiple threads.
+Possible Predecessors
+create_matrix
+Possible Successors
+get_full_matrix, get_value_matrix
+Alternatives
+pow_scalar_element_matrix, pow_element_matrix, pow_element_matrix_mod
+See also
+sqrt_matrix, sqrt_matrix_mod
+Module
+Foundation
+scale_matrix ( :
+:
+MatrixID,
+Factor :
+MatrixScaledID )
+Scale a matrix.
+The operator scale_matrix scales the Matrix by a constant factor.
+The matrix is deﬁned by the ma-
+trix handle MatrixID. A new matrix MatrixScaled is generated with the result.
+The operator returns
+the matrix handle MatrixScaledID. Access to the elements of the matrix is possible e.g., with the operator
+get_full_matrix. The formula for the calculation of the result is:
+MatrixScaledij
+=
+Factor
+·
+Matrixij.
+Example:
+Factor = 1.5
+Matrix =
+
+
+3.0
+1.0
+−2.0
+−2.0
+6.0
+2.0
+−5.0
+−4.0
+1.0
+
+
+→
+MatrixScaled =
+
+
+4.5
+1.5
+−3.0
+−3.0
+9.0
+3.0
+−7.5
+−6.0
+1.5
+
+
+Parameters
+▷MatrixID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input matrix.
+▷Factor (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . number ; real / integer
+Scale factor.
+Default: 2.0
+Suggested values: Factor ∈{0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.5, 2.0, 3.0, 5.0, 10.0}
+▷MatrixScaledID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle with the scaled elements.
+Result
+If the parameters are valid, the operator scale_matrix returns the value 2 (H_MSG_TRUE). If necessary, an
+exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2147] -----
+20.2. ARITHMETIC
+2099
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+create_matrix
+Possible Successors
+get_full_matrix, get_value_matrix
+Alternatives
+scale_matrix_mod
+See also
+mult_element_matrix, mult_element_matrix_mod, div_element_matrix,
+div_element_matrix_mod
+Module
+Foundation
+scale_matrix_mod ( :
+:
+MatrixID,
+Factor :
+)
+Scale a matrix.
+The operator scale_matrix scales the Matrix by a constant factor. The matrix is deﬁned by the matrix handle
+MatrixID. The input matrix is overwritten with the result. Access to the elements of the matrix is possible e.g.,
+with the operator get_full_matrix. The formula for the calculation of the result is:
+Matrixij
+=
+Factor
+·
+Matrixij.
+Example:
+Factor = 1.5
+Matrix =
+
+
+3.0
+1.0
+−2.0
+−2.0
+6.0
+2.0
+−5.0
+−4.0
+1.0
+
+
+→
+Matrix =
+
+
+4.5
+1.5
+−3.0
+−3.0
+9.0
+3.0
+−7.5
+−6.0
+1.5
+
+
+Parameters
+▷MatrixID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input matrix.
+▷Factor (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . number ; real / integer
+Scale factor.
+Default: 2.0
+Suggested values: Factor ∈{0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.5, 2.0, 3.0, 5.0, 10.0}
+Result
+If the parameters are valid, the operator scale_matrix_mod returns the value 2 (H_MSG_TRUE). If necessary,
+an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+This operator modiﬁes the state of the following input parameter:
+HALCON 26.05.0.0
+
+
+----- [page 2148] -----
+2100
+CHAPTER 20 MATRIX
+• MatrixID
+During execution of this operator, access to the value of this parameter must be synchronized if it is used across
+multiple threads.
+Possible Predecessors
+create_matrix
+Possible Successors
+get_full_matrix, get_value_matrix
+Alternatives
+scale_matrix
+See also
+mult_element_matrix, mult_element_matrix_mod, div_element_matrix,
+div_element_matrix_mod
+Module
+Foundation
+solve_matrix ( :
+:
+MatrixLHSID,
+MatrixLHSType,
+Epsilon,
+MatrixRHSID : MatrixResultID )
+Compute the solution of a system of equations.
+The operator solve_matrix computes the solution of a system of linear equations or of a linear least squares
+problem. The input matrices MatrixLHS and MatrixRHS are deﬁned by the matrix handles MatrixLHSID
+and MatrixRHSID. The number of rows of matrices MatrixLHS and MatrixRHS must be identical. The
+operator returns the matrix handle MatrixResultID of the matrix MatrixResult. Access to the elements
+of the matrix is possible e.g., with the operator get_full_matrix.
+For linear equation systems, the equations
+MatrixLHS
+·
+MatrixResult
+=
+MatrixRHS
+are solved. Therefore, the matrix MatrixLHS must be a square matrix and the parameter Epsilon must be 0.
+The type of the matrix MatrixLHS can be selected via the parameter MatrixLHSType. The following values
+are supported: ’general’ for general, ’symmetric’ for symmetric, ’positive_deﬁnite’ for symmetric positive deﬁnite,
+’tridiagonal’ for tridiagonal, ’upper_triangular’ for upper triangular, ’permuted_upper_triangular’ for permuted
+upper triangular, ’lower_triangular’ for lower triangular, and ’permuted_lower_triangular’ for permuted lower
+triangular matrices.
+Example:
+MatrixLHSType = ’positive_deﬁnite’, Epsilon = 0
+MatrixLHS =
+
+
+6.0
+5.0
+3.0
+5.0
+7.0
+3.0
+3.0
+3.0
+4.0
+
+
+MatrixRHS =
+
+
+−1.0
+6.0
+3.0
+−3.0
+5.0
+4.0
+
+
+→
+MatrixResult =
+
+
+−2.0
+3.0
+1.0
+−3.0
+2.0
+1.0
+
+
+For linear least squares problems or if Epsilon is not 0, the matrix MatrixLHS need not be a square matrix. The
+linear least squares problem is solved using the singular value decomposition (SVD) of the matrix MatrixLHS
+by minimizing
+|| MatrixRHS
+−
+MatrixLHS
+·
+MatrixResult ||.
+All singular values less than the value Epsilon × the largest singular value are set to 0. For these values no internal
+division is done to prevent a division by zero. Also, the matrix MatrixLHS may be rank-deﬁcient. The type of
+matrix must be selected via MatrixLHSType = ’general’.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2149] -----
+20.2. ARITHMETIC
+2101
+Example:
+MatrixLHSType = ’general’, Epsilon = 2.2204e-16
+MatrixLHS =
+
+
+6.0
+5.0
+3.0
+3.0
+7.0
+−3.0
+5.0
+12.0
+4.0
+5.0
+4.0
+12.0
+4.0
+6.0
+8.0
+
+
+MatrixRHS =
+
+
+29.0
+10.0
+35.0
+43.0
+25.0
+
+
+→
+MatrixResult =
+
+
+3.4914
+0.7114
+1.6213
+
+
+Note: The relative accuracy of the ﬂoating point representation of the used data type (double) is Epsilon =
+2.2204e-16.
+Attention
+For MatrixLHSType = ’symmetric’, ’positive_deﬁnite’, or ’upper_triangular’ the upper triangular part of the
+input MatrixLHS must contain the relevant information of the matrix. The strictly lower triangular part of
+the matrix is not referenced. For MatrixLHSType = ’lower_triangular’ the lower triangular part of the input
+MatrixLHS must contain the relevant information of the matrix. The strictly upper triangular part of the matrix
+is not referenced. For MatrixLHSType = ’tridiagonal’, only the main diagonal, the superdiagonal, and the
+subdiagonal of the input MatrixLHS are used. The other parts of the matrix are not referenced. If the referenced
+part of the input MatrixLHS is not of the speciﬁed type, an exception is raised.
+Parameters
+▷MatrixLHSID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input matrix of the left hand side.
+▷MatrixLHSType (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+The type of the input matrix of the left hand side.
+Default: ’general’
+List of values: MatrixLHSType ∈{’general’, ’symmetric’, ’positive_deﬁnite’, ’tridiagonal’,
+’upper_triangular’, ’permuted_upper_triangular’, ’lower_triangular’, ’permuted_lower_triangular’}
+▷Epsilon (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .real ; real
+Type of solving and limitation to set singular values to be 0.
+Default: 0.0
+Suggested values: Epsilon ∈{0.0, 2.2204e-16}
+▷MatrixRHSID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input matrix of right hand side.
+▷MatrixResultID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+New matrix handle with the solution.
+Result
+If the parameters are valid, the operator solve_matrix returns the value 2 (H_MSG_TRUE). If necessary, an
+exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+create_matrix
+Possible Successors
+get_full_matrix, get_value_matrix
+References
+David Poole: “Linear Algebra: A Modern Introduction”; Thomson; Belmont; 2006.
+HALCON 26.05.0.0
+
+
+----- [page 2150] -----
+2102
+CHAPTER 20 MATRIX
+Gene H. Golub, Charles F. van Loan: “Matrix Computations”; The Johns Hopkins University Press; Baltimore and
+London; 1996.
+Module
+Foundation
+sqrt_matrix ( :
+:
+MatrixID : MatrixSqrtID )
+Compute the square root values of the elements of a matrix.
+The operator sqrt_matrix computes the square root values of all elements of the input Matrix given by the
+matrix handle MatrixID. A new matrix MatrixSqrt is generated with the result. The operator returns the
+matrix handle MatrixSqrtID of the matrix MatrixSqrt. Access to the elements of the matrix is possible
+e.g., with the operator get_full_matrix. The formula for the calculation of the result is:
+MatrixSqrtij
+=
+p
+Matrixij.
+Example:
+Matrix =
+
+
+3.0
+1.0
+2.0
+5.0
+7.0
+2.0
+9.0
+4.0
+1.0
+
+
+→
+MatrixSqrt =
+
+
+1.7321
+1.0000
+1.4142
+2.2361
+2.6458
+1.4142
+3.0000
+2.0000
+1.0000
+
+
+Parameters
+▷MatrixID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input matrix.
+▷MatrixSqrtID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .matrix ; handle
+Matrix handle with the square root values of the input matrix.
+Result
+If the parameters are valid, the operator sqrt_matrix returns the value 2 (H_MSG_TRUE). If necessary, an
+exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+create_matrix
+Possible Successors
+get_full_matrix, get_value_matrix
+Alternatives
+sqrt_matrix_mod
+See also
+pow_scalar_element_matrix, pow_scalar_element_matrix_mod
+Module
+Foundation
+sqrt_matrix_mod ( :
+:
+MatrixID : )
+Compute the square root values of the elements of a matrix.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2151] -----
+20.2. ARITHMETIC
+2103
+The operator sqrt_matrix_mod computes the square root values of all elements of the input Matrix given
+by the matrix handle MatrixID. The input matrix is overwritten with the result. Access to the elements of the
+matrix is possible e.g., with the operator get_full_matrix. The formula for the calculation of the result is:
+Matrixij
+=
+p
+Matrixij.
+Example:
+Matrix =
+
+
+3.0
+1.0
+2.0
+5.0
+7.0
+2.0
+9.0
+4.0
+1.0
+
+
+→
+Matrix =
+
+
+1.7321
+1.0000
+1.4142
+2.2361
+2.6458
+1.4142
+3.0000
+2.0000
+1.0000
+
+
+Parameters
+▷MatrixID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input matrix.
+Result
+If the parameters are valid, the operator sqrt_matrix_mod returns the value 2 (H_MSG_TRUE). If necessary,
+an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+This operator modiﬁes the state of the following input parameter:
+• MatrixID
+During execution of this operator, access to the value of this parameter must be synchronized if it is used across
+multiple threads.
+Possible Predecessors
+create_matrix
+Possible Successors
+get_full_matrix, get_value_matrix
+Alternatives
+sqrt_matrix
+Module
+Foundation
+sub_matrix ( :
+:
+MatrixAID,
+MatrixBID : MatrixSubID )
+Subtract two matrices.
+The operator sub_matrix computes the difference of the input matrices MatrixA and MatrixB given by
+the matrix handles MatrixAID and MatrixBID. Both matrices must have identical dimensions. A new matrix
+MatrixSub is generated with the result. The operator returns the matrix handle MatrixSubID of the matrix
+MatrixSub. Access to the elements of the matrix is possible e.g., with the operator get_full_matrix. The
+formula for the calculation of the result is:
+MatrixSub
+=
+MatrixA
+−
+MatrixB.
+Example:
+MatrixA =
+
+
+3.0
+1.0
+−2.0
+−5.0
+7.0
+2.0
+−9.0
+−4.0
+1.0
+
+
+MatrixB =
+
+
+2.0
+8.0
+−3.0
+−4.0
+−1.0
+5.0
+2.0
+−4.0
+7.0
+
+
+HALCON 26.05.0.0
+
+
+----- [page 2152] -----
+2104
+CHAPTER 20 MATRIX
+→
+MatrixSub =
+
+
+1.0
+−7.0
+1.0
+−1.0
+8.0
+−3.0
+−11.0
+0.0
+−6.0
+
+
+Parameters
+▷MatrixAID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .matrix ; handle
+Matrix handle of the input matrix A.
+▷MatrixBID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .matrix ; handle
+Matrix handle of the input matrix B.
+▷MatrixSubID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle with the difference of the input matrices.
+Result
+If the parameters are valid, the operator sub_matrix returns the value 2 (H_MSG_TRUE). If necessary, an
+exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+create_matrix
+Possible Successors
+get_full_matrix, get_value_matrix
+Alternatives
+sub_matrix_mod
+See also
+add_matrix, add_matrix_mod
+Module
+Foundation
+sub_matrix_mod ( :
+:
+MatrixAID,
+MatrixBID : )
+Subtract two matrices.
+The operator sub_matrix_mod computes the difference of the input matrices MatrixA and MatrixB given
+by the matrix handles MatrixAID and MatrixBID. Both matrices must have identical dimensions. The input
+matrix MatrixA is overwritten with the result. Access to the elements of the matrix is possible e.g., with the
+operator get_full_matrix. The formula for the calculation of the result is:
+MatrixA
+=
+MatrixA
+−
+MatrixB.
+Example:
+MatrixA =
+
+
+3.0
+1.0
+−2.0
+−5.0
+7.0
+2.0
+−9.0
+−4.0
+1.0
+
+
+MatrixB =
+
+
+2.0
+8.0
+−3.0
+−4.0
+−1.0
+5.0
+2.0
+−4.0
+7.0
+
+
+→
+MatrixA =
+
+
+1.0
+−7.0
+1.0
+−1.0
+8.0
+−3.0
+−11.0
+0.0
+−6.0
+
+
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2153] -----
+20.2. ARITHMETIC
+2105
+Parameters
+▷MatrixAID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .matrix ; handle
+Matrix handle of the input matrix A.
+▷MatrixBID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .matrix ; handle
+Matrix handle of the input matrix B.
+Result
+If the parameters are valid, the operator sub_matrix_mod returns the value 2 (H_MSG_TRUE). If necessary, an
+exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+This operator modiﬁes the state of the following input parameter:
+• MatrixAID
+During execution of this operator, access to the value of this parameter must be synchronized if it is used across
+multiple threads.
+Possible Predecessors
+create_matrix
+Possible Successors
+get_full_matrix, get_value_matrix
+Alternatives
+sub_matrix
+See also
+add_matrix, add_matrix_mod
+Module
+Foundation
+transpose_matrix ( :
+:
+MatrixID : MatrixTransposedID )
+Transpose a matrix.
+The operator transpose_matrix returns the transpose of the input Matrix. The input matrix is deﬁned by
+the matrix handle MatrixID. A new matrix MatrixTransposed is generated with the result and the matrix
+handle MatrixTransposedID of this matrix is returned. Access to the elements of the matrix is possible e.g.,
+with the operator get_full_matrix.
+Example:
+Matrix =
+
+
+3.0
+1.0
+−2.0
+−5.0
+7.0
+2.0
+−9.0
+−4.0
+1.0
+
+
+→
+MatrixTransposed =
+
+
+3.0
+−5.0
+−9.0
+1.0
+7.0
+−4.0
+−2.0
+2.0
+1.0
+
+
+Parameters
+▷MatrixID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input matrix.
+▷MatrixTransposedID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle with the transpose of the input matrix.
+Result
+If the parameters are valid, the operator transpose_matrix returns the value 2 (H_MSG_TRUE). If necessary,
+an exception is raised.
+Execution Information
+HALCON 26.05.0.0
+
+
+----- [page 2154] -----
+2106
+CHAPTER 20 MATRIX
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+create_matrix
+Possible Successors
+get_full_matrix, get_value_matrix
+Alternatives
+transpose_matrix_mod
+See also
+invert_matrix, invert_matrix_mod
+References
+David Poole: “Linear Algebra: A Modern Introduction”; Thomson; Belmont; 2006.
+Gene H. Golub, Charles F. van Loan: “Matrix Computations”; The Johns Hopkins University Press; Baltimore and
+London; 1996.
+Module
+Foundation
+transpose_matrix_mod ( :
+:
+MatrixID : )
+Transpose a matrix.
+The operator transpose_matrix_mod returns the transpose of the input Matrix. The input matrix is deﬁned
+by the matrix handle MatrixID. The input matrix is overwritten with the result. Access to the elements of the
+matrix is possible e.g., with the operator get_full_matrix.
+Example:
+Matrix =
+
+
+3.0
+1.0
+−2.0
+−5.0
+7.0
+2.0
+−9.0
+−4.0
+1.0
+
+
+→
+Matrix =
+
+
+3.0
+−5.0
+−9.0
+1.0
+7.0
+−4.0
+−2.0
+2.0
+1.0
+
+
+Parameters
+▷MatrixID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input matrix.
+Result
+If the parameters are valid, the operator transpose_matrix_mod returns the value 2 (H_MSG_TRUE). If
+necessary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+This operator modiﬁes the state of the following input parameter:
+• MatrixID
+During execution of this operator, access to the value of this parameter must be synchronized if it is used across
+multiple threads.
+Possible Predecessors
+create_matrix
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2155] -----
+20.3. CREATION
+2107
+Possible Successors
+get_full_matrix, get_value_matrix
+Alternatives
+transpose_matrix
+See also
+invert_matrix, invert_matrix_mod
+References
+David Poole: “Linear Algebra: A Modern Introduction”; Thomson; Belmont; 2006.
+Gene H. Golub, Charles F. van Loan: “Matrix Computations”; The Johns Hopkins University Press; Baltimore and
+London; 1996.
+Module
+Foundation
+20.3
+Creation
+clear_matrix ( :
+:
+MatrixID : )
+Free the memory of a matrix.
+The operator clear_matrix frees the memory of the matrix Matrix given by the matrix handle MatrixID.
+After calling clear_matrix, the Matrix can no longer be used. The matrix handle MatrixID becomes
+invalid.
+Parameters
+▷MatrixID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix(-array) ; handle
+Matrix handle.
+Result
+If the parameters are valid, the operator clear_matrix returns the value 2 (H_MSG_TRUE). If necessary, an
+exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+This operator modiﬁes the state of the following input parameter:
+• MatrixID
+During execution of this operator, access to the value of this parameter must be synchronized if it is used across
+multiple threads.
+Possible Predecessors
+create_matrix
+Module
+Foundation
+copy_matrix ( :
+:
+MatrixID : MatrixCopyID )
+Copy a matrix.
+The operator copy_matrix creates the new matrix MatrixCopy and copies all elements of the input Matrix
+to this new matrix. The input Matrix is deﬁned by the matrix handle MatrixID. The operator returns the matrix
+handle MatrixCopyID of the matrix MatrixCopy. Access to the elements of the matrix is possible e.g., with
+HALCON 26.05.0.0
+
+
+----- [page 2156] -----
+2108
+CHAPTER 20 MATRIX
+the operator get_full_matrix. With this operator a matrix can be saved before the matrix is modiﬁed by the
+operators set_value_matrix, set_full_matrix, set_sub_matrix, or set_diagonal_matrix.
+Example:
+Matrix =
+
+
+3.0
+1.0
+−2.0
+−5.0
+7.0
+2.0
+−9.0
+−4.0
+1.0
+
+
+→
+MatrixCopy =
+
+
+3.0
+1.0
+−2.0
+−5.0
+7.0
+2.0
+−9.0
+−4.0
+1.0
+
+
+Parameters
+▷MatrixID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input matrix.
+▷MatrixCopyID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .matrix ; handle
+Matrix handle of the copied matrix.
+Result
+If the parameters are valid, the operator copy_matrix returns the value 2 (H_MSG_TRUE). If necessary, an
+exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+create_matrix
+Possible Successors
+get_full_matrix, get_value_matrix
+Alternatives
+repeat_matrix
+Module
+Foundation
+create_matrix ( :
+:
+Rows,
+Columns,
+Value :
+MatrixID )
+Create a matrix.
+The operator create_matrix creates a new Matrix with Rows rows and Columns columns and re-
+turns the matrix handle MatrixID. Access to the elements of the matrix is possible e.g., with the operator
+get_full_matrix. The parameter Value is a string or a tuple of ﬂoating point or integer numbers. Inte-
+ger numbers are converted to ﬂoating point numbers automatically.
+If Value = ’identity’, Rows and Columns must have the identical values and an identity matrix is created.
+Example:
+Rows = 3, Columns = 3, Value = ’identity’
+→
+Matrix =
+
+
+1
+0
+0
+0
+1
+0
+0
+0
+1
+
+
+If the parameter Value contains a single value, all elements of the matrix are ﬁlled with this value.
+Example:
+Rows = 3, Columns = 3, Value = 7
+→
+Matrix =
+
+
+7.0
+7.0
+7.0
+7.0
+7.0
+7.0
+7.0
+7.0
+7.0
+
+
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2157] -----
+20.3. CREATION
+2109
+If Value contains as many values as the main diagonal, all elements of the main diagonal are set to the values of
+the parameter Value (i.e., the number of elements in Value is identical).
+Example:
+Rows = 3, Columns = 4, Value = [3,7,1]
+→
+Matrix =
+
+
+3.0
+0
+0
+0
+0
+7.0
+0
+0
+0
+0
+1.0
+0
+
+
+It is also possible to set all elements of the matrix with different values. In this case the parameter Value must
+contain all values in a row-major order, i.e., stored line by line. In addition, the number of elements of Value
+must be identical to the number of all elements of the matrix, i.e., Rows × Columns.
+Example:
+Rows = 3, Columns = 3, Value = [3,1,-2,-5,7,2,-9,-4,1]
+→
+Matrix =
+
+
+3.0
+1.0
+−2.0
+−5.0
+7.0
+2.0
+−9.0
+−4.0
+1.0
+
+
+It should be noted that in the examples there are differences in the meaning of the values of the output matrices: If
+a value is shown as an integer number, e.g., 0 or 1, the value of this element is per deﬁnition this certain value. If
+the number is shown as a ﬂoating point number, e.g., 0.0 or 1.0, the value is computed by the operator.
+Parameters
+▷Rows (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer ; integer
+Number of rows of the matrix.
+Default: 3
+Suggested values: Rows ∈{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 50, 100}
+Restriction: Rows >= 1
+▷Columns (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer ; integer
+Number of columns of the matrix.
+Default: 3
+Suggested values: Columns ∈{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 50, 100}
+Restriction: Columns >= 1
+▷Value (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . number(-array) ; real / integer / string
+Values for initializing the elements of the matrix.
+Default: 0
+Suggested values: Value ∈{0, 1, ’identity’}
+▷MatrixID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle.
+Result
+If the parameters are valid, the operator create_matrix returns the value 2 (H_MSG_TRUE). If necessary, an
+exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+This operator returns a handle. Note that the state of an instance of this handle type may be changed by speciﬁc
+operators even though the handle is used as an input parameter by those operators.
+Possible Successors
+set_full_matrix, clear_matrix
+Module
+Foundation
+HALCON 26.05.0.0
+
+
+----- [page 2158] -----
+2110
+CHAPTER 20 MATRIX
+repeat_matrix ( :
+:
+MatrixID,
+Rows,
+Columns :
+MatrixRepeatedID )
+Repeat a matrix.
+The operator repeat_matrix creates the new matrix MatrixRepeated and copies all elements of the
+input Matrix n times to this new matrix, where n = Rows · Columns.
+The new matrix has dimensions
+Rows × rows of the input Matrix and Columns × columns of the input Matrix.
+The input Matrix
+is deﬁned by the matrix handle MatrixID. The operator returns the matrix handle MatrixRepeatedID
+of the matrix MatrixRepeated.
+Access to the elements of the matrix is possible e.g., with the operator
+get_full_matrix.
+Example:
+Rows = 2, Columns = 3
+Matrix =
+
+3.0
+−1.0
+−2.0
+−5.0
+7.0
+2.0
+
+→
+MatrixRepeated =
+
+
+3.0
+−1.0
+−2.0
+3.0
+−1.0
+−2.0
+3.0
+−1.0
+−2.0
+−5.0
+7.0
+2.0
+−5.0
+7.0
+2.0
+−5.0
+7.0
+2.0
+3.0
+−1.0
+−2.0
+3.0
+−1.0
+−2.0
+3.0
+−1.0
+−2.0
+−5.0
+7.0
+2.0
+−5.0
+7.0
+2.0
+−5.0
+7.0
+2.0
+
+
+Parameters
+▷MatrixID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input matrix.
+▷Rows (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer ; integer
+Number of copies of input matrix in row direction.
+Default: 2
+Suggested values: Rows ∈{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20}
+Restriction: Rows >= 1
+▷Columns (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer ; integer
+Number of copies of input matrix in column direction.
+Default: 2
+Suggested values: Columns ∈{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20}
+Restriction: Columns >= 1
+▷MatrixRepeatedID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the repeated copied matrix.
+Result
+If the parameters are valid, the operator repeat_matrix returns the value 2 (H_MSG_TRUE). If necessary, an
+exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+create_matrix
+Possible Successors
+get_full_matrix, get_value_matrix
+See also
+copy_matrix
+Module
+Foundation
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2159] -----
+20.4. DECOMPOSITION
+2111
+20.4
+Decomposition
+decompose_matrix ( :
+:
+MatrixID,
+MatrixType :
+Matrix1ID,
+Matrix2ID )
+Decompose a matrix.
+The operator decompose_matrix decomposes the square input Matrix given by the matrix handle
+MatrixID. The results are stored in two generated matrices Matrix1 and Matrix2. The operator returns
+the matrix handles Matrix1ID and Matrix2ID. Access to the elements of the matrices is possible e.g., with
+the operator get_full_matrix.
+The type of the input Matrix can be selected via the parameter MatrixType. The following values are sup-
+ported: ’general’ for general, ’symmetric’ for symmetric, ’positive_deﬁnite’ for symmetric positive deﬁnite, and
+’tridiagonal’ for tridiagonal matrices.
+The decomposition MatrixType = ’general’ or ’tridiagonal’ is a LU factorization (Lower/Upper) with the form
+Matrix
+=
+Matrix1
+·
+Matrix2.
+The output Matrix1 is a lower triangular matrix with unit diagonal elements and interchanged rows. The output
+Matrix2 is an upper triangular matrix.
+Example for a factorization of a general matrix:
+Matrix =
+
+
+5.0
+−3.0
+1.0
+0.0
+2.0
+−1.0
+−5.0
+−1.0
+5.0
+
+
+→
+Matrix1 =
+
+
+1
+0
+0
+0.0
+−0.5
+1
+−1.0
+1
+0
+
+
+Matrix2 =
+
+
+5.0
+−3.0
+1.0
+0
+−4.0
+6.0
+0
+0
+2.0
+
+
+Example for a factorization of a tridiagonal matrix:
+Matrix =
+
+
+−8.0
+−8.0
+0.0
+0.0
+−8.0
+6.0
+−4.0
+0.0
+0.0
+7.0
+−2.0
+7.0
+0.0
+0.0
+5.0
+−3.0
+
+
+→
+Matrix1 =
+
+
+1
+0
+0
+0
+1.0
+1
+0
+0
+0.0
+0.5
+0.0
+1
+0.0
+0.0
+1
+0
+
+
+Matrix2 =
+
+
+−8.0
+−8.0
+0.0
+0.0
+0
+14.0
+−4.0
+0.0
+0
+0
+5.0
+−3.0
+0
+0
+0
+7.0
+
+
+For MatrixType = ’symmetric’ the factorization is a UDUT decomposition (Upper/Diagonal/Upper) with the
+form
+Matrix
+=
+Matrix1
+·
+Matrix2
+·
+Matrix1T
+where the output Matrix1 is an upper triangular matrix with interchanged columns. The output matrix Matrix2
+is a symmetric block diagonal matrix with 1 × 1 and 2 × 2 diagonal blocks.
+Example for a factorization of a symmetric matrix:
+Matrix =
+
+
+3.0
+−2.0
+7.0
+−1.0
+−2.0
+−2.0
+4.0
+0.0
+7.0
+4.0
+8.0
+1.0
+−1.0
+0.0
+1.0
+0.0
+
+
+HALCON 26.05.0.0
+
+
+----- [page 2160] -----
+2112
+CHAPTER 20 MATRIX
+→
+Matrix1 =
+
+
+0
+0
+1
+0.0
+0
+1
+0.0
+2.0
+1
+−1.0
+−1.0
+−10.0
+0
+0
+0
+1
+
+
+Matrix2 =
+
+
+27.0
+0
+0
+0
+0
+−2.0
+0
+0
+0
+0
+3.0
+−1.0
+0
+0
+−1.0
+0.0
+
+
+For MatrixType = ’positive_deﬁnite’ a Cholesky factorization is computed with the form
+Matrix
+=
+Matrix1
+·
+Matrix2.
+where the output Matrix1 is a lower triangular matrix and the output matrix Matrix2 is an upper triangular
+matrix. Furthermore, the Matrix2 is the transpose of the matrix Matrix1.
+Example for a factorization of a positive deﬁnite matrix:
+Matrix =
+
+
+9.0
+12.0
+−6.0
+12.0
+17.0
+−7.0
+−6.0
+−7.0
+14.0
+
+
+→
+Matrix1 =
+
+
+3.0
+0
+0
+4.0
+1.0
+0
+−2.0
+1.0
+3.0
+
+
+Matrix2 =
+
+
+3.0
+4.0
+−2.0
+0
+1.0
+1.0
+0
+0
+3.0
+
+
+It should be noted that in the examples there are differences in the meaning of the values of the output matrices: If
+a value is shown as an integer number, e.g., 0 or 1, the value of this element is per deﬁnition this certain value. If
+the number is shown as a ﬂoating point number, e.g., 0.0 or 1.0, the value is computed by the operator.
+Attention
+For MatrixType = ’symmetric’ or ’positive_deﬁnite’, the upper triangular part of the input Matrix must con-
+tain the relevant information of the matrix. The strictly lower triangular part of the matrix is not referenced.
+For MatrixType = ’tridiagonal’, only the main diagonal, the superdiagonal, and the subdiagonal of the input
+Matrix are used. The other parts of the matrix are not referenced. If the referenced part of the input Matrix is
+not of the speciﬁed type, an exception is raised.
+Parameters
+▷MatrixID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input matrix.
+▷MatrixType (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+Type of the input matrix.
+Default: ’general’
+List of values: MatrixType ∈{’general’, ’symmetric’, ’positive_deﬁnite’, ’tridiagonal’}
+▷Matrix1ID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .matrix ; handle
+Matrix handle with the output matrix 1.
+▷Matrix2ID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .matrix ; handle
+Matrix handle with the output matrix 2.
+Result
+If the parameters are valid, the operator decompose_matrix returns the value 2 (H_MSG_TRUE). If necessary,
+an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2161] -----
+20.4. DECOMPOSITION
+2113
+Possible Predecessors
+create_matrix
+Possible Successors
+get_full_matrix, get_value_matrix
+Alternatives
+orthogonal_decompose_matrix, solve_matrix
+References
+David Poole: “Linear Algebra: A Modern Introduction”; Thomson; Belmont; 2006.
+Gene H. Golub, Charles F. van Loan: “Matrix Computations”; The Johns Hopkins University Press; Baltimore and
+London; 1996.
+Module
+Foundation
+orthogonal_decompose_matrix ( :
+:
+MatrixID,
+DecompositionType,
+OutputMatricesType,
+ComputeOrthogonal :
+MatrixOrthogonalID,
+MatrixTriangularID )
+Perform an orthogonal decomposition of a matrix.
+The
+operator
+orthogonal_decompose_matrix
+decomposes
+the
+Matrix
+deﬁned
+by
+the
+ma-
+trix handle MatrixID. The results are stored in the two generated matrices MatrixOrthogonal
+and MatrixTriangular.
+The operator returns the matrix handles MatrixOrthogonalID and
+MatrixTriangularID of these two matrices. Access to the elements of the matrices is possible e.g., with
+the operator get_full_matrix.
+For OutputMatricesType = ’full’ all results of the decomposition are stored in the matrices
+MatrixOrthogonal and MatrixTriangular. For OutputMatricesType = ’reduced’ only a part of
+result elements of the matrices MatrixOrthogonal and MatrixTriangular are stored. Therefore the sizes
+of these matrices are smaller than for OutputMatricesType = ’full’.
+For the parameter ComputeOrthogonal = ’true’ both output matrices are computed.
+For the
+ComputeOrthogonal = ’false’ only the matrix MatrixTriangular is computed. Thus, the runtime of
+the operation takes fewer time.
+The type of the Matrix can be selected via the parameter DecompositionType. For DecompositionType
+= ’qr’ a QR decomposition (Quadratic/Right) or for DecompositionType = ’ql’ a QL decomposition
+(Quadratic/Left) is computed. The decomposition is written as
+Matrix
+=
+MatrixOrthogonal
+·
+MatrixTriangular.
+Example:
+DecompositionType = ’qr’, OutputMatricesType = ’full’
+Matrix =
+
+
+6.0
+−3.0
+4.0
+5.0
+5.0
+−2.0
+−3.0
+12.0
+5.0
+3.0
+4.0
+7.0
+7.0
+5.0
+3.0
+
+
+→
+MatrixOrthogonal
+=
+
+
+−0.5303
+0.2613
+−0.4277
+−0.5566
+−0.3972
+−0.4419
+−0.2920
+−0.6383
+0.1727
+−0.5312
+0.2652
+−0.8443
+−0.2059
+−0.3961
+−0.1326
+−0.2652
+−0.2432
+−0.6008
+0.7000
+−0.1400
+−0.6187
+−0.2729
+0.0799
+−0.1160
+0.7231
+
+
+MatrixTriangular
+=
+
+
+−11.3137
+−1.5910
+−3.6239
+0
+−14.7129
+−5.1135
+0
+0
+−7.9824
+0
+0
+0
+0
+0
+0
+
+
+HALCON 26.05.0.0
+
+
+----- [page 2162] -----
+2114
+CHAPTER 20 MATRIX
+Example:
+DecompositionType = ’qr’, OutputMatricesType = ’reduced’
+Matrix =
+
+
+6.0
+−3.0
+4.0
+5.0
+5.0
+−2.0
+−3.0
+12.0
+5.0
+3.0
+4.0
+7.0
+7.0
+5.0
+3.0
+
+
+→
+MatrixOrthogonal
+=
+
+
+−0.5303
+0.2613
+−0.4277
+−0.4419
+−0.2920
+−0.6383
+0.2652
+−0.8443
+−0.2059
+−0.2652
+−0.2432
+−0.6008
+−0.6187
+−0.2729
+0.0799
+
+
+MatrixTriangular
+=
+
+
+−11.3137
+−1.5910
+−3.6239
+0
+−14.7129
+−5.1135
+0
+0
+−7.9824
+
+
+Example:
+DecompositionType = ’ql’, OutputMatricesType = ’full’
+Matrix =
+
+
+6.0
+−3.0
+4.0
+5.0
+5.0
+−2.0
+−3.0
+12.0
+5.0
+3.0
+4.0
+7.0
+7.0
+5.0
+3.0
+
+
+→
+MatrixOrthogonal
+=
+
+
+0.6806
+0.0657
+0.3659
+−0.4932
+−0.3941
+0.1161
+0.5464
+0.6091
+0.5274
+0.1971
+0.4093
+−0.0832
+−0.4046
+0.6474
+−0.4927
+−0.5362
+0.4713
+0.0072
+−0.1208
+−0.6897
+−0.2611
+−0.6842
+0.5757
+0.2119
+−0.2956
+
+
+MatrixTriangular
+=
+
+
+0
+0
+0
+0
+0
+0
+10.5059
+0
+0
+−1.1429
+12.4620
+0
+−4.0399
+−7.9812
+−10.1489
+
+
+Example:
+DecompositionType = ’ql’, OutputMatricesType = ’reduced’
+Matrix =
+
+
+6.0
+−3.0
+4.0
+5.0
+5.0
+−2.0
+−3.0
+12.0
+5.0
+3.0
+4.0
+7.0
+7.0
+5.0
+3.0
+
+
+→
+MatrixOrthogonal
+=
+
+
+0.3659
+−0.4932
+−0.3941
+0.6091
+0.5274
+0.1971
+−0.4046
+0.6474
+−0.4927
+0.0072
+−0.1208
+−0.6897
+0.5757
+0.2119
+−0.2956
+
+
+MatrixTriangular
+=
+
+
+10.5059
+0
+0
+−1.1429
+12.4620
+0
+−4.0399
+−7.9812
+−10.1489
+
+
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2163] -----
+20.4. DECOMPOSITION
+2115
+For DecompositionType = ’rq’ a RQ decomposition (Right/Quadratic) or for DecompositionType = ’lq’
+a LQ decomposition (Left/Quadratic) is computed. The decomposition is written as
+Matrix
+=
+MatrixTriangular
+·
+MatrixOrthogonal.
+Example:
+DecompositionType = ’rq’, OutputMatricesType = ’full’
+Matrix =
+
+
+6.0
+5.0
+−3.0
+3.0
+7.0
+−3.0
+5.0
+12.0
+4.0
+5.0
+4.0
+−2.0
+5.0
+7.0
+3.0
+
+
+→
+MatrixOrthogonal
+=
+
+
+0.6806
+0.1161
+0.4093
+−0.5362
+−0.2611
+0.0657
+0.5464
+−0.0832
+0.4713
+−0.6842
+0.3659
+0.6091
+−0.4046
+0.0072
+0.5757
+−0.4932
+0.5274
+0.6474
+−0.1208
+0.2119
+−0.3941
+0.1971
+−0.4927
+−0.6897
+−0.2956
+
+
+MatrixTriangular
+=
+
+
+0
+0
+10.5059
+−1.1429
+−4.0399
+0
+0
+0
+12.4620
+−7.9812
+0
+0
+0
+0
+−10.1489
+
+
+Example:
+DecompositionType = ’rq’, OutputMatricesType = ’reduced’
+Matrix =
+
+
+6.0
+5.0
+−3.0
+3.0
+7.0
+−3.0
+5.0
+12.0
+4.0
+5.0
+4.0
+−2.0
+5.0
+7.0
+3.0
+
+
+→
+MatrixOrthogonal
+=
+
+
+0.3659
+0.6091
+−0.4046
+0.0072
+0.5757
+−0.4932
+0.5274
+0.6474
+−0.1208
+0.2119
+−0.3941
+0.1971
+−0.4927
+−0.6897
+−0.2956
+
+
+MatrixTriangular
+=
+
+
+10.5059
+−1.1429
+−4.0399
+0
+12.4620
+−7.9812
+0
+0
+−10.1489
+
+
+Example:
+DecompositionType = ’lq’, OutputMatricesType = ’full’
+Matrix =
+
+
+6.0
+5.0
+−3.0
+3.0
+7.0
+−3.0
+5.0
+12.0
+4.0
+5.0
+4.0
+−2.0
+5.0
+7.0
+3.0
+
+
+→
+MatrixOrthogonal
+=
+
+
+−0.5303
+−0.4419
+0.2652
+−0.2652
+−0.6187
+0.2613
+−0.2920
+−0.8443
+−0.2432
+−0.2729
+−0.4277
+0.6383
+−0.2059
+−0.6008
+0.0799
+−0.5566
+0.1727
+−0.3961
+0.7000
+−0.1160
+−0.3972
+−0.5312
+−0.1326
+−0.1400
+0.7231
+
+
+MatrixTriangular
+=
+
+
+−11.3137
+0
+0
+0
+0
+−1.5910
+−14.7129
+0
+0
+0
+−3.6239
+−5.1135
+−7.9824
+0
+0
+
+
+Example:
+DecompositionType = ’lq’, OutputMatricesType = ’reduced’
+HALCON 26.05.0.0
+
+
+----- [page 2164] -----
+2116
+CHAPTER 20 MATRIX
+Matrix =
+
+
+6.0
+5.0
+−3.0
+3.0
+7.0
+−3.0
+5.0
+12.0
+4.0
+5.0
+4.0
+−2.0
+5.0
+7.0
+3.0
+
+
+→
+MatrixOrthogonal
+=
+
+
+−0.5303
+−0.4419
+0.2652
+−0.2652
+−0.6187
+0.2613
+−0.2920
+−0.8443
+−0.2432
+−0.2729
+−0.4277
+0.6383
+−0.2059
+−0.6008
+0.0799
+
+
+MatrixTriangular
+=
+
+
+−11.3137
+0
+0
+−1.5910
+−14.7129
+0
+−3.6239
+−5.1135
+−7.9824
+
+
+It should be noted that in the examples there are differences in the meaning of the numbers of the output matrices:
+The results of the elements are per deﬁnition a certain value if the number of this value is shown as an integer
+number, e.g., 0 or 1. If the number is shown as a ﬂoating point number, e.g., 0.0 or 1.0, the value is computed.
+Parameters
+▷MatrixID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input matrix.
+▷DecompositionType (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+Method of decomposition.
+Default: ’qr’
+List of values: DecompositionType ∈{’qr’, ’rq’, ’ql’, ’lq’}
+▷OutputMatricesType (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+Type of output matrices.
+Default: ’full’
+List of values: OutputMatricesType ∈{’full’, ’reduced’}
+▷ComputeOrthogonal (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+Computation of the orthogonal matrix.
+Default: ’true’
+List of values: ComputeOrthogonal ∈{’true’, ’false’}
+▷MatrixOrthogonalID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle with the orthogonal part of the decomposed input matrix.
+▷MatrixTriangularID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle with the triangular part of the decomposed input matrix.
+Result
+If the parameters are valid,
+the operator orthogonal_decompose_matrix returns the value 2
+(H_MSG_TRUE). If necessary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+create_matrix
+Possible Successors
+get_full_matrix, get_value_matrix
+See also
+decompose_matrix, solve_matrix
+References
+David Poole: “Linear Algebra: A Modern Introduction”; Thomson; Belmont; 2006.
+Gene H. Golub, Charles F. van Loan: “Matrix Computations”; The Johns Hopkins University Press; Baltimore and
+London; 1996.
+Module
+Foundation
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2165] -----
+20.4. DECOMPOSITION
+2117
+svd_matrix ( :
+:
+MatrixID,
+SVDType,
+ComputeSingularVectors :
+MatrixUID,
+MatrixSID,
+MatrixVID )
+Compute the singular value decomposition of a matrix.
+The operator svd_matrix computes a full or reduced singular value decomposition (SVD) of the Matrix
+deﬁned by the matrix handle MatrixID. The operator returns the matrix handle MatrixSID of the matrix
+MatrixS with singular values in descending order. Optionally, the matrices MatrixU with the left and MatrixV
+with the right singular vectors are computed and the matrix handles MatrixUID and MatrixVID are returned.
+Access to the elements of the matrices is possible e.g., with the operator get_full_matrix. The SVD is
+written
+Matrix
+=
+MatrixU
+·
+MatrixS
+·
+MatrixVT .
+For SVDType = ’full’, a full SVD is computed.
+Example:
+SVDType = ’full’, ComputeSingularVectors = ’both’
+Matrix =
+
+
+6.0
+−5.0
+10.0
+4.0
+−3.0
+5.0
+
+
+→
+MatrixU
+=
+
+
+−0.5228
+0.5691
+0.6346
+−0.8070
+−0.5702
+−0.1535
+0.2745
+−0.5924
+0.7574
+
+
+MatrixS
+=
+
+
+12.0547
+0
+0
+8.1046
+0
+0
+
+
+MatrixV
+=
+ −0.9980
+−0.0629
+0.0629
+−0.9980
+
+For SVDType = ’reduced’, a reduced SVD is computed.
+Example:
+SVDType = ’reduced’, ComputeSingularVectors = ’both’
+Matrix =
+
+
+6.0
+−5.0
+10.0
+4.0
+−3.0
+5.0
+
+
+→
+MatrixU
+=
+
+
+−0.5228
+0.5691
+−0.8070
+−0.5702
+0.2745
+−0.5924
+
+
+MatrixS
+=
+ 12.0547
+0
+0
+8.1046
+
+MatrixV
+=
+ −0.9980
+−0.0629
+0.0629
+−0.9980
+
+For ComputeSingularVectors = ’left’, the matrix MatrixU with the left singular vectors is computed. For
+ComputeSingularVectors = ’right’, the matrix MatrixV with the right singular vectors is computed. For
+ComputeSingularVectors = ’both’, the matrices MatrixU and MatrixV with the left and right singular
+vectors are computed.
+For ComputeSingularVectors = ’none’, no matrices with the singular vectors are computed. The matrix
+MatrixS is a matrix with n rows and one column, where the number n = min(number of rows of the input
+Matrix, number of columns of the input Matrix).
+HALCON 26.05.0.0
+
+
+----- [page 2166] -----
+2118
+CHAPTER 20 MATRIX
+Example:
+SVDType = ’reduced’ or ’full’, ComputeSingularVectors = ’none’
+Matrix =
+
+
+6.0
+−5.0
+10.0
+4.0
+−3.0
+5.0
+
+
+→
+MatrixS =
+ 12.0547
+8.1046
+
+It should be noted that in the examples there are differences in the meaning of the values of the output matrices: If
+a value is shown as an integer number, e.g., 0 or 1, the value of this element is per deﬁnition this certain value. If
+the number is shown as a ﬂoating point number, e.g., 0.0 or 1.0, the value is computed by the operator.
+Parameters
+▷MatrixID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input matrix.
+▷SVDType (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+Type of computation.
+Default: ’full’
+List of values: SVDType ∈{’full’, ’reduced’}
+▷ComputeSingularVectors (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .string ; string
+Computation of singular values.
+Default: ’both’
+List of values: ComputeSingularVectors ∈{’none’, ’left’, ’right’, ’both’}
+▷MatrixUID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .matrix ; handle
+Matrix handle with the left singular vectors.
+▷MatrixSID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .matrix ; handle
+Matrix handle with singular values.
+▷MatrixVID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .matrix ; handle
+Matrix handle with the right singular vectors.
+Result
+If the parameters are valid, the operator svd_matrix returns the value 2 (H_MSG_TRUE). If necessary, an
+exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+create_matrix
+Possible Successors
+get_full_matrix, get_value_matrix
+References
+David Poole: “Linear Algebra: A Modern Introduction”; Thomson; Belmont; 2006.
+Gene H. Golub, Charles F. van Loan: “Matrix Computations”; The Johns Hopkins University Press; Baltimore and
+London; 1996.
+Module
+Foundation
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2167] -----
+20.5. EIGENVALUES
+2119
+20.5
+Eigenvalues
+eigenvalues_general_matrix ( :
+:
+MatrixID,
+ComputeEigenvectors :
+EigenvaluesRealID,
+EigenvaluesImagID,
+EigenvectorsRealID,
+EigenvectorsImagID )
+Compute the eigenvalues and optionally the eigenvectors of a general matrix.
+The operator eigenvalues_general_matrix computes all eigenvalues and, optionally, the left or right
+eigenvectors of a square, general Matrix. The matrix is deﬁned by the matrix handle MatrixID. The computed
+eigenvectors have the norm 1.
+The operator generates the new matrices EigenvaluesReal and EigenvaluesImag with the real and the
+imaginary parts of the computed eigenvalues. Each matrix has one column and n rows, where n is the num-
+ber of rows of the input Matrix.
+In contrast to the operator eigenvalues_symmetric_matrix, the
+order of the eigenvalues is not deﬁned. The operator returns the matrix handles EigenvaluesRealID and
+EigenvaluesImagID. If desired, the real and imaginary parts of the computed eigenvectors are stored in the
+new matrices EigenvectorsReal and EigenvectorsImag. For this, the operator returns valid matrix han-
+dles EigenvectorsRealID and EigenvectorsImagID. Access to the elements of the matrix is possible
+e.g., with the operator get_full_matrix.
+The computation type of eigenvectors can be selected via the parameter ComputeEigenvectors.
+If
+ComputeEigenvectors = ’none’, no eigenvectors are computed. If ’left’ is selected, the left eigenvalues
+are computed. If ’right’ is selected, the right eigenvalues are computed.
+Example:
+ComputeEigenvectors = ’right’
+Matrix =
+
+
+6.0
+4.0
+−8.0
+5.0
+7.0
+3.0
+4.0
+−1.0
+4.0
+
+
+→
+EigenvaluesReal
+=
+
+
+3.3110
+3.3110
+10.3781
+
+
+EigenvaluesImag
+=
+
+
+5.4143
+−5.4143
+0.0
+
+
+EigenvectorsReal
+=
+
+
+0.6353
+0.6353
+0.4813
+−0.4764
+−0.4764
+0.8605
+−0.0246
+−0.0246
+0.1669
+
+
+EigenvectorsImag
+=
+
+
+0.0
+0.0
+0.0
+−0.2485
+0.2485
+0.0
+−0.5542
+0.5542
+0.0
+
+
+Parameters
+▷MatrixID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input matrix.
+▷ComputeEigenvectors (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .string ; string
+Computation of the eigenvectors.
+Default: ’none’
+List of values: ComputeEigenvectors ∈{’none’, ’left’, ’right’}
+▷EigenvaluesRealID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .matrix ; handle
+Matrix handle with the real parts of the eigenvalues.
+▷EigenvaluesImagID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .matrix ; handle
+Matrix handle with the imaginary parts of the eigenvalues.
+▷EigenvectorsRealID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle with the real parts of the eigenvectors.
+HALCON 26.05.0.0
+
+
+----- [page 2168] -----
+2120
+CHAPTER 20 MATRIX
+▷EigenvectorsImagID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle with the imaginary parts of the eigenvectors.
+Result
+If the parameters are valid,
+the operator eigenvalues_general_matrix returns the value 2
+(H_MSG_TRUE). If necessary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+create_matrix
+Possible Successors
+get_full_matrix, get_value_matrix, get_diagonal_matrix
+See also
+eigenvalues_symmetric_matrix, generalized_eigenvalues_symmetric_matrix,
+generalized_eigenvalues_general_matrix
+References
+David Poole: “Linear Algebra: A Modern Introduction”; Thomson; Belmont; 2006.
+Gene H. Golub, Charles F. van Loan: “Matrix Computations”; The Johns Hopkins University Press; Baltimore and
+London; 1996.
+Module
+Foundation
+eigenvalues_symmetric_matrix ( :
+:
+MatrixID,
+ComputeEigenvectors :
+EigenvaluesID,
+EigenvectorsID )
+Compute the eigenvalues and optionally eigenvectors of a symmetric matrix.
+The operator eigenvalues_symmetric_matrix computes all eigenvalues and, optionally, eigenvectors
+of the symmetric Matrix. The matrix is deﬁned by the matrix handle MatrixID. On output, a new matrix
+Eigenvalues with the eigenvalues in ascending order and, optionally, a new matrix Eigenvectors with the
+eigenvectors is created. The operator returns the matrix handles EigenvaluesID and EigenvectorsID of
+the matrices Eigenvalues and Eigenvectors. Access to the elements of the matrices is possible e.g., with
+the operator get_full_matrix.
+The
+computation
+of
+eigenvectors
+can
+be
+selected
+via
+ComputeEigenvectors
+=
+’true’
+or
+ComputeEigenvectors = ’false’.
+Example:
+ComputeEigenvectors = ’true’
+Matrix =
+
+
+6.0
+5.0
+3.0
+5.0
+7.0
+3.0
+3.0
+3.0
+4.0
+
+
+→
+Eigenvalues =
+
+
+1.4195
+2.1507
+13.4298
+
+
+Eigenvectors =
+
+
+0.7842
+0.0626
+0.6174
+−0.5667
+0.4776
+0.6714
+−0.2529
+−0.8763
+0.4100
+
+
+Attention
+The upper triangular part of the input Matrix must contain the relevant information of the matrix. The strictly
+lower triangular part of the matrix is not referenced. If the referenced part of the input Matrix is not of the
+speciﬁed type, an exception is raised.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2169] -----
+20.5. EIGENVALUES
+2121
+Parameters
+▷MatrixID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input matrix.
+▷ComputeEigenvectors (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .string ; string
+Computation of the eigenvectors.
+Default: ’false’
+List of values: ComputeEigenvectors ∈{’true’, ’false’}
+▷EigenvaluesID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle with the eigenvalues.
+▷EigenvectorsID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle with the eigenvectors.
+Result
+If the parameters are valid,
+the operator eigenvalues_symmetric_matrix returns the value 2
+(H_MSG_TRUE). If necessary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+create_matrix
+Possible Successors
+get_full_matrix, get_value_matrix
+Alternatives
+eigenvalues_general_matrix
+See also
+generalized_eigenvalues_symmetric_matrix,
+generalized_eigenvalues_general_matrix
+References
+David Poole: “Linear Algebra: A Modern Introduction”; Thomson; Belmont; 2006.
+Gene H. Golub, Charles F. van Loan: “Matrix Computations”; The Johns Hopkins University Press; Baltimore and
+London; 1996.
+Module
+Foundation
+generalized_eigenvalues_general_matrix ( :
+:
+MatrixAID,
+MatrixBID,
+ComputeEigenvectors :
+EigenvaluesRealID,
+EigenvaluesImagID,
+EigenvectorsRealID,
+EigenvectorsImagID )
+Compute the generalized eigenvalues and optionally the generalized eigenvectors of general matrices.
+The operator generalized_eigenvalues_general_matrix computes all generalized eigenvalues and,
+optionally, the left or right generalized eigenvectors of the square, general matrices MatrixA and MatrixB.
+Both matrices must have identical dimensions. The matrices are deﬁned by the matrix handles MatrixAID and
+MatrixBID. The computed eigenvectors have the norm 1.
+The operator generates the new matrices EigenvaluesReal and EigenvaluesImag with the real
+and the imaginary parts of the computed eigenvalues.
+Each matrix has one column and n rows,
+where n is the number of rows or columns of the input matrices.
+In contrast to the operator
+generalized_eigenvalues_symmetric_matrix, the order of the generalized eigenvalues is not de-
+ﬁned. The operator returns the matrix handles EigenvaluesRealID and EigenvaluesImagID. If desired,
+the real and imaginary parts of the respective eigenvectors are stored in the new matrices EigenvectorsReal
+and EigenvectorsImag. Here, the jth column of the matrices of eigenvectors contains the related eigenvector
+HALCON 26.05.0.0
+
+
+----- [page 2170] -----
+2122
+CHAPTER 20 MATRIX
+to the jth eigenvalue. For this, the operator returns additionally the matrix handles EigenvectorsRealID
+and EigenvectorsImagID. Access to the elements of the matrix is possible, e.g., with the operator
+get_full_matrix or get_sub_matrix.
+The computation type of eigenvectors can be selected via the parameter ComputeEigenvectors.
+If
+ComputeEigenvectors = ’none’, no eigenvectors are computed and the operator is faster. For this, the ma-
+trix handles EigenvectorsRealID and EigenvectorsImagID are invalid. If ’right’ is selected, the right
+generalized eigenvalues are computed. The formula for the calculation of the result is
+MatrixA
+·
+xj
+=
+λj
+·
+MatrixB
+·
+xj,
+with λj representing the jth (complex) eigenvalue and xj represents the corresponding (complex) eigenvector.
+If ’left’ is selected, the left generalized eigenvalues are computed. The formula for the calculation of the result is
+xH
+j
+MatrixA
+·
+=
+xH
+j ·
+λj
+·
+MatrixB,
+with xHj represents the conjugate-transposed of xj.
+Example:
+ComputeEigenvectors = ’right’
+MatrixA =
+
+
+6.0
+4.0
+−8.0
+5.0
+7.0
+3.0
+4.0
+−1.0
+4.0
+
+
+MatrixB =
+
+
+3.0
+1.0
+2.0
+−5.0
+7.0
+2.0
+9.0
+4.0
+1.0
+
+
+→
+EigenvaluesReal
+=
+
+
+0.5363
+0.5363
+−6.1616
+
+
+EigenvaluesImag
+=
+
+
+0.4208
+−0.4208
+0.0
+
+
+EigenvectorsReal
+=
+
+
+0.3500
+0.3500
+0.0410
+−0.9565
+−0.9565
+0.3267
+−0.2757
+−0.2757
+−1.0000
+
+
+EigenvectorsImag
+=
+
+
+−0.4644
+0.4644
+0.0
+0.0435
+−0.0435
+0.0
+−0.1869
+0.1869
+0.0
+
+
+Parameters
+▷MatrixAID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .matrix ; handle
+Matrix handle of the input matrix A.
+▷MatrixBID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .matrix ; handle
+Matrix handle of the input matrix B.
+▷ComputeEigenvectors (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .string ; string
+Computation of the eigenvectors.
+Default: ’none’
+List of values: ComputeEigenvectors ∈{’none’, ’left’, ’right’}
+▷EigenvaluesRealID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .matrix ; handle
+Matrix handle with the real parts of the eigenvalues.
+▷EigenvaluesImagID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .matrix ; handle
+Matrix handle with the imaginary parts of the eigenvalues.
+▷EigenvectorsRealID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle with the real parts of the eigenvectors.
+▷EigenvectorsImagID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle with the imaginary parts of the eigenvectors.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2171] -----
+20.5. EIGENVALUES
+2123
+Result
+If the parameters are valid, the operator generalized_eigenvalues_general_matrix returns the value
+2 (H_MSG_TRUE). If necessary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+create_matrix
+Possible Successors
+get_full_matrix, get_value_matrix, get_diagonal_matrix
+See also
+generalized_eigenvalues_symmetric_matrix, eigenvalues_symmetric_matrix,
+eigenvalues_general_matrix
+References
+David Poole: “Linear Algebra: A Modern Introduction”; Thomson; Belmont; 2006.
+Gene H. Golub, Charles F. van Loan: “Matrix Computations”; The Johns Hopkins University Press; Baltimore and
+London; 1996.
+Module
+Foundation
+generalized_eigenvalues_symmetric_matrix ( :
+:
+MatrixAID,
+MatrixBID,
+ComputeEigenvectors :
+EigenvaluesID,
+EigenvectorsID )
+Compute the generalized eigenvalues and optionally generalized eigenvectors of symmetric input matrices.
+The operator generalized_eigenvalues_symmetric_matrix computes all generalized eigenvalues
+and, optionally, generalized eigenvectors of the symmetric matrix MatrixA and the symmetric positive deﬁnite
+matrix MatrixB. Both matrices must have identical dimensions. The matrices are deﬁned by the matrix han-
+dles MatrixAID and MatrixBID. On output, a new matrix Eigenvalues with the generalized eigenvalues
+in ascending order and, optionally, a new matrix Eigenvectors with the generalized eigenvectors is created.
+Each jth column of the matrix Eigenvectors contains the related eigenvector to the jth eigenvalue. The oper-
+ator returns the matrix handles EigenvaluesID and EigenvectorsID of the matrices Eigenvalues and
+Eigenvectors. Access to the elements of the matrices is possible, e.g., with the operator get_full_matrix
+or get_sub_matrix.
+The computation of generalized eigenvectors can be selected via ComputeEigenvectors = ’true’. The formula
+for the calculation of the result is
+MatrixA
+·
+xj
+=
+λj
+·
+MatrixB
+·
+xj,
+with λj representing the jth eigenvalue and xj represents the corresponding eigenvector.
+If ComputeEigenvectors = ’false’, no generalized eigenvectors are computed. For this, the matrix handle
+EigenvectorsID is invalid.
+Example:
+ComputeEigenvectors = ’true’
+MatrixA =
+
+
+4.0
+−3.0
+2.0
+−3.0
+1.0
+4.0
+2.0
+4.0
+8.0
+
+
+MatrixB =
+
+
+6.0
+5.0
+3.0
+5.0
+7.0
+3.0
+3.0
+3.0
+4.0
+
+
+→
+Eigenvalues =
+
+
+−0.4463
+1.8747
+4.5472
+
+
+Eigenvectors =
+
+
+−0.1579
+0.1851
+−0.6358
+−0.3377
+−0.2568
+0.4311
+0.2382
+0.5065
+0.3185
+
+
+HALCON 26.05.0.0
+
+
+----- [page 2172] -----
+2124
+CHAPTER 20 MATRIX
+Attention
+The upper triangular parts of the input matrices MatrixA and MatrixB must contain the relevant information
+of the matrices. The strictly lower triangular parts of the matrices are not referenced. If the referenced parts of the
+input matrices MatrixA or MatrixB are not of the speciﬁed type, an exception is raised.
+Parameters
+▷MatrixAID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .matrix ; handle
+Matrix handle of the symmetric input matrix A.
+▷MatrixBID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .matrix ; handle
+Matrix handle of the symmetric positive deﬁnite input matrix B.
+▷ComputeEigenvectors (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .string ; string
+Computation of the eigenvectors.
+Default: ’false’
+List of values: ComputeEigenvectors ∈{’true’, ’false’}
+▷EigenvaluesID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle with the eigenvalues.
+▷EigenvectorsID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle with the eigenvectors.
+Result
+If the parameters are valid, the operator generalized_eigenvalues_symmetric_matrix returns the
+value 2 (H_MSG_TRUE). If necessary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+create_matrix
+Possible Successors
+get_full_matrix, get_value_matrix
+Alternatives
+generalized_eigenvalues_general_matrix
+See also
+eigenvalues_symmetric_matrix, eigenvalues_general_matrix
+References
+David Poole: “Linear Algebra: A Modern Introduction”; Thomson; Belmont; 2006.
+Gene H. Golub, Charles F. van Loan: “Matrix Computations”; The Johns Hopkins University Press; Baltimore and
+London; 1996.
+Module
+Foundation
+20.6
+Features
+determinant_matrix ( :
+:
+MatrixID,
+MatrixType :
+Value )
+Compute the determinant of a matrix.
+The operator determinant_matrix computes the determinant of the input Matrix given by the matrix han-
+dle MatrixID. The type of the input Matrix can be selected via the parameter MatrixType. The following
+values are supported: ’general’ for general, ’symmetric’ for symmetric, ’positive_deﬁnite’ for symmetric posi-
+tive deﬁnite, ’tridiagonal’ for tridiagonal, ’upper_triangular’ for upper triangular, ’permuted_upper_triangular’
+for permuted upper triangular, ’lower_triangular’ for lower triangular, and ’permuted_lower_triangular’ for per-
+muted lower triangular matrices. The formula for the calculation of the result is:
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2173] -----
+20.6. FEATURES
+2125
+Value
+=
+det Matrix.
+Example:
+Matrix =
+
+
+3.0
+1.0
+2.0
+−5.0
+7.0
+2.0
+−9.0
+−4.0
+1.0
+
+
+→
+Value = −134.0
+Attention
+For MatrixType = ’symmetric’, ’positive_deﬁnite’, or ’upper_triangular’ the upper triangular part of the input
+Matrix must contain the relevant information of the matrix. The strictly lower triangular part of the matrix
+is not referenced. For MatrixType = ’lower_triangular’ the lower triangular part of the input Matrix must
+contain the relevant information of the matrix. The strictly upper triangular part of the matrix is not referenced.
+For MatrixType = ’tridiagonal’, only the main diagonal, the superdiagonal, and the subdiagonal of the input
+Matrix are used. The other parts of the matrix are not referenced. If the referenced part of the input Matrix is
+not of the speciﬁed type, an exception is raised.
+Parameters
+▷MatrixID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input matrix.
+▷MatrixType (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+The type of the input matrix.
+Default: ’general’
+List of values: MatrixType ∈{’general’, ’symmetric’, ’positive_deﬁnite’, ’tridiagonal’, ’upper_triangular’,
+’permuted_upper_triangular’, ’lower_triangular’, ’permuted_lower_triangular’}
+▷Value (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . real ; real
+Determinant of the input matrix.
+Result
+If the parameters are valid, the operator determinant_matrix returns the value 2 (H_MSG_TRUE). If neces-
+sary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+create_matrix
+References
+David Poole: “Linear Algebra: A Modern Introduction”; Thomson; Belmont; 2006.
+Gene H. Golub, Charles F. van Loan: “Matrix Computations”; The Johns Hopkins University Press; Baltimore and
+London; 1996.
+Module
+Foundation
+get_size_matrix ( :
+:
+MatrixID : Rows,
+Columns )
+Get the size of a matrix.
+The operator get_size_matrix returns the number of rows Rows and columns Columns of the input
+Matrix. The input Matrix is deﬁned by the matrix handle MatrixID.
+HALCON 26.05.0.0
+
+
+----- [page 2174] -----
+2126
+CHAPTER 20 MATRIX
+Parameters
+▷MatrixID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input matrix.
+▷Rows (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer ; integer
+Number of rows of the matrix.
+▷Columns (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . integer ; integer
+Number of columns of the matrix.
+Result
+If the parameters are valid, the operator get_size_matrix returns the value 2 (H_MSG_TRUE). If necessary,
+an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+create_matrix
+Possible Successors
+clear_matrix
+Module
+Foundation
+max_matrix ( :
+:
+MatrixID,
+MaxType :
+MatrixMaxID )
+Returns the elementwise maximum of a matrix.
+The operator max_matrix returns the maximum values of the elements of the Matrix deﬁned by the
+matrix handle MatrixID. A new matrix MatrixMax is generated with the result and the matrix handle
+MatrixMaxID of this matrix is returned. Access to the elements of the matrix is possible e.g., with the op-
+erator get_full_matrix.
+The type of maximum determination of the matrix can be selected via the parameter MaxType:
+’columns’: The maximum is returned for each column of the Matrix separately.
+The resulting matrix
+MatrixMax has one row and the identical number of columns as the input matrix.
+Example:
+MaxType = ’columns’
+Matrix =
+
+8.0
+4.0
+−3.0
+−6.0
+2.0
+7.0
+
+→
+MatrixMax =
+ 8.0
+4.0
+7.0 
+’rows’: The maximum is returned for each row of the Matrix separately. The resulting matrix MatrixMax has
+the identical number of rows as the input matrix and one column.
+Example:
+MaxType = ’rows’
+Matrix =
+
+8.0
+4.0
+−3.0
+−6.0
+2.0
+7.0
+
+→
+MatrixMax =
+ 8.0
+7.0
+
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2175] -----
+20.6. FEATURES
+2127
+’full’: The maximum is returned using all elements of the Matrix. The resulting matrix MatrixMax has one
+row and one column.
+Example:
+MaxType = ’full’
+Matrix =
+
+8.0
+4.0
+−3.0
+−6.0
+2.0
+7.0
+
+→
+MatrixMax =
+ 8.0 
+Parameters
+▷MatrixID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input matrix.
+▷MaxType (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+Type of maximum determination.
+Default: ’columns’
+List of values: MaxType ∈{’columns’, ’rows’, ’full’}
+▷MatrixMaxID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle with the maximum values of the input matrix.
+Result
+If the parameters are valid, the operator max_matrix returns the value 2 (H_MSG_TRUE). If necessary, an
+exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+create_matrix
+Possible Successors
+get_full_matrix, get_value_matrix
+See also
+min_matrix
+Module
+Foundation
+mean_matrix ( :
+:
+MatrixID,
+MeanType :
+MatrixMeanID )
+Returns the elementwise mean of a matrix.
+The operator mean_matrix returns the mean values of the elements of the Matrix deﬁned by the ma-
+trix handle MatrixID. A new matrix MatrixMean is generated with the result and the matrix handle
+MatrixMeanID of this matrix is returned. Access to the elements of the matrix is possible e.g., with the op-
+erator get_full_matrix.
+The type of mean determination of the matrix can be selected via the parameter MeanType:
+’columns’: The mean is returned for each column of the Matrix separately. The resulting matrix MatrixMean
+has one row and the identical number of columns as the input matrix.
+Example:
+MeanType = ’columns’
+Matrix =
+
+8.0
+4.0
+−3.0
+−6.0
+2.0
+7.0
+
+HALCON 26.05.0.0
+
+
+----- [page 2176] -----
+2128
+CHAPTER 20 MATRIX
+→
+MatrixMean =
+ 1.0
+3.0
+2.0 
+’rows’: The mean is returned for each row of the Matrix separately. The resulting matrix MatrixMean has the
+identical number of rows as the input matrix and one column.
+Example:
+MeanType = ’rows’
+Matrix =
+
+8.0
+4.0
+−3.0
+−6.0
+2.0
+7.0
+
+→
+MatrixMean =
+
+3.0
+1.0
+
+’full’: The mean is returned using all elements of the Matrix. The resulting matrix MatrixMean has one row
+and one column.
+Example:
+MeanType = ’full’
+Matrix =
+
+8.0
+4.0
+−3.0
+−6.0
+2.0
+7.0
+
+→
+MatrixMean =
+
+2.0
+
+Parameters
+▷MatrixID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input matrix.
+▷MeanType (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .string ; string
+Type of mean determination.
+Default: ’columns’
+List of values: MeanType ∈{’columns’, ’rows’, ’full’}
+▷MatrixMeanID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .matrix ; handle
+Matrix handle with the mean values of the input matrix.
+Result
+If the parameters are valid, the operator mean_matrix returns the value 2 (H_MSG_TRUE). If necessary, an
+exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+create_matrix
+Possible Successors
+get_full_matrix, get_value_matrix
+See also
+norm_matrix, sum_matrix
+Module
+Foundation
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2177] -----
+20.6. FEATURES
+2129
+min_matrix ( :
+:
+MatrixID,
+MinType :
+MatrixMinID )
+Returns the elementwise minimum of a matrix.
+The operator min_matrix returns the minimum values of the elements of the Matrix deﬁned by the
+matrix handle MatrixID. A new matrix MatrixMin is generated with the result and the matrix handle
+MatrixMinID of this matrix is returned. Access to the elements of the matrix is possible e.g., with the op-
+erator get_full_matrix.
+The type of minimum determination of the matrix can be selected via the parameter MinType:
+’columns’: The minimum is returned for each column of the Matrix separately.
+The resulting matrix
+MatrixMin has one row and the identical number of columns as the input matrix.
+Example:
+MinType = ’columns’
+Matrix =
+
+8.0
+4.0
+−3.0
+−6.0
+2.0
+7.0
+
+→
+MatrixMin =
+ −6.0
+2.0
+−3.0 
+’rows’: The minimum is returned for each row of the Matrix separately. The resulting matrix MatrixMin has
+the identical number of rows as the input matrix and one column.
+Example:
+MinType = ’rows’
+Matrix =
+
+8.0
+4.0
+−3.0
+−6.0
+2.0
+7.0
+
+’full’: The minimum is returned using all elements of the Matrix. The resulting matrix MatrixMin has one
+row and one column.
+Example:
+MinType = ’full’
+MatrixA =
+
+8.0
+4.0
+−3.0
+−6.0
+2.0
+7.0
+
+→
+MatrixMin =
+ −6.0 
+Parameters
+▷MatrixID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input matrix.
+▷MinType (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+Type of minimum determination.
+Default: ’columns’
+List of values: MinType ∈{’columns’, ’rows’, ’full’}
+▷MatrixMinID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle with the minimum values of the input matrix.
+Result
+If the parameters are valid, the operator min_matrix returns the value 2 (H_MSG_TRUE). If necessary, an
+exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+HALCON 26.05.0.0
+
+
+----- [page 2178] -----
+2130
+CHAPTER 20 MATRIX
+• Processed without parallelization.
+Possible Predecessors
+create_matrix
+Possible Successors
+get_full_matrix, get_value_matrix
+See also
+max_matrix
+Module
+Foundation
+norm_matrix ( :
+:
+MatrixID,
+NormType :
+Value )
+Norm of a matrix.
+The operator norm_matrix computes the norm of the elements of the Matrix deﬁned by the matrix handle
+MatrixID. The return value is a ﬂoating point number.
+The type of norming of the matrix can be selected via the parameter NormType:
+’frobenius-norm’: The Frobenius norm is computed. The formula for the calculation of the result is:
+Value
+=
+v
+u
+u
+t
+m−1
+X
+i=0
+n−1
+X
+j=0
+Matrixij2
+with m = number of rows and n = number of columns of the Matrix.
+Example:
+Matrix =
+
+
+3.0
+1.0
+4.0
+−3.0
+−7.0
+4.0
+
+
+→
+Value = 10.0
+’inﬁnity-norm’: The inﬁnity norm is computed. The result is the largest value of the sum of the absolute values of
+the elements of the rows. The formula for the calculation is:
+Value
+=
+max
+i=0,m−1
+n−1
+X
+j=0
+|Matrixij|
+with m = number of rows and n = number of columns of the Matrix.
+Example:
+Matrix =
+
+
+3.0
+1.0
+4.0
+−3.0
+−7.0
+4.0
+
+
+→
+Value = 11.0
+’1-norm’: The 1-norm is computed. The result is the largest value of the sum of the absolute values of the elements
+of the columns. The formula for the calculation is:
+Value
+=
+max
+j=0,n−1
+m−1
+X
+i=0
+|Matrixij|
+with m = number of rows and n = number of columns of the Matrix.
+Example:
+Matrix =
+
+
+3.0
+1.0
+4.0
+−3.0
+−7.0
+4.0
+
+
+→
+Value = 14.0
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2179] -----
+20.6. FEATURES
+2131
+’2-norm’: The 2-norm is computed. The result is the largest singular value of the Matrix. The formula for the
+calculation of the result is:
+Value
+=
+max (singular values (Matrix))
+Example:
+Matrix =
+
+
+3.0
+1.0
+4.0
+−3.0
+−7.0
+4.0
+
+
+→
+Value = 9.7006
+Parameters
+▷MatrixID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input matrix.
+▷NormType (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .string ; string
+Type of norm.
+Default: ’2-norm’
+List of values: NormType ∈{’2-norm’, ’1-norm’, ’inﬁnity-norm’, ’frobenius-norm’}
+▷Value (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . real ; real
+Norm of the input matrix.
+Result
+If the parameters are valid, the operator norm_matrix returns the value 2 (H_MSG_TRUE). If necessary, an
+exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+create_matrix
+See also
+sum_matrix, mean_matrix
+References
+David Poole: “Linear Algebra: A Modern Introduction”; Thomson; Belmont; 2006.
+Gene H. Golub, Charles F. van Loan: “Matrix Computations”; The Johns Hopkins University Press; Baltimore and
+London; 1996.
+Module
+Foundation
+sum_matrix ( :
+:
+MatrixID,
+SumType :
+MatrixSumID )
+Returns the elementwise sum of a matrix.
+The operator sum_matrix returns the sum of the elements of the Matrix deﬁned by the matrix handle
+MatrixID. A new matrix MatrixSum is generated with the result and the matrix handle MatrixSumID of this
+matrix is returned. Access to the elements of the matrix is possible e.g., with the operator get_full_matrix.
+The type of sum determination of the matrix can be selected via the parameter SumType:
+’columns’: The sum is returned for each column of the Matrix separately. The resulting matrix MatrixSum
+has one row and the identical number of columns as the input matrix.
+Example:
+SumType = ’columns’
+HALCON 26.05.0.0
+
+
+----- [page 2180] -----
+2132
+CHAPTER 20 MATRIX
+Matrix =
+
+8.0
+4.0
+−3.0
+−6.0
+2.0
+7.0
+
+→
+MatrixSum =
+ 2.0
+6.0
+4.0 
+’rows’: The sum is returned for each row of the Matrix separately. The resulting matrix MatrixSum has the
+identical number of rows as the input matrix and one column.
+Example:
+SumType = ’rows’
+Matrix =
+
+8.0
+4.0
+−3.0
+−6.0
+2.0
+7.0
+
+→
+MatrixSum =
+
+9.0
+3.0
+
+’full’: The sum is returned using all elements of the Matrix. The resulting matrix MatrixSum has one row and
+one column.
+Example:
+SumType = ’full’
+Matrix =
+
+8.0
+4.0
+−3.0
+−6.0
+2.0
+7.0
+
+→
+MatrixSum =
+ 12.0 
+Parameters
+▷MatrixID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input matrix.
+▷SumType (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+Type of summation.
+Default: ’columns’
+List of values: SumType ∈{’columns’, ’rows’, ’full’}
+▷MatrixSumID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle with the sum of the input matrix.
+Result
+If the parameters are valid, the operator sum_matrix returns the value 2 (H_MSG_TRUE). If necessary, an
+exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+create_matrix
+Possible Successors
+get_full_matrix, get_value_matrix
+See also
+norm_matrix
+Module
+Foundation
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2181] -----
+20.7. FILE
+2133
+20.7
+File
+deserialize_matrix ( :
+:
+SerializedItemHandle :
+MatrixID )
+Deserialize a serialized matrix.
+deserialize_matrix
+deserializes
+a
+matrix,
+that
+was
+serialized
+by
+serialize_matrix
+(see
+fwrite_serialized_item for an introduction of the basic principle of serialization). The serialized ma-
+trix is deﬁned by the handle SerializedItemHandle. The deserialized values are stored in an automatically
+created matrix with the handle MatrixID. Access to the elements of the matrix is possible e.g., with the operator
+get_full_matrix.
+Parameters
+▷SerializedItemHandle (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . serialized_item ; handle
+Handle of the serialized item.
+▷MatrixID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle.
+Result
+If the parameters are valid, the operator deserialize_matrix returns the value 2 (H_MSG_TRUE). If neces-
+sary, an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+fread_serialized_item, receive_serialized_item, serialize_matrix
+Possible Successors
+get_full_matrix
+Module
+Foundation
+read_matrix ( :
+:
+FileName :
+MatrixID )
+Read a matrix from a ﬁle.
+The operator read_matrix reads a matrix, which has been written to the ﬁle with write_matrix, from the
+ﬁle FileName. The default HALCON ﬁle extension for the matrix is ’mtx’. The format of the ﬁle can be binary
+or ascii. Each row of the ﬁle contains one row of a matrix with a number of columns. The columns are separated
+with white spaces or tabs. Each row must have the same number of columns. Empty lines are ignored.
+The reading results are stored in the matrix Matrix. The operator returns the matrix handle MatrixID of this
+matrix. Access to the elements of the matrix is possible e.g., with the operator get_full_matrix.
+Parameters
+▷FileName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .ﬁlename.read ; string
+File name.
+File extension: .mtx
+▷MatrixID (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle.
+Result
+If the ﬁle name is valid, the operator read_matrix returns the value 2 (H_MSG_TRUE). If necessary an excep-
+tion is raised.
+Execution Information
+HALCON 26.05.0.0
+
+
+----- [page 2182] -----
+2134
+CHAPTER 20 MATRIX
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+This operator returns a handle. Note that the state of an instance of this handle type may be changed by speciﬁc
+operators even though the handle is used as an input parameter by those operators.
+Possible Successors
+get_full_matrix
+Module
+Foundation
+serialize_matrix ( :
+:
+MatrixID : SerializedItemHandle )
+Serialize a matrix.
+serialize_matrix serializes the data of a matrix (see fwrite_serialized_item for an introduction of
+the basic principle of serialization). The same data that is written in a ﬁle by write_matrix is converted to a
+serialized item. The matrix is deﬁned by the handle MatrixID. The serialized matrix is returned by the handle
+SerializedItemHandle and can be deserialized by deserialize_matrix.
+Parameters
+▷MatrixID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle.
+▷SerializedItemHandle (output_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .serialized_item ; handle
+Handle of the serialized item.
+Result
+If the parameters are valid, the operator serialize_matrix returns the value 2 (H_MSG_TRUE). If necessary,
+an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+create_matrix
+Possible Successors
+fwrite_serialized_item, send_serialized_item, deserialize_matrix
+Module
+Foundation
+write_matrix ( :
+:
+MatrixID,
+FileFormat,
+FileName :
+)
+Write a matrix to a ﬁle.
+The operator write_matrix writes a matrix to the ﬁle FileName.
+The matrix can be read with
+read_matrix. The default HALCON ﬁle extension for the matrix is ’mtx’. The format of the ﬁle can be
+selected via the parameter FileFormat. The following values are supported: ’binary’ for a binary ﬁle format,
+and ’ascii’ for a ascii text format. In the text format each row of the ﬁle contains one row of the matrix. The
+columns are separated with white spaces. The advantage of using the binary ﬁle format instead of the ascii text
+format is a smaller size of the output ﬁle.
+HALCON/HDevelop Reference Manual, 2026-5-12
+
+
+----- [page 2183] -----
+20.7. FILE
+2135
+Parameters
+▷MatrixID (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . matrix ; handle
+Matrix handle of the input matrix.
+▷FileFormat (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . string ; string
+Format of the ﬁle.
+Default: ’binary’
+List of values: FileFormat ∈{’binary’, ’ascii’}
+▷FileName (input_control) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ﬁlename.write ; string
+File name.
+File extension: .mtx
+Result
+If the ﬁle name is valid (write permission), the operator write_matrix returns the value 2 (H_MSG_TRUE). If
+necessary an exception is raised.
+Execution Information
+• Multithreading type: reentrant (runs in parallel with non-exclusive operators).
+• Multithreading scope: global (may be called from any thread).
+• Processed without parallelization.
+Possible Predecessors
+create_matrix
+Module
+Foundation
+HALCON 26.05.0.0
+
+
+----- [page 2184] -----
+2136
+CHAPTER 20 MATRIX
+HALCON/HDevelop Reference Manual, 2026-5-12
