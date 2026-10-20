@@ -1,0 +1,17 @@
+# 效果
+
+<!-- source: https://handyorg.github.io/handycontrol/basic_xaml/effects/ -->
+
+## 阴影
+
+目前只包含5个级别的阴影效果：
+
+| 名称 | 半径 |
+| --- | --- |
+| EffectShadow1 | 5 |
+| EffectShadow2 | 8 |
+| EffectShadow3 | 14 |
+| EffectShadow4 | 25 |
+| EffectShadow5 | 35 |
+
+用例：`Effect="{StaticResource EffectShadow5}"`
